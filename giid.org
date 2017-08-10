@@ -1,5 +1,29 @@
 * Dockerfile
 
+** summary
+
+| v.4 |                             |
+|     |                             |
+| v.3 | emerge net-misc/dhcpcd      |
+|     | from v.2                    |
+|     |                             |
+| v.2 | emerge net-misc/proxychains |
+|     |                             |
+| v.1 | emerge-webrsync             |
+|     |                             |
+
+
+
+** v.3
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+FROM c5766/giid:v.2
+
+RUN emerge net-misc/dhcpcd
+#+END_SRC
+
+
 ** v.2
 
 #+HEADER:  :tangle Dockerfile
@@ -37,6 +61,3827 @@ RUN mkdir /usr/portage; \
 | git push a tag             |
 |                            |
 | observing autmoated build  |
+
+
+* packages 
+
+--autounmask-write
+
+dispatch-conf
+
+** lists [2017-07-27 Thu 15:34]
+
+proxychains -f /root/proxychains.conf \
+emerge autossh keychain
+
+proxychains -f /root/proxychains.conf \
+emerge dhcpcd
+
+
+proxychains -f /root/proxychains.conf \
+emerge www-client/google-chrome  --autounmask-write
+
+dispatch-conf
+
+
+echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
+
+# echo "app-editors/emacs xft X" >> /etc/portage/package.use/emacs
+
+cat /etc/portage/package.use/emacs
+
+
+
+proxychains -f /root/proxychains.conf \
+emerge app-editors/emacs  -pv
+
+proxychains -f /root/proxychains.conf \
+emerge app-editors/emacs  --autounmask-write
+
+dispatch-conf
+
+tail -f /tmp/wd/var/log/emerge-fetch.log
+
+
+proxychains -f /root/proxychains.conf \
+emerge  dev-vcs/git  app-editors/emacs  www-client/google-chrome 
+
+
+** inventory
+
+|               |                        | tmpfs    | h77md3h fs2             |
+|               |                        | hardened |                         |
+|               | [2017-07-27 Thu 15:35] |          |                         |
+|---------------+------------------------+----------+-------------------------|
+| shell group   |                        |          |                         |
+|               |                        |          |                         |
+| proxychains   |                        | default  |                         |
+|               |                        |          |                         |
+| grub          |                        |          |                         |
+|               |                        |          |                         |
+| dhcpcd        |                        |          |                         |
+|               |                        |          |                         |
+| autossh       | v                      |          |                         |
+|               |                        |          |                         |
+| keychain      | v                      |          |                         |
+|               |                        |          |                         |
+| parallel      |                        |          |                         |
+|               |                        |          |                         |
+| git           |                        |          | [2016-04-10 Sun 20:54]  |
+|               |                        |          |                         |
+| mc            |                        |          |                         |
+|               |                        |          |                         |
+| tree          |                        |          |                         |
+|               |                        |          |                         |
+| megatools     |                        |          |                         |
+|               |                        |          |                         |
+| layman        |                        |          |                         |
+|               |                        |          |                         |
+| ftp           |                        |          |                         |
+|               |                        |          |                         |
+| curlftpfs     |                        |          |                         |
+|               |                        |          |                         |
+| wifi          |                        |          |                         |
+|               |                        |          |                         |
+| gentoolkit    |                        |          |                         |
+|               |                        |          |                         |
+| unrar         |                        |          |                         |
+|               |                        |          |                         |
+| convmv        |                        |          |                         |
+|               |                        |          |                         |
+| p7zip         |                        |          |                         |
+|               |                        |          |                         |
+| pciutils      |                        |          |                         |
+|               |                        |          |                         |
+| sshfs         |                        |          |                         |
+|               |                        |          |                         |
+| usbip         |                        |          |                         |
+|               |                        |          |                         |
+| qemu          |                        |          |                         |
+|               |                        |          |                         |
+| openvpn       |                        |          |                         |
+|               |                        |          |                         |
+| python        |                        |          |                         |
+|               |                        |          |                         |
+| postgresql    |                        |          |                         |
+|               |                        |          |                         |
+|---------------+------------------------+----------+-------------------------|
+| xorg group    |                        |          |                         |
+|               |                        |          |                         |
+| xorg-server   |                        |          | [2016-04-10 Sun 21:22]  |
+|               |                        |          |                         |
+| xorg-drivers  |                        |          | automatically installed |
+| intel         |                        |          |                         |
+|               |                        |          |                         |
+| mesa          |                        |          | automatically installed |
+| i915          |                        |          |                         |
+|               |                        |          |                         |
+| xrandr        |                        |          | [2016-04-10 Sun 22:22]  |
+|               |                        |          |                         |
+| xterm         |                        |          |                         |
+|               |                        |          |                         |
+| spectrwm      |                        |          |                         |
+|               |                        |          |                         |
+| scrot         |                        |          |                         |
+|               |                        |          |                         |
+| vnc           |                        |          |                         |
+|               |                        |          |                         |
+| gtk+          |                        |          |                         |
+|               |                        |          |                         |
+|               |                        |          |                         |
+|---------------+------------------------+----------+-------------------------|
+| editors       |                        |          |                         |
+|               |                        |          |                         |
+| emacs         |                        |          |                         |
+|               |                        |          |                         |
+| google-chrome | v                      |          |                         |
+|               |                        |          |                         |
+| firefox       |                        |          |                         |
+|               |                        |          |                         |
+| pdfshuffler   |                        |          |                         |
+|               |                        |          |                         |
+| libreoffice   |                        |          |                         |
+|               |                        |          |                         |
+| gimp          |                        |          |                         |
+|               |                        |          |                         |
+| imagemagick   |                        |          |                         |
+|               |                        |          |                         |
+| imagej        |                        |          |                         |
+|               |                        |          |                         |
+| okular        |                        |          |                         |
+|---------------+------------------------+----------+-------------------------|
+| audio         |                        |          |                         |
+|               |                        |          |                         |
+|               |                        |          |                         |
+
+
+
+
+** shell group
+   
+
+*** proxychains
+
+
+emerge proxychains
+
+
+*** dhcpcd
+
+emerge -pv net-misc/dhcpcd
+
+
+emerge net-misc/dhcpcd
+
+
+
+
+
+
+*** grub
+
+emerge -pv grub
+
+emerge grub
+
+do the installation and generation of grub menu after all the files in the final /dev/sdx place.
+otherwise, it will failed during preparation (tar).
+
+grub2-install /dev/sda
+
+grub-install /dev/zram0
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+
+**** resolution
+
+***** steps
+
+| steps |                                       |
+|-------+---------------------------------------|
+|       | modify /etc/default/grub              |
+|       | GRUB_GFXMODE=1024x768                 |
+|       |                                       |
+|       | grub2-mkconfig -o /boot/grub/grub.cfg |
+
+***** reference
+
+
+http://askubuntu.com/questions/54067/how-do-i-safely-change-grub2-screen-resolution
+
+To do this safely requires two steps.
+
+Step 1: find the preferred mode
+Reboot and press and hold Shift to display your grub. Press C to enter console mode. Then type:
+
+$ vbeinfo
+This will display various stuff how grub recognizes your display. At the bottom is "preferred mode" - in your case it should say 1280x800. Note down the value.
+
+Note: sometimes, some buggy video cards incorrectly give Grub the wrong preferred resolution - if the preferred mode is much higher than you were expecting, then select the nearest mode in the list displayed that you were expecting.
+
+Press Esc to return to grub and press Enter to boot.
+
+Step 2: Setting the resolution in grub
+Reach for your terminal and type
+
+$ sudo nano /etc/default/grub
+find the line
+
+#GRUB_GFXMODE=640x480
+remove the # and change 640x480 with the preferred mode you wrote down. E.g.:
+
+GRUB_GFXMODE=1280x800
+save, then type
+
+$ sudo update-grub
+
+
+
+
+
+**** zram
+
+
+http://askubuntu.com/questions/361320/how-can-i-enable-zswap
+
+https://help.ubuntu.com/community/Grub2/Setup#A.2BAC8-etc.2BAC8-default.2BAC8-grub
+
+nano /etc/default/grub
+
+GRUB_CMDLINE_LINUX_DEFAULT="rootwait"
+
+GRUB_CMDLINE_LINUX_DEFAULT="rootwait zswap.enabled=1 zswap.compressor=lz4"
+
+GRUB_CMDLINE_LINUX_DEFAULT="zswap.enabled=1 zswap.compressor=lz4"
+
+
+
+
+*** overlayfs
+
+https://wiki.gentoo.org/wiki/OverlayFS
+
+File systems  --->
+   [*] Overlay filesystem support
+
+
+
+*** tlsdate
+
+https://github.com/ioerror/tlsdate/
+
+
+emerge --ask net-misc/tlsdate
+
+
+/etc/init.d/tlsdate start
+
+rc-update add tlsdate default
+
+date; tlsdate -V -n -H www.google.com.tw -x socks5://127.0.0.1:1080 ; date    # show 3 time, current time, google time, current time
+
+date; tlsdate -V    -H www.google.com.tw -x socks5://127.0.0.1:1080 ; date    # show 3 time, current time, google time and update this pc software clock, current time
+
+
+
+
+
+date; tlsdate -V -n -H publicca.hinet.net -x  http://127.0.0.1:8118 ; date    # show the current time, 
+
+date; tlsdate -V    -H publicca.hinet.net -x  http://127.0.0.1:8118 ; date
+
+tlsdate -V -n -H  publicca.hinet.net  -x socks5://127.0.0.1:1080
+
+
+tlsdate -V -n -H www.google.com.tw -x socks5://127.0.0.1:1080
+
+
+tlsdate -V    -H www.google.com.tw socks5://127.0.0.1:1080
+
+tlsdate -V    -H www.google.com.tw ; hwclock --systohc; hwclock --localtime; hwclock
+
+tlsdate -V    -H www.google.com.tw ; hwclock --systohc; hwclock --utc; hwclock
+
+tlsdate -V    -H www.google.com.tw ; date; date -u
+
+tlsdate -v -n -H www.google.com.tw http://127.0.0.1:8118
+
+tlsdate -v -n -H www.cwb.gov.tw http://127.0.0.1:8118
+
+tlsdate -v -n -H www.cwb.gov.tw
+
+tlsdate -v -n -H encrypted.google.com http://127.0.0.1:8118
+
+tlsdate -v -n -H publicca.hinet.net -x  http://127.0.0.1:8118
+
+
+**** openntpd gentoo
+
+https://wiki.gentoo.org/wiki/OpenNTPD
+
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge --ask net-misc/openntpd
+
+/etc/ntpd.conf
+
+/etc/init.d/ntpd start
+
+/etc/init.d/ntpd stop
+
+/etc/init.d/ntpd restart
+
+rc-update add ntpd default
+
+rc-update delete ntpd default
+
+
+
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge --ask net-misc/openntpd
+
+4.0_pre20080406 missing ntpctl
+
+
+
+equery y openntpd
+Keywords for net-misc/openntpd:
+                      |                               | u   |  
+                      | a a   a         n   p     s   | n   |  
+                      | l m   r h i m m i   p s   p   | u s | r
+                      | p d a m p a 6 i o p c 3   a x | s l | e
+                      | h 6 r 6 p 6 8 p s p 6 9 s r 8 | e o | p
+                      | a 4 m 4 a 4 k s 2 c 4 0 h c 6 | d t | o
+----------------------+-------------------------------+-----+-------
+[I]4.0_pre20080406    | + + + + + + o ~ o + + + + + + | o 0 | gentoo
+            5.7_p4-r1 | ~ ~ ~ ~ ~ ~ o ~ o ~ ~ ~ ~ ~ ~ | o   | gentoo
+
+
+emerge --ask --autounmask-write =net-misc/openntpd-5.7_p4-r1
+
+dispatch-conf
+
+
+emerge --ask  =net-misc/openntpd-5.7_p4-r1
+
+
+ntpd -s
+
+
+ntpctl -sa
+
+
+**** software hardware clock
+
+https://wiki.gentoo.org/wiki/System_time
+
+| software     | hardware            | comment          |
+|--------------+---------------------+------------------|
+| unix time    |                     |                  |
+| system clock |                     |                  |
+|              | real-time clock RTC |                  |
+|              | mainboard           |                  |
+|              |                     |                  |
+|--------------+---------------------+------------------|
+|              | 2 standards         |                  |
+|--------------+---------------------+------------------|
+|              | localtime           |                  |
+|              |                     | time zone + DST  |
+|              |                     | Windows          |
+|              |                     |                  |
+|--------------+---------------------+------------------|
+|              | UTC time            |                  |
+|              |                     | gentoo preferred |
+|              |                     |                  |
+
+
+cat /etc/timezone
+
+Asia/Taipei
+
+emerge --config timezone-data
+
+
+
+https://wiki.gentoo.org/wiki/System_time
+
+|       | software clock    | hardware clock                   |   |
+|-------+-------------------+----------------------------------+---|
+|       |                   | real-time clock, RTC, CMOS clock |   |
+|       |                   |                                  |   |
+|       | kernel clock      |                                  |   |
+|       | system clock      |                                  |   |
+|       | since 1 1 1970    |                                  |   |
+|       | unix time         |                                  |   |
+|       |                   |                                  |   |
+|-------+-------------------+----------------------------------+---|
+|       | date              | hwclock -r                       |   |
+|       | date -R           |                                  |   |
+|       | date -u           |                                  |   |
+|       |                   |                                  |   |
+|-------+-------------------+----------------------------------+---|
+| store | yyyymmddhhmmss    | yyyymmddhhmmss                   |   |
+|       | DST localtime UTC |                                  |   |
+|       |                   |                                  |   |
+
+
+
+| hardware clock | localtime      | UTC time  |
+|----------------+----------------+-----------|
+|                | timezone + DST |           |
+|                |                | preferred |
+|                | ms Windows     |           |
+| #              |                |           |
+| hwclock -r     |                |           |
+|                |                |           |
+
+|        |                            |   |   |   |
+|        | UTC                        |   |   |   |
+|--------+----------------------------+---+---+---|
+|        | Coordinated Universal Time |   |   |   |
+|        | 世界標準時間               |   |   |   |
+|        | 世界協調時間               |   |   |   |
+|        | internet                   |   |   |   |
+| taipei | UTC+8                      |   |   |   |
+|        |                            |   |   |   |
+|        | date -u                    |   |   |   |
+|        |                            |   |   |   |
+
+**** CST
+
+| CST       | Central Standard Time | China Standard Time |
+|           |                       |                     |
+|-----------+-----------------------+---------------------|
+|           | UTC-6                 | UTC+8               |
+| reference | 1                     | 2                   |
+|           |                       |                     |
+
+
+date; date -u
+
+
+reference
+
+1
+
+https://en.wikipedia.org/wiki/Central_Time_Zone
+
+
+2
+
+https://en.wikipedia.org/wiki/Time_in_China
+
+
+
+
+
+****  set the hardware clock to the current system clock: 
+
+https://wiki.gentoo.org/wiki/System_time#systemd
+
+hwclock --systohc; hwclock
+
+hwclock --systohc -u; hwclock
+
+hwclock --systohc --localtime; hwclock
+
+hwclock --show
+
+
+hwclock --show; date; tlsdate -V -n -H encrypted.google.com
+
+
+tlsdate -V -n -H encrypted.google.com
+
+tlsdate -V -n 
+
+tlsdate -V -n -H www.google.com
+tlsdate -V -n -H www.google.com socks5://127.0.0.1:1080
+
+tlsdate -V -n -H www.google.com.tw
+tlsdate -V -n -H www.google.com.tw socks5://127.0.0.1:1080
+
+
+tlsdate -V -n -H www.google.com
+
+tlsdate -V -n -H www.google.de 
+tlsdate -V -n -H www.google.de socks5://127.0.0.1:1080
+
+tlsdate -V -n -H www.google.de socks5://127.0.0.1:1080
+
+tlsdate -V -n -H www.google.de socks5://127.0.0.1:1080
+
+tlsdate -V -n -H www.google.com.tw
+
+
+
+*** sys-boot/mbr
+
+emerge sys-boot/mbr
+
+
+*** parallel
+
+emerge  sys-process/parallel
+
+**** my modification
+
+ls -1 *.tif | parallel convert '{}' '{.}.jpg'
+
+ls -1 *.tif | parallel convert '{}' '{.}.jpg'
+
+ls -1 *.tif | parallel convert '{}' -rotate -90 '{.}-90.jpg'
+
+**** examples
+
+http://superuser.com/questions/71028/batch-converting-png-to-jpg-in-linux
+
+The simplest solution is like most already posted. A simple bash for loop.
+
+for i in *.png ; do convert "$i" "${i%.*}.jpg" ; done
+For some reason I tend to avoid loops in bash so here is a more unixy xargs approach, using bash for the name-mangling.
+
+ls -1 *.png | xargs -n 1 bash -c 'convert "$0" "${0%.*}.jpg"'
+The one I use. It uses GNU Parallel to run multiple jobs at once, giving you a performance boost. It is installed by default on many systems and is almost definitely in your repo (it is a good program to have around).
+
+ls -1 *.png | parallel convert '{}' '{.}.jpg'
+The number of jobs defaults to the number of processes you have. I found better CPU usage using 3 jobs on my dual-core system.
+
+ls -1 *.png | parallel -j 3 convert '{}' '{.}.jpg'
+And if you want some stats (an ETA, jobs completed, average time per job...)
+
+ls -1 *.png | parallel --eta convert '{}' '{.}.jpg'
+There is also an alternative syntax if you are using GNU Parallel.
+
+parallel convert '{}' '{.}.jpg' ::: *.png
+And a similar syntax for some other versions (including debian).
+
+parallel convert '{}' '{.}.jpg' -- *.png
+
+
+
+
+*** git
+
+
+emerge -pv dev-vcs/git
+
+emerge dev-vcs/git
+
+emerge =dev-vcs/git-2.8.3:0 --autounmask-write 
+
+dispatch-conf
+
+
+https://wiki.gentoo.org/wiki/Gentoo_Cheat_Sheet
+
+emerge =www-client/firefox-24.8.0
+
+equery list -po dev-vcs/git
+
+[-P-] [ ~] dev-vcs/git-2.4.11:0
+[-P-] [ ~] dev-vcs/git-2.5.5:0
+[-P-] [ ~] dev-vcs/git-2.6.6:0
+[IP-] [  ] dev-vcs/git-2.7.3-r1:0
+[-P-] [ ~] dev-vcs/git-2.7.4:0
+[-P-] [ ~] dev-vcs/git-2.8.2-r1:0
+[-P-] [ ~] dev-vcs/git-2.8.3:0
+[-P-] [ -] dev-vcs/git-9999:0
+[-P-] [ -] dev-vcs/git-9999-r1:0
+[-P-] [ -] dev-vcs/git-9999-r2:0
+[-P-] [ -] dev-vcs/git-9999-r3:0
+
+
+**** chinese filename
+
+git config --global core.quotepath false
+
+http://stackoverflow.com/questions/4144417/how-to-handle-asian-characters-in-file-names-in-git-on-os-x
+
+**** Git Large File Storage
+
+https://confluence.atlassian.com/bitbucketserver/git-large-file-storage-794364846.html
+
+Git LFS is disabled by default, on a per-repository basis, within Bitbucket Server.
+
+
+
+*** mc
+
+emerge app-misc/mc -pv
+
+emerge app-misc/mc -pv
+
+
+
+
+
+*** tree
+
+
+emerge app-text/tree
+
+
+
+*** megatools
+
+echo "net-misc/megatools fuse" >> /etc/portage/package.use/fuse
+
+emerge -pv megatools
+
+emerge net-misc/megatools --autounmask-write 
+
+dispatch-conf
+
+
+
+megarc
+
+http://albertolarripa.com/2013/07/10/megatools-synchronizing-your-backups-to-mega/
+
+cat /root/.megarc 
+[Login]
+Username = email@albertolarripa.com
+Password = yourpassword
+
+
+
+
+
+
+*** layman
+
+emerge --ask app-portage/layman
+
+
+
+*** ftp
+
+emerge net-ftp/ftp
+
+
+*** curlftpfs
+
+
+emerge net-fs/curlftpfs
+
+https://wiki.gentoo.org/wiki/CurlFtpFS
+
+example:
+
+curlftpfs ftp://server/catalog/ ./ftp/ -o user=username:password,utf8
+
+
+http://pcmanx.blogspot.tw/2008/01/curlftpfs-sshfs_6562.html
+
+curlftpfs ftp://server/catalog/ ./ftp/ -o user=username:password,codepage=big5
+
+
+*** wifi
+
+https://wiki.gentoo.org/wiki/Wifi
+
+**** steps installation
+
+|   | steps              |
+|---+--------------------|
+|   | Hardware detection |
+|   |                    |
+|   | kernel             |
+|   |                    |
+|   | firmware           |
+|   |                    |
+|   | testing            |
+|   |                    |
+|   | wpa_supplicant     |
+|   |                    |
+|   | connect            |
+
+**** kernel
+
+**** firmware
+
+#
+
+cp 2.13.1.0.lm86.arm /lib/firmware/isl3886usb
+
+cp /home/c5766/Downloads/2.13.1.0.lm86.arm  /lib/firmware/isl3886usb
+
+ls -lha /lib
+
+lrwxrwxrwx 1 root root 5 Dec  2 06:22 /lib -> lib64
+
+
+
+mkdir /lib64/firmware
+
+cp /home/c5766/Downloads/2.13.1.0.lm86.arm  /lib/firmware/isl3886usb
+
+ls -lha /lib/firmware/
+
+**** testing
+
+tree /sys/class/net
+
+ip addr
+
+
+
+**** wpa_supplicant
+
+https://wiki.gentoo.org/wiki/Wpa_supplicant
+
+
+emerge wpa_supplicant -pv
+
+
+
+/etc/wpa_supplicant/wpa_supplicant.conf
+
+# Allow users in the 'wheel' group to control wpa_supplicant
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=wheel
+ 
+# Make this file writable for wpa_gui
+update_config=1
+
+prepare the .conf
+
+
+
+**** connect
+
+#
+
+wpa_supplicant -i wlp0s18f2u4*  -c .conf &  # [2016-04-21 Thu 16:28]
+
+dhcpcd wlp0s18f2u4*
+
+
+route -n
+
+route add -net 10.0.0.0 netmask 255.0.0.0 gw 10.200.31.254 dev enp1s0*
+
+route del -net 0.0.0.0 netmask 0.0.0.0 gw 10.200.31.254 dev enp1s0*
+
+
+route -n
+
+ping -c 3 www.google.edu.tw 
+
+
+
+
+*** gentoolkit
+
+emerge app-portage/gentoolkit
+
+
+
+*** unrar
+
+emerge app-arch/unrar
+
+
+*** convmv
+
+emerge app-text/convmv
+
+
+*** app-arch/p7zip
+
+emerge app-arch/p7zip
+
+
+
+
+*** pciutils
+
+emerge	sys-apps/pciutils
+
+
+*** usbip
+
+emerge usbip
+
+emerge usbip --autounmask-write
+
+dispatch-conf
+
+
+
+*** qemu
+
+see gentoo-qemu.org
+
+
+**** steps
+
+| steps | installation          |   |
+|-------+-----------------------+---|
+|       | prepare kernel        |   |
+|       |                       |   |
+|       | install qemu spice    |   |
+|       |                       |   |
+|       | add user to kvm group |   |
+
+
+| steps | install windows guest |
+|-------+-----------------------|
+|       |                       |
+
+
+**** kernel
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+make && make modules_install
+
+deploy kernel see gentoo-package.org  stage4  steps tmpfs M4A87TD/USB3 70 kernel 40 deploy
+
+
+ 
+
+| 1 | 2 | 3 | 4 | 5 |                                           | default |   |   |
+|---+---+---+---+---+-------------------------------------------+---------+---+---|
+| v |   |   |   |   | Virtualization                            | *       |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   | v |   |   |   | Kernel-based Virtual Machine (KVM) suppor | blank   | M |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   | v |   |   |   | KVM for AMD processors support            | blank   | M |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   | v |   |   |   | Host kernel accelerator for virtio net    | blank   | M |   |
+|   |   |   |   |   |                                           |         |   |   |
+|---+---+---+---+---+-------------------------------------------+---------+---+---|
+| v |   |   |   |   | Device Drivers                            |         |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   | v |   |   |   | Network device support                    | *       |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   |   | v |   |   | Network core driver support               | *       |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   |   | V |   |   | Universal TUN/TAP device driver support   | blank   | M |   |
+|   |   |   |   |   |                                           |         |   |   |
+|---+---+---+---+---+-------------------------------------------+---------+---+---|
+| v |   |   |   |   | Networking support                        |         |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   | v |   |   |   | Networking options                        |         |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   |   | v |   |   | The IPv6 protocol                         | *       |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   |   | v |   |   | 802.1d Ethernet Bridging                  | blank   | M |   |
+|   |   |   |   |   |                                           |         |   |   |
+|---+---+---+---+---+-------------------------------------------+---------+---+---|
+| v |   |   |   |   | Kernel hacking                            |         |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   | v |   |   |   | Compile-time checks and compiler options  |         |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   |   | v |   |   | Debug Filesystem                          | *       |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|---+---+---+---+---+-------------------------------------------+---------+---+---|
+| v |   |   |   |   | File systems                              |         |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   | v |   |   |   | The Extended 4 (ext4) filesystem          |         |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+|   | v |   |   |   | Ext4 Security Labels                      | *       |   |   |
+|   |   |   |   |   |                                           |         |   |   |
+
+
+**** emerge 
+
+QEMU normally uses an SDL (a cross-platform multimedia library) window to display the graphical output of a VM Guest. With the -vnc option specified, you can make QEMU listen on a specified VNC display and redirect its graphical output to the VNC session.
+
+https://www.suse.com/documentation/sles11/book_kvm/data/cha_qemu_running_vnc.html
+
+
+
+echo "app-emulation/qemu spice sdl usb usbredir" > /etc/portage/package.use/qemu
+
+echo "app-emulation/spice  client" >> /etc/portage/package.use/spice
+
+
+
+echo "app-emulation/qemu sdl" > /etc/portage/package.use/qemu
+
+cat /etc/portage/package.use/qemu 
+
+cat /etc/portage/package.use/spice
+
+emerge app-emulation/qemu --autounmask-write 
+
+dispatch-conf 
+
+emerge app-emulation/spice 
+
+gpasswd -a <username> kvm
+
+sdl  for automatically open vncviewer
+
+
+
+**** windows guest
+
+https://wiki.gentoo.org/wiki/QEMU/Windows_guest
+
+qemu-img create -f qcow2 /mnt/fs1/qemu-image/WindowsVM.img 50G
+
+qemu-img create -f qcow2 /mnt/fs1/qemu-image/8-201605.img 50G
+
+| steps | .img | winpe7 | winpe10 | host share | usb |                     |
+|-------+------+--------+---------+------------+-----+---------------------|
+|    20 | v    |        |         |            |     | verify qemu runs    |
+|       |      |        |         |            |     |                     |
+|    30 |      | v      |         |            |     | verify winpe7 runs  |
+|       |      |        |         |            |     |                     |
+|    40 |      |        | v       |            |     | verify winpe10 runs |
+|       |      |        |         |            |     |                     |
+|    50 | v    |        |         |            | v   |                     |
+|       |      |        |         |            |     |                     |
+
+***** 20
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -m 2G \
+        -monitor stdio \
+        -drive file=/mnt/fs1/qemu-image/8-201605.img \
+        "$@"
+
+
+***** 30
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -m 2G \
+        -monitor stdio \
+ 	-boot d \
+	-drive file=/mnt/fs1/qemu-image/7pe_amd64_E.iso,media=cdrom \
+        "$@"
+
+
+
+
+***** 40
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -m 2G \
+        -monitor stdio \
+ 	-boot d \
+	-drive file=/mnt/fs1/qemu-image/win10PEx64.ISO,media=cdrom \
+        "$@"
+
+
+
+
+
+
+***** 50
+
+	-usbdevice host:4:6 \  
+	-usbdevice host:0ca6:0010 \  
+	-usb -device usb-host,hostbus=4,hostaddr=6 \
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -m 2G \
+        -monitor stdio \
+ 	-boot d \
+	-drive file=/mnt/fs1/qemu-image/win10PEx64.ISO,media=cdrom \
+	-vga std \
+	-usbdevice tablet \
+        "$@"
+
+# this fails
+
+
+
+
+
+***** 50
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -m 2G \
+        -monitor stdio \
+ 	-boot d \
+	-drive file=/mnt/fs1/qemu-image/7pe_amd64_E.iso,media=cdrom \
+        -drive file=/mnt/fs1/qemu-image/8-201605.img \
+	-net nic -net user,smb=/mnt/fs1/qemu-image \
+	-usbdevice tablet \
+	-usbdevice host:0ca6:0010 \
+        "$@"
+
+
+
+
+
+
+
+|   |                                 |                            |
+|---+---------------------------------+----------------------------|
+|   | activate the net card           |                            |
+|   |                                 | control panel              |
+|   |                                 | device manager             |
+|   |                                 | select ethernet controller |
+|   |                                 | scan for hardware chagne   |
+|   |                                 |                            |
+|---+---------------------------------+----------------------------|
+|   | connect the share drive         |                            |
+|   |                                 | open IE                    |
+|   |                                 | computer                   |
+|   |                                 | map network drive          |
+|   |                                 | \\10.0.2.4\qemu            |
+|   |                                 |                            |
+|---+---------------------------------+----------------------------|
+|   | copy install.wim to target disk |                            |
+|   |                                 |                            |
+
+
+
+
+
+***** qemu, blank image, winpe10
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -m 2G \
+        -monitor stdio \
+ 	-boot d \
+	-drive file=/mnt/fs1/qemu-image/win10PEx64.ISO,media=cdrom \
+        -drive file=/mnt/fs1/qemu-image/8-201605.img \
+	-net nic -net user,smb=/mnt/fs1/qemu-image \
+        "$@"
+
+
+Type diskpart
+Type select disk 0
+Type list partition
+then note the partition number where you installed windows 7.
+Type select partition X    (X is the partition number where Windows is installed)
+type active
+type exit
+type bcdboo c:\windows     (if C is your windows partition)
+ 
+
+https://social.technet.microsoft.com/Forums/windows/en-US/6b16586e-574d-4a0b-ad68-aafcc7c599d1/bcdboot-failure-when-attempting-to-copy-boot-files?forum=w7itproinstall
+
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -m 2G \
+        -monitor stdio \
+        -drive file=/mnt/fs1/qemu-image/8-201605.img \
+	-net nic -net user,smb=/mnt/fs1/qemu-image \
+        "$@"
+
+	-drive file=/mnt/fs1/qemu-image/win10PEx64.ISO,media=cdrom \
+ 	-boot d \
+
+
+
+***** DONE qemu, blank image, spice
+
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -drive file=/mnt/fs1/qemu-image/WindowsVM.img,if=virtio \
+        -net nic -net user,hostname=windowsvm \
+        -m 1G \
+        -monitor stdio \
+        -name Windows \
+	-vga qxl \
+	-spice port=5930,disable-ticketing \
+        "$@"
+
+/usr/bin/spicy -h 127.0.0.1 -p 5930
+
+***** DONE qemu, blank image, spice, winpe7
+
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -drive file=/mnt/fs1/qemu-image/WindowsVM.img \
+        -net nic -net user,hostname=windowsvm \
+        -m 2G \
+        -monitor stdio \
+        -name Windows \
+	-vga qxl \
+	-spice port=5930,disable-ticketing \
+	-boot d \
+	-drive file=/mnt/fs1/qemu-image/7pe_amd64_E.iso,media=cdrom \
+        "$@"
+
+	-drive file=/mnt/fs1/qemu-image/win10PEx64.ISO,media=cdrom \
+
+/usr/bin/spicy -h 127.0.0.1 -p 5930
+
+***** DONE qemu, blank image, spice, winpe10
+
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -net nic -net user,hostname=windowsvm \
+        -m 2G \
+        -monitor stdio \
+        -name Windows \
+	-vga qxl \
+	-spice port=5930,disable-ticketing \
+	-boot d \
+	-drive file=/mnt/fs1/qemu-image/win10PEx64.ISO,media=cdrom \
+        "$@"
+
+        -drive file=/mnt/fs1/qemu-image/WindowsVM.img \
+	-drive file=/mnt/fs1/qemu-image/7pe_amd64_E.iso,media=cdrom \
+/usr/bin/spicy -h 127.0.0.1 -p 5930
+
+
+***** DONE qemu, win8, spice
+
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -drive file=/mnt/fs1/qemu-image/WindowsVM.img \
+        -net nic -net user,hostname=windowsvm \
+        -m 2G \
+        -monitor stdio \
+        -name Windows \
+	-vga qxl \
+	-spice port=5930,disable-ticketing \
+        "$@"
+
+	-boot d \
+	-drive file=/mnt/fs1/qemu-image/win10PEx64.ISO,media=cdrom \
+	-drive file=/mnt/fs1/qemu-image/7pe_amd64_E.iso,media=cdrom \
+
+/usr/bin/spicy -h 127.0.0.1 -p 5930
+
+***** qemu, blank image, spice, winpe7, share host directory
+
+
+qemu-system-x86_64 \
+        -enable-kvm \
+        -cpu host \
+        -drive file=/mnt/fs1/qemu-image/WindowsVM.img \
+        -m 1G \
+        -monitor stdio \
+        -name Windows \
+	-vga qxl \
+	-spice port=5930,disable-ticketing \
+	-boot d \
+	-drive file=/mnt/fs1/qemu-image/7pe_amd64_E.iso,media=cdrom \
+	-netdev user,id=network0 -device e1000,netdev=network0 \
+        "$@"
+
+	-net nic -net user,smb=/mnt/fs1/qemu-image \
+
+	-redir tcp:1080::80 \
+        -netdev user,hostname=windowsvm \
+
+/usr/bin/spicy -h 127.0.0.1 -p 5930
+
+
+| 1 | 2 | 3 | 4 |                                                             | default |   |
+|---+---+---+---+-------------------------------------------------------------+---------+---|
+| v |   |   |   | File systems                                                |         |   |
+|   |   |   |   |                                                             |         |   |
+|   | v |   |   | Network File Systems                                        |         |   |
+|   |   |   |   |                                                             |         |   |
+|   |   | v |   | CIFS support (advanced network filesystem, SMBFS successor) | blank   | M |
+|   |   |   |   |                                                             |         |   |
+|   |   | v |   | CIFS statistics                                             | blank   | * |
+|   |   |   |   |                                                             |         |   |
+|   |   | v |   | Extended statistics                                         | blank   | * |
+|   |   |   |   |                                                             |         |   |
+|   |   | v |   | CIFS extended attributes                                    | blank   | * |
+|   |   |   |   |                                                             |         |   |
+|   |   | v |   | CIFS POSIX Extensions                                       | blank   | * |
+|   |   |   |   |                                                             |         |   |
+
+
+emerge --ask net-fs/samba --autounmask-write
+
+dispatch-conf
+
+rc-update add samba default
+
+service samba start
+
+
+***** usbdevice tablet
+
+https://wiki.gentoo.org/wiki/QEMU/Options#USB
+
+
+-usbdevice tablet - (Recommend) Use a USB tablet instead of the default PS/2 mouse. Recommend, because the tablet sends the mouse cursor's position to match the host mouse cursor.
+
+***** usbdevice host:VENDOR-ID:PRODUCT-ID  # this fails
+
+
+https://wiki.gentoo.org/wiki/QEMU/Options#USB
+
+lsusb
+Bus 001 Device 006: ID: 08ec:2039 M-Systems Flash Disk Pioneers
+08ec is the vendor ID, 2039 is the product ID.
+
+lsusb
+
+Bus 004 Device 006: ID 0ca6:0010 Castles Technology Co., Ltd EZUSB PC/SC Smart Card Reader
+
+-usbdevice host:VENDOR-ID:PRODUCT-ID
+
+-usbdevice host:0ca6:0010
+
+*****  -usb -device usb-host,hostbus=2,hostaddr=5
+lsusb
+[...]
+Bus 002 Device 005: ID 12d1:1406 Huawei Technologies Co., Ltd. E1750
+[...]
+
+-usb -device usb-host,hostbus=2,hostaddr=5
+
+
+
+https://www.suse.com/documentation/sles11/book_kvm/data/cha_qemu_running_devices.html
+
+lsusb
+
+Bus 004 Device 006: ID 0ca6:0010 Castles Technology Co., Ltd EZUSB PC/SC Smart Card Reader
+
+-usb -device usb-host,hostbus=4,hostaddr=6
+
+-usb -device hostbus=4,hostaddr=6
+
+
+**** bcdedit
+
+https://msdn.microsoft.com/zh-tw/library/hh825691.aspx
+
+
+
+
+diskpart
+
+# select vdisk file=C:\windows.vhdx 
+select vdisk file=C:\windows.vhdx
+
+
+attach vdisk
+
+
+
+*** java
+
+https://wiki.gentoo.org/wiki/Java#Configuring_the_java_virtual_machine
+
+
+echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" >> /etc/portage/package.use/emacs
+
+echo "dev-java/icedtea-bin cjk nsplugin" > /etc/portage/package.use/icedtea-bin
+
+cat  /etc/portage/package.use/icedtea-bin
+
+echo "dev-java/icedtea cjk nsplugin" > /etc/portage/package.use/icedtea
+
+emerge -pv dev-java/icedtea
+
+emerge dev-java/icedtea-bin --autounmask-write 
+
+dispatch-conf
+
+**** USE flags
+
+
+The nsplugin flag adds support for Mozilla-like browsers (including Firefox). This is needed for viewing Java applets in a Mozilla-like browser;
+
+
+
+*** atm
+
+**** step
+
+|    | installation                |   |
+|----+-----------------------------+---|
+| 20 | emerge sys-apps/pcsc-lite   |   |
+|    |                             |   |
+| 30 | emerge sudo                 |   |
+|    |                             |   |
+| 40 | install driver              |   |
+|    |                             |   |
+|    | install firefox plugin esun |   |
+|    |                             |   |
+
+**** 30 sudo
+
+echo "app-admin/sudo pam" >> /etc/portage/package.use/sudo
+
+emerge app-admin/sudo
+
+EDITOR=emacs visudo 
+
+
+|      | delete the '#'         |   |
+|      |                        |   |
+| from | # %wheel ALL=(ALL) ALL |   |
+|      |                        |   |
+| to   | %wheel ALL=(ALL) ALL   |   |
+
+
+**** 20 PCSC-Lite
+
+https://wiki.gentoo.org/wiki/PCSC-Lite
+
+Testing
+
+#
+/etc/init.d/pcscd stop
+
+pcscd -a -d -f 
+
+**** install the driver EZMINI
+
+download the zip
+
+Execute enviroment check program: ./check_env
+
+Execute installation program : ./install  
+
+Reboot the system.
+
+***** ezmini driver
+
+
+tar zxvpf 
+
+|              | EZ Mini | EZ100PU |
+|--------------+---------+---------|
+| reference    |       1 |       3 |
+|              |         |         |
+| linux driver |       2 |       4 |
+|              |         |         |
+| version      |   1.4.9 |   1.5.3 |
+|              |         |         |
+
+reference 
+
+1
+
+http://www.casauto.com.tw/in-download-02.aspx?wcid=C_00000012&id=P_00000002&cid=C_00000001
+
+
+2
+
+http://www.casauto.com.tw/db/pictures/modules/PDT/PDT060207001/200910202023353343.gz
+
+
+3
+
+http://www.casauto.com.tw/in-download-02.aspx?cid=C_00000001&id=P_00000001
+
+4
+
+http://www.casauto.com.tw/db/pictures/modules/PDT/PDT060207001/20118101553170555.zip
+
+
+
+
+
+
+***** ./install 
+
+|   | check existence    |                                |
+|   | pcsc_driver_path   | in my gentoo                   |
+|---+--------------------+--------------------------------|
+|   | /usr/local/pcsc    | none                           |
+|   |                    |                                |
+|   | /usr/pcsc          | none                           |
+|   |                    | /usr/sbin/pcscd                |
+|   |                    |                                |
+|   | /usr/lib/readers   | none                           |
+|   |                    |                                |
+|   | /usr/lib/pcsc      | none                           |
+|   |                    |                                |
+|   | /usr/lib64/readers | none                           |
+|   |                    | pcscd -a -d -f read for bundle |
+|   |                    | /usr/lib64/readers/usb         |
+|   |                    |                                |
+
+in my gentoo
+
+/usr/sbin/pcscd
+/usr/lib64/pkgconfig/libpcsclite.pc
+/usr/lib64/systemd/system/pcscd.service
+/usr/lib64/systemd/system/pcscd.socket
+/usr/lib64/libpcsclite.so.1.0.0
+/usr/lib64/libpcscspy.so.0.0.0
+/usr/lib64/libpcsclite.so
+/usr/lib64/libpcsclite.so.1
+/usr/lib64/libpcscspy.so
+/usr/lib64/libpcscspy.so.0
+/usr/share/man/man8/pcscd.8.bz2
+/usr/share/man/man1/pcsc-spy.1.bz2
+/usr/share/doc/pcsc-lite-1.8.12-r1
+/usr/include/PCSC/pcsclite.h
+/usr/bin/pcsc-spy
+
+my modification
+
+#
+
+mkdir -p /usr/lib64/readers/usb
+
+modify ./install 
+
+from 
+pcsc_driver_path="/usr/lib64/readers"
+
+to
+pcsc_driver_path="/usr/lib64/readers/usb"
+
+
+3 times
+
+from 
+sudo mkdir -p $pcsc_driver_path"/drivers/"$BundleName".bundle/"
+
+to
+sudo mkdir    $pcsc_driver_path"/drivers/"$BundleName".bundle/"
+
+
+
+
+
+**** install firefox plugin esun
+
+| run firefox            |
+|                        |
+| browse the url1        |
+|                        |
+| install/click the url2 |
+|                        |
+| test the atm-card      |
+|                        |
+
+
+url1
+
+
+https://netbank.esunbank.com.tw/webatm/Q&A_016.htm
+
+
+url2
+
+安裝玉山銀行Linux專用版 WebATM plugin(64-bit)。
+
+
+
+*** openvpn
+
+equery files --tree openvpn
+ * Searching for openvpn ...
+ * Contents of net-misc/openvpn-2.3.11:
+ /etc
+   > /conf.d
+      + openvpn
+   > /init.d
+      + openvpn
+   > /openvpn
+      + .keep_net-misc_openvpn-0
+      + down.sh
+      + up.sh
+ /usr
+   > /include
+      + openvpn-plugin.h
+   > /lib
+      > /systemd
+         > /system
+            + openvpn-client@.service
+            + openvpn-server@.service
+      > /tmpfiles.d
+         + openvpn.conf
+   > /lib64
+      > /openvpn
+         + openvpn-plugin-auth-pam.so
+   > /sbin
+      + openvpn
+   > /share
+      > /doc
+         > /openvpn-2.3.11
+            + AUTHORS
+            + COPYING.bz2
+            + COPYRIGHT.GPL.bz2
+            + ChangeLog.bz2
+            + PORTS.bz2
+            + README.IPv6.bz2
+            + README.auth-pam.bz2
+            + README.bz2
+            + README.polarssl.bz2
+            + management-notes.txt.bz2
+      > /man
+         > /man8
+            + openvpn.8.bz2
+
+
+*** python
+
+ImportError: No module named sqlite3
+
+
+echo "dev-lang/python sqlite" >> /etc/portage/package.use/python
+
+cat /etc/portage/package.use/python
+
+emerge -pv python:2.7
+
+
+
+*** postgresql
+
+
+echo "dev-db/postgresql python" >> /etc/portage/package.use/postgresql
+
+cat /etc/portage/package.use/postgresql
+
+emerge -pv postgresql
+
+
+*** cifs
+
+emerge net-fs/cifs-utils --autounmask-write
+
+dispatch-conf
+
+emerge net-fs/cifs-utils
+
+
+
+** X group
+
+*** x11
+
+x11-base/xorg-server
+
+| 1 | 2 | 3 | 4 | 5 | kernel option                             | defconfig | change to | reference    |
+|   |   |   |   |   |                                           |           |           |              |
+|---+---+---+---+---+-------------------------------------------+-----------+-----------+--------------|
+| v |   |   |   |   | Device Drivers                            |           |           |              |
+|   | v |   |   |   | Input device support                      |           |           |              |
+|   |   | v |   |   | Event interface                           | *         |           |              |
+|---+---+---+---+---+-------------------------------------------+-----------+-----------+--------------|
+|   |   |   |   |   |                                           |           |           |              |
+|   | v |   |   |   | Graphics support                          |           |           |              |
+|   |   | v |   |   | Frame buffer Devices                      |           |           |              |
+|   |   |   | v |   | Support for frame buffer devices          |           |           |              |
+|   |   |   |   | v | Enable firmware EDID                      | none      |           | keep it none |
+|---+---+---+---+---+-------------------------------------------+-----------+-----------+--------------|
+|   |   |   |   |   |                                           |           |           |              |
+|   |   | v |   |   | Console display driver support            |           |           |              |
+|   |   |   | v |   | Framebuffer Console support               | *         |           |              |
+|   |   |   |   |   |                                           |           |           |              |
+|---+---+---+---+---+-------------------------------------------+-----------+-----------+--------------|
+|   |   |   |   |   |                                           |           |           |              |
+|   |   | v |   |   | Direct Rendering Manager (XFree86         |           |           |              |
+|   |   |   | v |   | Enable legacy fbdev support for           | *         |           | 2            |
+|---+---+---+---+---+-------------------------------------------+-----------+-----------+--------------|
+|   |   |   |   |   |                                           |           |           |              |
+|   |   | v |   |   | Nouveau (NVIDIA) cards                    | none      | M         |              |
+|   |   |   |   |   |                                           |           | *         |              |
+|   |   | v |   |   | Intel 8xx/9xx/G3x/G4x/HD Graphics         |           | M         | h77md3h      |
+|---+---+---+---+---+-------------------------------------------+-----------+-----------+--------------|
+|   |   |   |   |   |                                           |           |           |              |
+|   |   |   |   |   | NVidia/nvidia-drivers                     |           |           |              |
+|   |   |   |   |   |                                           |           |           |              |
+| 1 |   |   |   |   | Enable loadable module support            |           |           |              |
+|   |   |   |   |   |                                           |           |           |              |
+| 1 |   |   |   |   | Processor type and features               |           |           |              |
+|   | 2 |   |   |   | MTRR (Memory Type Range Register) support | *         |           |              |
+|   |   |   |   |   |                                           |           |           |              |
+| 1 |   |   |   |   | Device Drivers                            |           |           |              |
+|   | 2 |   |   |   | Graphics support                          |           |           |              |
+|   |   | 3 |   |   | /dev/agpgart (AGP Support)                |           |           |              |
+|   |   |   |   |   |                                           |           |           |              |
+|   |   | 3 |   |   | Nouveau (nVidia) cards                    | blank     |           |              |
+|   |   |   |   |   |                                           |           |           |              |
+
+reference
+
+
+1
+
+https://wiki.gentoo.org/wiki/Xorg/Guide
+
+
+2
+
+https://wiki.gentoo.org/wiki/Nouveau
+
+
+3
+
+https://forums.gentoo.org/viewtopic-p-6655021.html
+
+
+
+emerge -pv xorg-drivers 
+
+emerge xorg-drivers 
+
+
+
+emerge -pv x11-base/xorg-server
+
+emerge  x11-base/xorg-server
+
+
+emerge -pv x11-drivers/nvidia-drivers
+
+emerge x11-drivers/nvidia-drivers  --autounmask-write
+
+dispatch-conf
+
+
+emerge x11-drivers/nvidia-drivers 
+
+ * This ebuild installs a kernel module and X driver. Both must
+ * match explicitly in their version. This means, if you restart
+ * X, you must modprobe -r nvidia before starting it back up
+ * 
+ * To use the NVIDIA GLX, run "eselect opengl set nvidia"
+ * 
+ * To use the NVIDIA CUDA/OpenCL, run "eselect opencl set nvidia"
+
+
+emerge @module-rebuild
+
+
+
+*** xrandr
+
+emerge -pv x11-apps/xrandr
+
+
+emerge  x11-apps/xrandr
+
+
+*** term
+
+emerge -pv x11-terms/rxvt-unicode
+
+echo "x11-terms/rxvt-unicode xft" >> /etc/portage/package.use/rxvt-unicode
+
+cat /etc/portage/package.use/rxvt-unicode
+
+emerge x11-terms/rxvt-unicode
+
+
+
+
+
+
+emerge -pv x11-terms/xterm
+
+emerge x11-terms/xterm
+
+ * Messages for package media-fonts/liberation-fonts-2.00.1-r1:
+
+ * The following fontconfig configuration files have been installed:
+ * 
+ *   60-liberation.conf
+ * 
+ * Use `eselect fontconfig` to enable/disable them.
+
+ * Messages for package media-libs/fontconfig-2.11.1-r2:
+
+eselect fontconfig enable 60-liberation.conf
+
+eselect fontconfig list
+
+
+
+
+
+*** spectrwm
+
+emerge -pv spectrwm
+
+emerge spectrwm
+
+https://wiki.archlinux.org/index.php/Spectrwm#Statusbar_configuration
+
+**** baraction.sh
+
+***** temperature 
+
+| M4A87TD/USB3 |
+|              |
+| h77md3h      |
+|              |
+
+M4A87TD/USB3
+# 
+
+find /sys -name *temp*input*
+
+TB0=$(cat /sys/devices/pci0000:00/0000:00:02.0/0000:05:00.0/hwmon/hwmon0/temp1_input)
+TC1=$(cat /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:2f/ATK0110:00/hwmon/hwmon1/temp1_input)
+TC2=$(cat /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:2f/ATK0110:00/hwmon/hwmon1/temp2_input)
+echo -n "|" $(($TB0/1000)) $(($TC1/1000)) $(($TC2/1000)) °C
+
+	# comment for M4A87TD/USB3
+	TB0=$(cat /sys/devices/pci0000:00/0000:00:02.0/0000:05:00.0/hwmon/hwmon0/temp1_input)
+	TC1=$(cat /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:2f/ATK0110:00/hwmon/hwmon1/temp1_input)
+	TC2=$(cat /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:2f/ATK0110:00/hwmon/hwmon1/temp2_input)
+	echo -n " ("$(($TB0/1000)) $(($TC1/1000)) $(($TC2/1000)) °C")"
+
+
+
+
+h77md3h [2016-02-13 Sat 19:12]
+
+
+Linux wusb 4.3.3-hardened-r4 #2 SMP Sat Feb 13 16:58:02 CST 2016 x86_64 Intel(R) Celeron(R) CPU G530 @ 2.40GHz GenuineIntel GNU/Linux
+
+
+find /sys -name *temp*_input*
+/sys/devices/virtual/hwmon/hwmon0/temp1_input
+/sys/devices/virtual/hwmon/hwmon0/temp2_input
+/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp3_input
+/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_input
+/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input
+
+
+#!/bin/bash
+#baraction.sh for spectrwm status bar
+
+
+SLEEP_SEC=10  # set bar_delay = 5 in /etc/spectrwm.conf
+
+#loops forever outputting a line every SLEEP_SEC secs
+while :; do
+
+	LOAD=$(uptime | sed 's/.*://; s/,//g')
+	echo -n "|" $LOAD
+
+	Avail=$(df / -h | awk '$NF ~/^\/$/{print $4}')
+	rootfs=$(mount | awk '$3 ~ /^\/$/ {print $1}' | awk 'BEGIN{ FS="[/]"} {print $3}')
+	subvolume=$(mount  | awk '$3 ~ /^\/$/ {print $NF}' | sed 's/.*subvol=\/\(.*\))/\1/')
+
+
+#	rootfs=$(lsblk | awk '$NF ~/^\/$/{print $1}')
+	echo -n "|" $rootfs $Avail
+
+	T1=$(cat /sys/devices/virtual/hwmon/hwmon0/subsystem/hwmon0/temp1_input)
+	T2=$(cat /sys/devices/virtual/hwmon/hwmon0/subsystem/hwmon0/temp2_input)
+	T3=$(cat /sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_input)
+	T4=$(cat /sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input)
+	T5=$(cat /sys/devices/platform/coretemp.0/hwmon/hwmon1/temp3_input)
+	echo -n "|" $(($T1/1000)) $(($T2/1000)) $(($T3/1000)) $(($T4/1000)) $(($T5/1000)) °C
+
+
+	Avail=$(free -h | awk '$0 ~ /Mem/ {print $NF}')
+	Swpfr=$(free -h | awk '$0 ~ /Swap/ {print $NF}')
+	echo -n "|" $Avail $Swpfr
+	
+	ip_dev=$(ip addr | awk '$0 ~ /global/ {print $NF}')
+	ip_addr=$(ip addr | awk '$0 ~ /global/ {print $2}' | sed 's/\/..//')
+	echo "|" $ip_dev $ip_addr
+
+#	pidssh=$(netstat -tpln | grep ssh | awk '$1 ~ /tcp$/ {print $NF, $4}')
+
+        sleep $SLEEP_SEC
+done
+
+***** temperature [2016-02-13 Sat 19:12]
+
+
+h77md3h 4.3.3-hardened-r4 [2016-01-24 Sun 20:37]
+
+cat /sys/devices/virtual/hwmon/hwmon0/subsystem/hwmon0/temp1_input
+
+cat /sys/devices/virtual/hwmon/hwmon0/subsystem/hwmon0/temp2_input
+
+find /sys -name hwmon
+
+#!/bin/bash
+#baraction.sh for spectrwm status bar
+
+
+SLEEP_SEC=10  # set bar_delay = 5 in /etc/spectrwm.conf
+
+#loops forever outputting a line every SLEEP_SEC secs
+while :; do
+
+	LOAD=$(uptime | sed 's/.*://; s/,//g')
+	echo -n "|" $LOAD
+
+	Avail=$(df / -h | awk '$NF ~/^\/$/{print $4}')
+	rootfs=$(mount | awk '$3 ~ /^\/$/ {print $1}' | awk 'BEGIN{ FS="[/]"} {print $3}')
+	subvolume=$(mount  | awk '$3 ~ /^\/$/ {print $NF}' | sed 's/.*subvol=\/\(.*\))/\1/')
+
+
+#	rootfs=$(lsblk | awk '$NF ~/^\/$/{print $1}')
+	echo -n "|" $rootfs $Avail
+
+	T1=$(cat /sys/devices/virtual/hwmon/hwmon0/subsystem/hwmon0/temp1_input)
+	T2=$(cat /sys/devices/virtual/hwmon/hwmon0/subsystem/hwmon0/temp2_input)
+	echo -n "|" $(($T1/1000)) $(($T2/1000)) °C
+
+	Avail=$(free -h | awk '$0 ~ /Mem/ {print $NF}')
+	Swpfr=$(free -h | awk '$0 ~ /Swap/ {print $NF}')
+	echo -n "|" $Avail $Swpfr
+	
+	ip_dev=$(ip addr | awk '$0 ~ /global/ {print $NF}')
+	ip_addr=$(ip addr | awk '$0 ~ /global/ {print $2}' | sed 's/\/..//')
+	echo "|" $ip_dev $ip_addr
+
+#	pidssh=$(netstat -tpln | grep ssh | awk '$1 ~ /tcp$/ {print $NF, $4}')
+
+        sleep $SLEEP_SEC
+done
+
+***** btrfs subvolume
+
+http://www.grymoire.com/Unix/sed.html
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+
+  mount  | awk '$3 ~ /^\/$/ {print $NF}' | sed 's/.*subvol=\/\(.*\))/\1/'
+# mount  | awk '$3 ~ /^\/$/ {print $NF}' | sed 's/.*subvol=\/\(.*\)/\1/'
+
+# mount | awk '$3 ~ /^\/$/ {print $NF}' # | awk 'BEGIN{ FS="[,]"} {print $NF}'  
+# mount | awk '$3 ~ /^\/$/ {print $NF}' # | awk 'BEGIN{ FS="[,]"} {print $NF}'  
+
+#+END_SRC
+
+#+RESULTS:
+fs2/snapshot20160210
+fs2/snapshot20160210)
+(rw,noatime,compress=lzo,noacl,space_cache,autodefrag,inode_cache,subvolid=263,subvol=/fs2/snapshot20160210)
+(rw,noatime,compress=lzo,noacl,space_cache,autodefrag,inode_cache,subvolid=263,subvol=/fs2/snapshot20160210)
+
+***** root device
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+
+mount | awk '$3 ~ /^\/$/ {print $1}' | awk 'BEGIN{ FS="[/]"} {print $3}'
+
+#  mount #| awk '$3 ~ /^\/$/ {print $1}'   | awk 'BEGIN{ FS="[/]"} {print $3}'
+#  mount  | awk '$3 ~ /^\/$/ {print $1}' # | awk 'BEGIN{ FS="[/]"} {print $3}'
+#  mount  | awk '$3 ~ /^\/$/ {print $1}'   | awk 'BEGIN{ FS="[/]"} {print $3}'
+
+#+END_SRC
+
+#+RESULTS:
+sdb
+
+
+
+***** ip addr
+	
+#	ip_dev=$(ip addr | awk '$0 ~ /global/ {print $NF $2}')
+	ip_addr=$(ip addr | awk '$0 ~ /global/ {print $NF, $2}' | sed 's/\/..//')
+#	ip_addr=$(ip addr | awk '$0 ~ /global/ {print $2}' | sed 's/\/..//')
+	echo -n "" $ip_addr
+
+#	pidssh=$(netstat -tpln | grep ssh | awk '$1 ~ /tcp$/ {print $NF, $4}'); echo "" $pidssh
+	pidssh=$(ps -e | grep -w 'ssh$' | awk '{print $1}'); echo " ssh" $pidssh
+
+
+**** temperature kernel
+
+
+h77md3h
+x86_pkg_temp_thermal 
+motherboard temperature
+
+| 4.3.3hardened-r4                             |
+|----------------------------------------------|
+| Device Drivers                               |
+| Generic Thermal sysfs driver                 |
+| <M>   X86 package temperature thermal driver |
+|                                              | 
+
+| 4.3.3hardened-r4                               |
+|------------------------------------------------|
+| Device Drivers                                 |
+| Hardware Monitoring support                    |
+| <M>   Intel Core/Core2/Atom temperature sensor |
+|                                                |
+**** .spectrwm.conf
+
+cp /etc/spectrwm.conf ~/.spectrwm.conf
+
+
+# workspace_limit	= 22
+  workspace_limit	= 6
+
+# modkey = Mod1
+  modkey = Mod4
+
+# program[lock]		= xlock
+  program[lock]		= /bin/false
+
+# program[term]		= xterm
+  program[term]		= xterm -fg white -bg black
+
+**** libswmhack.so.0.0
+
+find /usr -name libswmhack.so.0.0
+/usr/lib64/libswmhack.so.0.0
+
+ERROR: ld.so: object '/usr/local/lib/libswmhack.so.0.0' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+
+ls -lha /usr/local/lib
+
+#
+
+cd /usr/local/lib
+
+ln -s /usr/lib64/libswmhack.so.0.0
+
+ls -lha
+
+
+
+
+# bar_action		= baraction.sh
+  bar_action		= /home/c5766/baraction.sh  # valid
+  bar_action		= ~/baraction.sh            # valid
+  bar_action		= baraction.sh              # external app failed: no such file or directory.
+
+
+
+
+**** screenshot
+
+|   | steps         |
+|---+---------------|
+|   | install scrot |
+|   |               |
+|   | extract       |
+|   |               |
+|   |               |
+|   | ln -s         |
+|   |               |
+|   | practice      |
+|   |               |
+
+
+
+#
+
+ls -l /usr/share/doc/spectrwm-2.7.2-r1/screenshot.sh
+
+cat /usr/share/doc/spectrwm-2.7.2-r1/screenshot.sh
+
+
+chown c5766:c5766 /home/c5766/screenshot.sh
+
+chmod +x /home/c5766/screenshot.sh
+
+ls -lha /home/c5766/sc*
+
+
+cd /usr/bin
+
+ln -s /home/c5766/screenshot.sh
+
+
+edit the /home/c5766/screenshot.sh
+#		scrot -s
+#		scrot -s '/tmp/%Y-%m-%d_$wx$h.png' -e 'mv $f ~/tmp/'
+#		scrot -s '/tmp/scrot-%Y-%m-%d_$wx$h.png' 
+		scrot -s '/tmp/scrot-%Y-%m-%d_$wx$h.png'  -e 'google-chrome-stable $f'
+
+
+bindings
+
+| bindings                                    | functions       |
+|---------------------------------------------+-----------------|
+| M-s                                         | screenshot_all  |
+|                                             |                 |
+| M-S-s                                       | screenshot_wind |
+| move the mouse pointer to the target window |                 |
+| click inside the target                     |                 |
+
+the default output directory is /home/user1
+
+
+practice
+
+|    | bindings                                                | functions       |
+|----+---------------------------------------------------------+-----------------|
+|    | M-s                                                     | screenshot_all  |
+|    |                                                         |                 |
+| 10 | M-S-s                                                   | screenshot_wind |
+| 11 | move the mouse pointer to the target window             |                 |
+| 12 | click inside the target                                 |                 |
+|    |                                                         |                 |
+| 20 | open an image viewer, like browser chrome               |                 |
+| 21 | click the filename                                      |                 |
+|    | file:///home/user1/2016-04-25-092730_972x1064_scrot.png |                 |
+
+
+
+
+*** scrot
+
+echo "media-libs/imlib2 gif jpeg png tiff" >> /etc/portage/package.use/imlib2
+
+echo "media-libs/imlib2 png" >> /etc/portage/package.use/imlib2
+
+cat  /etc/portage/package.use/imlib2
+
+emerge -pv scrot
+
+emerge scrot   --autounmask-write
+
+dispatch-conf
+
+emerge scrot 
+
+man scrot
+
+ scrot '%Y-%m-%d_$wx$h.png' -e 'mv $f ~/shots/'
+       This would create a file called something like 2000-10-30_2560x1024.png and move it to your shots directory.
+
+
+edit the /home/c5766/screenshot.sh
+#		scrot -s
+#		scrot -s '/tmp/%Y-%m-%d_$wx$h.png' -e 'mv $f ~/tmp/'
+#		scrot -s '/tmp/scrot-%Y-%m-%d_$wx$h.png' 
+		scrot -s '/tmp/scrot-%Y-%m-%d_$wx$h.png'  -e 'google-chrome-stable $f'
+
+
+
+*** vnc
+
+tigervnc
+
+tightvnc is not in the gentoo repository
+
+emerge -pv tigervnc
+
+https://en.wikipedia.org/wiki/TigerVNC
+
+
+
+
+http://wiki.gentoo.org/wiki/TightVNC
+
+**** just installing the client,
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge --ask --update --newuse net-misc/tightvnc
+
+emerge --ask --update --newuse net-misc/tightvnc
+
+
+**** server
+USE="server" emerge -uN tightvnc
+
+
+echo "app-editors/emacs xft" >> /etc/portage/package.use
+
+su
+
+echo "net-misc/tightvnc server" >> /etc/portage/package.use
+
+emerge -uN tightvnc
+
+|    |   tsghcloud |   |
+| ip | 10.161.0.97 |   |
+|    |             |   |
+
+vncviewer 10.161.0.97
+
+
+
+
+*** gtk+
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+
+emerge gtk+:2 -pv
+
+echo "x11-libs/gtk+ cups" >> /etc/portage/package.use/gtk+ 
+
+cat /etc/portage/package.use/gtk+ 
+
+
+
+** editors
+
+*** R
+
+emerge --ask dev-lang/R
+
+https://wiki.gentoo.org/wiki/R
+
+
+# echo "dev-lang/R X cairo icu jpeg png tiff" >> /etc/portage/package.use/R
+
+
+
+echo "dev-lang/R X cairo png" >> /etc/portage/package.use/R
+
+cat /etc/portage/package.use/R
+
+
+emerge dev-lang/R -pv
+
+emerge dev-lang/R  --autounmask-write
+
+dispatch-conf
+
+
+emerge dev-lang/R 
+
+add cairo to resolve the following error.
+
+Error in axis(side = side, at = at, labels = labels, ...) : 
+  X11 font -adobe-helvetica-%s-%s-*-*-%d-*-*-*-*-*-*-*, face 1 at size 10 could not be loaded
+
+
+
+*** google-chrome
+
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge www-client/google-chrome  --autounmask-write
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+
+emerge -pv www-client/google-chrome  
+
+
+dispatch-conf
+
+
+emerge www-client/google-chrome   --autounmask-write
+
+
+
+
+
+
+
+
+*** gimp
+
+
+
+echo "media-gfx/gimp jpeg jpeg2k pdf png svg tiff" >> /etc/portage/package.use/gimp
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge media-gfx/gimp  
+
+
+*** emacs
+
+https://wiki.gentoo.org/wiki/GNU_Emacs
+
+
+**** flag
+
+echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
+
+# echo "app-editors/emacs xft X" >> /etc/portage/package.use/emacs
+
+cat /etc/portage/package.use/emacs
+
+
+
+
+emerge app-editors/emacs  -pv
+
+emerge app-editors/emacs  --autounmask-write
+
+dispatch-conf
+
+
+
+emerge app-editors/emacs 
+
+
+USE flag
+
+USE="X acl alsa dbus gif gpm gtk gtk3 inotify jpeg png svg tiff xft xpm zlib
+
+ -Xaw3d (-aqua) -athena -games -gconf -gfile -gnutls -gsettings -gzip-el -hesiod -imagemagick -kerberos -libxml2 -livecd -m17n-lib -motif -pax_kernel (-selinux) -sound -source -toolkit-scroll-bars -wide-int" 0 KiB
+
+nano -w /etc/portage/package.use/emacs
+
+X acl alsa dbus gif gpm gtk gtk3 inotify jpeg png svg tiff xft xpm zlib
+
+**** chinese
+
+
+(set-fontset-font (frame-parameter nil 'font)
+      'han '("Noto Sans TC Thin"))
+
+ (setq face-font-rescale-alist '(("Noto Sans TC Thin" . 1.3)))
+
+no function at [2016-01-14 Thu 11:49]
+
+http://superuser.com/questions/781924/unexpected-result-from-face-font-rescale-alist-in-emacs
+
+;; in .emacs
+(defadvice frame-notice-user-settings (before my:rescale-alist)
+  (message "Set face-font-rescale-alist")
+  (add-to-list 'face-font-rescale-alist
+               (cons (font-spec :family "STIXGeneral") 0.95) t))
+(ad-activate 'frame-notice-user-settings)
+
+;; in .emacs
+(defadvice frame-notice-user-settings (before my:rescale-alist)
+  (message "Set face-font-rescale-alist")
+  (add-to-list 'face-font-rescale-alist
+               (cons (font-spec :family "Noto Sans TC Thin") 1.3) t))
+(ad-activate 'frame-notice-user-settings)
+
+;; in .emacs
+(defadvice frame-notice-user-settings (before my:rescale-alist)
+  (message "Set face-font-rescale-alist")
+  (add-to-list 'face-font-rescale-alist
+               (cons (font-spec :family "Noto Sans TC Thin") 1.3) t))
+  (message "Set face-font-rescale-alist")
+  (add-to-list 'face-font-rescale-alist
+               (cons (font-spec :family "Noto Sans TC Thin") 1.3) t))
+(ad-activate 'frame-notice-user-settings)
+
+**** emacs click url
+
+| step      | C-h v                       |
+|-----------+-----------------------------|
+| 1         | Browse Url Browser Function |
+|           |                             |
+| default   | browse-url-default-browser  |
+|           |                             |
+| change to | browse-url-firefox          |
+|           |                             |
+|           | [2016-02-18 Thu 16:35]      |
+|           | browse-url-chromium         |
+|-----------+-----------------------------|
+| 2         | Browse Url Firefox Program  |
+|           |                             |
+| default   | firefox                     |
+| change to | firefox-bin                 |
+|           |                             |
+| 2.1       | Browse Url Chromium Program |
+|           |                             |
+| default   | chromium                    |
+|           |                             |
+|           | [2016-02-18 Thu 16:38]      |
+|           | google-chrome-stable        |
+|           |                             |
+|-----------+-----------------------------|
+| 3         | org-file-apps               |
+|           | Extension: \.x?html?\'      |
+|           |                             |
+| default   | Use default                 |
+| change to | firefox-bin %s              |
+|           |                             |
+|           | [2016-02-18 Thu 16:40]      |
+|           |                             |
+
+
+
+
+
+**** menu, tool bar
+|                        | default | change to |
+|------------------------+---------+-----------|
+| M-x customize-variable |         |           |
+|                        |         |           |
+| menu-bar-mode          |         |           |
+| tool-bar-mode          |         |           |
+|                        |         |           |
+| toggle                 | on      | off       |
+|                        |         |           |
+**** background color
+
+|                    | default       | change to       |
+|--------------------+---------------+-----------------|
+| M-x customize-face |               |                 |
+| default            |               |                 |
+|                    |               |                 |
+| Font Family        | Nimbus Mono L | Liberation Mono |
+|                    |               |                 |
+| Font Foundry       | urw           | un-check        |
+|                    |               |                 |
+| Foreground         | black         | white           |
+|                    |               |                 |
+| Background         | white         | black           |
+|                    |               |                 |
+
+
+**** DONE flyspell 
+
+[2015-10-12 Mon 11:35]
+
+
+***** installation
+
+| steps |        |
+|-------+--------|
+|     1 | aspell |
+|       |        |
+|     2 | .emacs |
+|       |        |
+|       |        |
+
+
+step 
+
+1
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge app-text/aspell
+
+
+2
+
+
+(setq ispell-extra-args '("--sug-mode=fast"))
+ (dolist (hook '(text-mode-hook))
+      (add-hook hook (lambda () (flyspell-mode 1))))
+    (dolist (hook '(change-log-mode-hook log-edit-mode-hook))
+      (add-hook hook (lambda () (flyspell-mode -1))))
+
+
+
+
+***** Installing a spell checker
+
+Emacs supports three spelling checkers by default: Hunspell, which is now widely used by popular free software such as LibreOffice, OpenOffice, Firefox and Thunderbird; GNU Aspell, which pays particular attention to quality of suggestions, and the original Ispell. If no spell checker is manually configured, Emacs will choose aspell over hunspell over ispell.
+
+|   | Hunspell    | aspell        | ispell   |
+|---+-------------+---------------+----------|
+|   | popular     | quality       | original |
+|   | libreoffice | emacs default |          |
+|   | openoffice  |               |          |
+|   | firefox     |               |          |
+
+http://emacswiki.org/emacs/InteractiveSpell
+
+GNU Aspell
+
+Aspell was originally designed as a replacement for Ispell; its primary advantage today is the quality of its suggested replacements. This is particularly useful when used with flyspell-auto-correct-previous-word, where you can iterate through suggested spellings – it’s much more useful when the correct spelling is near the head of the list.
+
+Aspell is a lot slower than Ispell; on modern machines, this probably doesn’t matter, but if you find editing is sluggish with flyspell-mode using Aspell, you can speed it up at the cost of reducing the quality of its suggestions with:
+
+    (setq ispell-extra-args '("--sug-mode=fast"))
+
+
+***** .emacs
+
+
+http://www.emacswiki.org/FlySpell
+
+
+ (dolist (hook '(text-mode-hook))
+      (add-hook hook (lambda () (flyspell-mode 1))))
+    (dolist (hook '(change-log-mode-hook log-edit-mode-hook))
+      (add-hook hook (lambda () (flyspell-mode -1))))
+
+
+
+
+*** browser
+
+emerge -pv google-chrome
+
+emerge google-chrome --autounmask-write
+
+dispatch-conf
+
+emerge google-chrome 
+
+
+
+
+emerge -pv firefox
+
+echo "www-client/firefox dbus" > /etc/portage/package.use/firefox
+
+emerge -pv firefox
+
+emerge firefox
+
+
+
+*** imagemagick
+
+echo "media-gfx/imagemagick jpeg tiff" > /etc/portage/package.use/imagemagick 
+
+echo "media-gfx/imagemagick jpeg jpeg2k tiff png svg" > /etc/portage/package.use/imagemagick 
+
+
+emerge -pv media-gfx/imagemagick
+
+emerge media-gfx/imagemagick
+
+
+*** gthumb
+
+
+echo "media-gfx/gthumb jpeg tiff" > /etc/portage/package.use/gthumb
+
+emerge -pv media-gfx/gthumb
+
+emerge media-gfx/gthumb --autounmask-write
+
+dispatch-conf
+
+echo " dev-libs/libxml2 -icu" > /etc/portage/package.use/libxml2
+
+emerge -pv dev-libs/libxml2
+
+emerge dev-libs/libxml2
+
+
+*** pdfshuffler
+
+
+
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge app-text/pdfshuffler --autounmask-write
+
+dispatch-conf
+
+
+
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge app-text/pdfshuffler
+
+
+*** libreoffice-bin
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge app-office/libreoffice-bin  --autounmask-write
+
+dispatch-conf
+
+
+
+*** doc docx
+
+**** app-text/docx2txt
+
+proxychains -f /home/c5766/proxychains.conf \
+emerge --ask app-text/docx2txt
+
+proxychains -f /home/c5766/proxychains.conf \
+emerge app-text/docx2txt --autounmask-write 
+
+dispatch-conf
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge app-text/docx2txt
+
+
+find / -name docx2txt*
+/var/db/pkg/app-text/docx2txt-1.4
+/var/db/pkg/app-text/docx2txt-1.4/docx2txt-1.4.ebuild
+/usr/bin/docx2txt
+/usr/share/doc/docx2txt-1.4
+/usr/share/doc/docx2txt-1.4/docx2txt.config.bz2
+/usr/portage/distfiles/docx2txt-1.4.tgz
+/usr/portage/app-text/docx2txt
+/usr/portage/app-text/docx2txt/docx2txt-1.3.ebuild
+/usr/portage/app-text/docx2txt/docx2txt-1.4.ebuild
+/usr/portage/app-text/docx2txt/files/docx2txt-1.1-paragraph-newline.patch
+/usr/portage/app-text/docx2txt/docx2txt-1.2.ebuild
+/usr/portage/metadata/md5-cache/app-text/docx2txt-1.3
+/usr/portage/metadata/md5-cache/app-text/docx2txt-1.2
+/usr/portage/metadata/md5-cache/app-text/docx2txt-1.4
+
+
+3. Emacs Editor
+   ------------
+
+You can add following lines in your ~/.emacs file to view the text content of
+a .docx file directly when using emacs.
+
+(add-to-list 'auto-mode-alist '("\\.docx\\'" . docx2txt))
+
+(defun docx2txt ()
+  "Run docx2txt on the entire buffer."
+  (shell-command-on-region (point-min) (point-max) "docx2txt.pl" t t))
+
+Be warned that with above ~/.emacs code addition, if you happen to save the
+buffer/file, it will overwrite the .docx file with the text content.
+
+
+but docx2txt.pl not available. I remove the .pl and it works. [2015-09-17 Thu 09:57]
+
+
+
+**** antiword
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge --ask app-text/antiword
+
+
+**** DONE dotemacs
+
+http://www.emacswiki.org/emacs/AntiWord
+
+(add-to-list 'auto-mode-alist '("\\.doc\\'" . no-word))
+
+    (defun no-word ()
+      "Run antiword on the entire buffer."
+      (shell-command-on-region (point-min) (point-max) "antiword - " t t))
+
+confirmed effective
+
+**** ms word
+
+|          |         | last   | official                                                     |           |
+|          |         | modify | website                                                      |           |
+|          | version | year   |                                                              |           |
+|          |         |        |                                                              |           |
+|----------+---------+--------+--------------------------------------------------------------+-----------|
+| antiword |    0.37 | 2005   | http://www.winfield.demon.nl/                                | official  |
+|          |         |        |                                                              |           |
+|          |         |        | http://archive09.linux.com/articles/113959                   |           |
+|          |         |        |                                                              |           |
+|          |         |        | http://www.emacswiki.org/emacs-en/AntiWord                   | eamcswiki |
+|          |         |        |                                                              |           |
+|----------+---------+--------+--------------------------------------------------------------+-----------|
+|          |         |        |                                                              |           |
+| catdoc   |  0.94.4 | 2005   | http://www.wagner.pp.ru/~vitus/software/catdoc/              | official  |
+|          |         |        |                                                              |           |
+|          |         |        | http://www.wagner.pp.ru/~vitus/software/catdoc/catdoc.1.html | man       |
+|          |         |        |                                                              |           |
+|          |         |        |                                                              |           |
+
+
+man antiword
+
+antiword
+      -w width
+              In text mode this is the line width in characters. A value of zero puts an entire paragraph on a line, useful when the text is to used as input for another wordprocessor. This value is ignored in PostScript mode.
+
+
+antiword -w 0 word.doc
+
+
+catdoc
+
+-w
+
+disables word wrapping. By default catdoc output is splitted into lines not longer than 72 (or number, specified by -m option) characters and paragraphs are separated by blank line. With this option each paragraph is one long line.
+
+catdoc -w  (equal to catdoc -m 0)
+
+-m number
+
+Specifies right margin for text (default 72). -m 0 is equivalent to -w
+
+
+
+
+*** imagej
+
+sci-misc/imagej
+
+https://gpo.zugaina.org/sci-misc/imagej
+
+emerge imagej  --autounmask-write
+
+dispatch-conf
+
+ The following fontconfig configuration files have been installed:
+ * 
+ *   20-unhint-small-dejavu-sans-mono.conf
+ *   20-unhint-small-dejavu-sans.conf
+ *   20-unhint-small-dejavu-serif.conf
+ *   57-dejavu-sans-mono.conf
+ *   57-dejavu-sans.conf
+ *   57-dejavu-serif.conf
+ * 
+ * Use `eselect fontconfig` to enable/disable them.
+
+eselect fontconfig enable 60-liberation.conf
+
+eselect fontconfig list
+
+eselect fontconfig enable 20-unhint-small-dejavu-sans-mono.conf
+eselect fontconfig enable 20-unhint-small-dejavu-sans.conf
+eselect fontconfig enable 20-unhint-small-dejavu-serif.conf
+eselect fontconfig enable 57-dejavu-sans-mono.conf
+eselect fontconfig enable 57-dejavu-sans.conf
+eselect fontconfig enable 57-dejavu-serif.conf
+
+
+echo "sci-misc/imagej plugins" > /etc/portage/package.use/imagej
+
+emerge imagej -pv
+
+
+
+
+
+
+*** okular
+
+emerge okular -pv
+
+emerge okular --autounmask-write 
+
+dispatch-conf
+
+
+
+https://bugs.funtoo.org/browse/FL-2167
+
+emerge -v1 app-portage/cpuinfo2cpuflags && /usr/bin/cpuinfo2cpuflags-x86
+and then paste output to your make.conf
+
+
+b1 asus
+
+CPU_FLAGS_X86="3dnow 3dnowext mmx mmxext popcnt sse sse2 sse3 sse4a"
+
+
+
+emerge okular -pv
+
+emerge okular --autounmask-write 
+
+dispatch-conf
+
+
+
+emerge okular
+
+
+
+echo "dev-qt/qtnetwork -bindist" >> /etc/portage/package.use/qtnetwork 
+
+cat /etc/portage/package.use/qtnetwork 
+
+
+dev-libs/openssl:0
+
+  (dev-libs/openssl-1.0.2k:0/0::gentoo, installed) pulled in by
+    dev-libs/openssl:0=[-bindist] required by (net-misc/tor-0.2.8.12:0/0::gentoo, installed)
+                        ^^^^^^^^                                                                                                
+    dev-libs/openssl:0/0=[-bindist] required by (net-misc/tor-0.2.8.12:0/0::gentoo, installed)
+                          ^^^^^^^^                                                                                                
+    >=dev-libs/openssl-0.9.8f:0[bindist=] required by (net-misc/openssh-7.3_p1-r7:0/0::gentoo, installed)
+                                ^^^^^^^^                                                                                                     
+
+  (dev-libs/openssl-1.0.2k:0/0::gentoo, ebuild scheduled for merge) pulled in by
+    dev-libs/openssl:0[bindist=] required by (dev-qt/qtnetwork-5.6.2:5/5.6::gentoo, ebuild scheduled for merge)
+                   
+
+
+
+*** shotwell
+
+emerge shotwell --autounmask-write 
+
+dispatch-conf
+
+
+echo "media-libs/libraw jpeg" >> /etc/portage/package.use/libraw
+echo "media-libs/lcms jpeg" >> /etc/portage/package.use/lcms
+echo "media-libs/libgphoto2 jpeg" >> /etc/portage/package.use/libgphoto2
+
+
+equery hasuse jpeg
+
+https://wiki.gentoo.org/wiki/Equery#Looking_for_packages_that_have_a_specific_USE_flag_with_hasuse_.28h.29
+
+equery depgraph shotwell
+
+
+
+
+** app-text/tesseract
+
+echo "app-text/tesseract jpeg png tiff" > /etc/portage/package.use/tesseract 
+
+emerge -pv app-text/tesseract
+
+emerge app-text/tesseract --autounmask-write
+
+dispatch-conf
+
+emerge app-text/tesseract 
+
+*** example
+
+TESSERACT OCR 中文識別嘗試
+
+http://miphol.com/muse/2013/05/tesseract-ocr.html
+
+
+** audio
+
+
+https://wiki.gentoo.org/wiki/ALSA
+
+
+
+*** steps
+
+| installation |
+|--------------|
+| kernel       |
+|              |
+| alsa-utils   |
+|              |
+|              |
+
+*** kernel [2016-04-24 Sun 17:37]
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+make && make modules_install
+
+
+| 1 | 2 | 3 | 4 | 5 | 4.4.2-hardened                                | default | change to |
+|---+---+---+---+---+-----------------------------------------------+---------+-----------|
+| v |   |   |   |   | Device Drivers                                |         |           |
+|   | v |   |   |   | Sound card support                            |         | M         |
+|   |   | v |   |   | Advanced Linux Sound Architecture             |         |           |
+|   |   |   | v |   | HD-Audio                                      |         |           |
+|   |   |   |   | * |                                               |         |           |
+|   |   |   | v |   | Pre-allocated buffer size for HD-audio driver |         | 2048      |
+|   |   |   |   |   |                                               |         |           |
+
+
+
+
+h77md3h
+
+lspci | grep -i audio
+00:1b.0 Audio device: Intel Corporation 7 Series/C210 Series Chipset Family High Definition Audio Controller (rev 04)
+
+lspci | grep -i audio
+00:14.2 Audio device: Advanced Micro Devices, Inc. [AMD/ATI] SBx00 Azalia (Intel HDA) (rev 40)
+05:00.1 Audio device: NVIDIA Corporation GF104 High Definition Audio Controller (rev a1)
+
+
+*** alsa-utils
+
+
+euse -E alsa
+
+emerge --ask --changed-use --deep @world
+
+emerge --ask alsa-utils
+
+gpasswd -a larry audio
+
+gpasswd -a user1 audio
+
+/etc/init.d/alsasound start
+
+rc-update add alsasound boot
+
+alsamixer
+
+speaker-test -t wav -c 2
+
+
+
+
+*** alsa-lib
+
+proxychains -f /home/c5766/.proxychains/proxychains.conf \
+emerge media-libs/alsa-lib
+
+
+*** pavucontrol
+
+echo "dev-cpp/gtkmm X" >> /etc/portage/package.use/gtkmm
+
+cat /etc/portage/package.use/gtkmm
+
+echo "x11-libs/cairo X" >> /etc/portage/package.use/cairo
+
+cat /etc/portage/package.use/cairo
+
+echo "dev-cpp/cairomm X" >> /etc/portage/package.use/cairomm
+
+cat /etc/portage/package.use/cairomm
+
+
+emerge pavucontrol --autounmask-write 
+
+dispatch-conf
+
+emerge pavucontrol 
+
+ 
+** bluetooth 
+
+
+https://wiki.gentoo.org/wiki/Bluetooth
+
+
+*** path
+
+| bluetooth headset |   |   |
+|-------------------+---+---|
+| bluez             | 5 | 4 |
+|                   |   |   |
+| pulseaudio        |   |   |
+|                   |   |   |
+| alsa              |   |   |
+|                   |   |   |
+|-------------------+---+---|
+| speaker           |   |   |
+| microphone        |   |   |
+|                   |   |   |
+
+| bluetooth headset | bluez | pulseaudio | ofono | alsa | headset | headset    |
+|                   |       |            |       |      | speaker | microphone |
+|-------------------+-------+------------+-------+------+---------+------------|
+|                   |     5 |            |       | v    |         |            |
+|                   |       |            |       |      |         |            |
+
+
+
+*** Fixing Pulseaudio stutters / pauses / glitches 
+
+
+
+*** steps
+
+|   |              | version | comment |
+|---+--------------+---------+---------|
+|   | service      |         |         |
+|   |              |         |         |
+|   | bluetoothctl |    5.43 | bluez5  |
+|   |              |         |         |
+|   | pulseaudio   |     9.0 |         |
+|   |              |         |         |
+
+
+$
+
+pulseaudio --version
+
+pulseaudio 9.0
+
+
+**** pulseaudio
+
+***** PulseAudio - Gentoo Wiki
+
+
+equery list -p pulseaudio
+
+[-P-] [  ] media-sound/pulseaudio-7.1:0
+[-P-] [  ] media-sound/pulseaudio-8.0:0
+[IP-] [  ] media-sound/pulseaudio-9.0:0
+
+
+echo ">=media-sound/pulseaudio-8" > /etc/portage/package.mask/pulseaudio
+
+cat /etc/portage/package.mask/pulseaudio
+
+emerge -pv media-sound/pulseaudio
+
+emerge     media-sound/pulseaudio --autounmask-write 
+
+
+
+
+
+emerge -pv pulseaudio | grep headset
+
+[ebuild   R    ] media-sound/pulseaudio-9.0::gentoo  USE="X alsa alsa-plugin asyncns bluetooth caps dbus gdbm glib ipv6 ssl tcpd udev webrtc-aec -doc -equalizer -gnome -gtk -jack (-libressl) -libsamplerate -lirc -native-headset (-neon) -ofono-headset -orc (-oss) -qt4 -realtime (-selinux) -sox (-system-wide) -systemd {-test} -xen -zeroconf" ABI_X86="(64) -32 (-x32)" 0 KiB
+
+
+
+echo "media-sound/pulseaudio 
+
+net-misc/ofono tools" > /etc/portage/package.use/ofono 
+
+cat /etc/portage/package.use/pulseaudio 
+
+ofono 
+
+emerge -pv media-sound/pulseaudio 
+
+net-misc/ofono 
+
+
+
+
+https://wiki.gentoo.org/wiki/PulseAudio
+
+
+
+
+***** The Perfect Setup
+
+https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/PerfectSetup/
+
+*****  how the PulseAudio server is intended to be run 
+
+https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Running/
+
+
+Autospawning can be disabled by setting "autospawn = no" in ~/.config/pulse/client.conf or /etc/pulse/client.conf. In that case the server needs to be started manually.
+
+pulseaudio
+
+ pulseaudio --daemonize
+
+ pulseaudio -vv
+
+   pulseaudio -vv --log-time
+
+***** What is wrong with system mode?
+
+https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/WhatIsWrongWithSystemWide/
+
+
+
+To run PulseAudio in system-wide mode, start it as root and pass the --system argument to it. 
+
+https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/SystemWide/
+
+
+We recommend running the PulseAudio daemon per-user.
+
+
+
+
+**** bluetoothctl bluez5
+
+$ 
+
+bluetoothctl
+
+list
+
+power on
+
+agent on
+
+default-agent
+
+discoverable on
+
+pairable on
+
+scan on
+
+# b1
+
+show 00:0B:0D:4E:2D:EF  
+
+# 14
+
+show 00:0B:0D:4E:2E:B0
+
+
+
+devices
+
+Device 00:24:1C:A5:08:18 Motorola HK200
+Device 1C:48:F9:B1:E2:C5 Jabra Mini v0.3.3
+
+
+pulseaudio --start
+
+
+# Motorola HK200
+
+info 00:24:1C:A5:08:18   
+
+connect 00:24:1C:A5:08:18   
+
+
+# Jabra Mini v0.3.3
+
+info 1C:48:F9:B1:E2:C5
+
+connect 1C:48:F9:B1:E2:C5
+
+pair 1C:48:F9:B1:E2:C5
+
+trust 1C:48:F9:B1:E2:C5
+
+
+***** Setting up auto connection
+
+https://wiki.archlinux.org/index.php/Bluetooth_headset#Headset_via_Bluez5.2Fbluez-alsa
+
+
+
+
+
+
+**** services
+
+| step | services      | command                         | reference |
+|------+---------------+---------------------------------+-----------|
+|      | list service  | rc-update show -v               |         1 |
+|      |               |                                 |           |
+|      | start service | rc-service bluetooth start      |         2 |
+|      |               |                                 |           |
+|      | start at boot | rc-update add bluetooth default |           |
+
+
+reference
+
+1
+
+rc-update show -v | grep bluetooth
+
+
+https://wiki.gentoo.org/wiki/OpenRC
+
+
+2
+
+  https://wiki.gentoo.org/wiki/Bluetooth
+
+
+
+*** Connect Bluetooth Headset To Raspberry Pi 3
+
+http://youness.net/raspberry-pi/bluetooth-headset-raspberry-pi
+
+
+$
+
+pulseaudio --start
+
+pulseaudio --kill
+
+ps aux | grep pulseaudio
+
+c5766     4227  1.2  0.0 354012 10540 ?        Sl   10:20   0:00 pulseaudio --start
+c5766     4235  0.0  0.0  24436  2508 pts/0    S+   10:20   0:00 grep --colour=auto pulseaudio
+
+
+pacmd list-cards
+
+pacmd list-sinks
+
+pacmd list-sources
+
+
+
+pacmd set-default-sink bluez_sink.1C_48_F9_B1_E2_C5
+
+
+
+pacmd set-default-sink alsa_output.pci-0000_00_14.2.analog-stereo
+
+
+
+
+
+*** pulseaudio bluez ofono
+
+https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Bluetooth/
+
+
+|      | three audio profiles | comment                         |
+|------+----------------------+---------------------------------|
+| A2DP | Advanced Audio       | high-quality audio              |
+|      | Distribution Profile |                                 |
+|      |                      |                                 |
+|------+----------------------+---------------------------------|
+| HSP  | HeadSet Profile      | phone-quality                   |
+|      |                      |                                 |
+| HFP  | Hands-Free Profile   | HSP +  additional functionality |
+|      |                      |                                 |
+
+
+|      | send role                           | receives role                     |
+|------+-------------------------------------+-----------------------------------|
+| A2DP | source role                         | sink role                         |
+|      | sends audio                         | receive audio                     |
+|      |                                     |                                   |
+|------+-------------------------------------+-----------------------------------|
+| HSP  | audio gateway role                  | headset role                      |
+|      | connect to cellular network or voip |                                   |
+|      | a cellular phone or a pc            | speakers and microphone           |
+|      |                                     |                                   |
+|      | PulseAudio                          | PulseAudio only in bluez 4        |
+|      | enabled by default                  | will eventually be supported too. |
+|      | headset=native                      |                                   |
+|      |                                     |                                   |
+|------+-------------------------------------+-----------------------------------|
+| HFP  | PulseAudio unavailable              | PulseAudio                        |
+|      | will hopefully be supported too     | headset=ofono                     |
+|      |                                     |                                   |
+
+
+echo "net-misc/ofono tools" > /etc/portage/package.use/ofono 
+
+cat /etc/portage/package.use/ofono 
+
+emerge -pv net-misc/ofono 
+
+emerge     net-misc/ofono
+
+ 
+
+equery files --tree ofono
+
+equery files        ofono
+
+
+
+http://www.calculate-linux.org/packages/net-misc/ofono
+
+tools - Enable testing tools
+
+
+*** Bluetooth made easy
+
+http://www.funtoo.org/Bluetooth_made_easy
+
+
+error echo "media-sound/pulseaudio dbus headset-native headset-ofono" > /etc/portage/package.use/pulseaudio
+
+echo "media-sound/pulseaudio dbus native-headset ofono-headset" > /etc/portage/package.use/pulseaudio
+
+cat /etc/portage/package.use/pulseaudio
+
+emerge -pv pulseaudio
+ 
+emerge pulseaudio --autounmask-write 
+
+
+dispatch-conf
+
+
+*** kernel [2016-04-25 Mon 10:22]
+
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+make && make modules_install
+
+
+
+| 1 | 2 | 3 | 4 | 5 | 4.4.2-hardened                      | default | change to |
+|---+---+---+---+---+-------------------------------------+---------+-----------|
+| v |   |   |   |   | Networking support                  |         |           |
+|   | v |   |   |   | Bluetooth subsystem support         | none    | M         |
+|   |   |   |   |   |                                     |         |           |
+|   |   | v |   |   | Bluetooth Classic (BR/EDR) features | *       |           |
+|   |   | v |   |   | RFCOMM protocol support             | none    | M         |
+|   |   | v |   |   | HIDP protocol support               | none    | M         |
+|   |   |   |   |   |                                     |         |           |
+|   |   | v |   |   | Bluetooth device drivers            |         |           |
+|   |   |   | v |   | HCI USB driver                      |         | M         |
+|   |   |   |   |   |                                     |         |           |
+|   |   |   | v |   | HCI UART driver                     |         |           |
+|   |   |   |   | v | Broadcom protocol support           | *       |           |
+|   |   |   | v |   | HCI BCM203x USB driver (NEW)        |         |           |
+|   |   |   |   |   |                                     |         |           |
+
+
+*** bluez 4
+
+https://wiki.gentoo.org/wiki/Bluetooth#BlueZ_4
+
+
+equery list -p pulseaudio
+
+equery list -p bluez
+
+[IP-] [  ] net-wireless/bluez-4.101-r9:0
+[-P-] [M ] net-wireless/bluez-5.35:0/3
+[-P-] [M ] net-wireless/bluez-5.37:0/3
+[-P-] [M~] net-wireless/bluez-5.38:0/3
+
+
+
+echo ">=net-wireless/bluez-5" > /etc/portage/package.mask/bluez
+
+cat /etc/portage/package.mask/bluez
+
+emerge -pv =net-wireless/bluez-4.101-r9
+
+emerge bluez
+
+*** bluez 4 steps
+
+
+|    | steps                                           |
+|----+-------------------------------------------------|
+| 30 | service                                         |
+|    |                                                 |
+|    | #                                               |
+|    |                                                 |
+|    | rc-service bluetooth start                      |
+|    |                                                 |
+|    | rc-service bluetooth restart                    |
+|    |                                                 |
+|    | rc-update add bluetooth default                 |
+|    |                                                 |
+|----+-------------------------------------------------|
+| 40 | controller                                      |
+|    |                                                 |
+|    | #                                               |
+|    |                                                 |
+|    | hciconfig -a                                    |
+|    |                                                 |
+|    | hciconfig hci0 up                               |
+|----+-------------------------------------------------|
+| 50 | device                                          |
+|    |                                                 |
+|    | hcitool scan                                    |
+|    |                                                 |
+|----+-------------------------------------------------|
+| 60 | pair                                            |
+|    |                                                 |
+|    | simple-agent hci0 00:24:1C:A5:08:18             |
+|    |                                                 |
+|    | simple-agent hci0 00:24:1C:A5:08:18 remove      |
+|    |                                                 |
+|----+-------------------------------------------------|
+| 70 | trust                                           |
+|    |                                                 |
+|    | bluez-test-device trusted 00:24:1C:A5:08:18     |
+|    |                                                 |
+|    | bluez-test-device trusted 00:24:1C:A5:08:18 yes |
+|    |                                                 |
+|    | bluez-test-device trusted 00:24:1C:A5:08:18 no  |
+|    |                                                 |
+|----+-------------------------------------------------|
+| 80 | connect                                         |
+|    |                                                 |
+|    | bluez-test-audio    connect 00:24:1C:A5:08:18   |
+|    |                                                 |
+|    | bluez-test-device connect 00:24:1C:A5:08:18     |
+|    | Unknown command                                 |
+|    |                                                 |
+|    | bluez-test-input connect 00:24:1C:A5:08:18      |
+|    | Operation is not supported                      |
+|    |                                                 |
+|    | bluez-test-audio disconnect 00:24:1C:A5:08:18   |
+|----+-------------------------------------------------|
+| 90 | chrome app VoiceNote II                         |
+|    |                                                 |
+
+
+60
+
+http://manpages.ubuntu.com/manpages/precise/man1/bluez-simple-agent.1.html
+
+NAME
+       bluez-simple-agent - A PIN management and agent program for pairing to
+       Bluetooth device.
+
+SYNOPSIS
+       bluez-simple-agent [<hciX>] [<bdaddr>] [remove]
+
+DESCRIPTION
+       bluez-simple-agent is pass agent program for bluetooth.
+
+OPTIONS
+       <hciX>
+           The command is applied to device hciX , which must be the name of
+           an installed Blue‐ tooth device. If not specified, the command will
+           be sent to the first available Blue‐ tooth device.
+
+       <bdaddr>
+           bdaddr of device doing pairing.
+
+       remove
+           Remove intended bdaddr from database.
+
+AUTHOR
+       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+           Wrote this manpage for the Debian system.
+
+
+
+
+
+
+**** simple-agent
+
+
+
+http://manpages.ubuntu.com/manpages/precise/man1/bluez-simple-agent.1.html
+
+|   |   |
+|   |   |
+
+
+simple-agent hci0 00:24:1C:A5:08:18
+
+simple-agent hci0 00:24:1C:A5:08:18 remove
+
+*** bluez5 failed
+
+
+https://wiki.gentoo.org/wiki/Bluetooth
+
+emerge --ask --noreplace net-wireless/bluez
+
+gpasswd -a <user> plugdev
+
+rc-service bluetooth start
+
+rc-update add bluetooth default
+
+rc-service bluetooth restart
+
+
+**** BlueZ 5 pulseaudio
+
+
+show
+Controller 00:0B:0D:4E:2D:EF
+	Name: BlueZ 5.43
+	Alias: BlueZ 5.43
+	Class: 0x000104
+	Powered: yes
+	Discoverable: no
+	Pairable: yes
+	UUID: Generic Attribute Profile (00001801-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control        (0000110e-0000-1000-8000-00805f9b34fb)
+	UUID: PnP Information           (00001200-0000-1000-8000-00805f9b34fb)
+	UUID: Generic Access Profile    (00001800-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control Target (0000110c-0000-1000-8000-00805f9b34fb)
+	Modalias: usb:v1D6Bp0246d052B
+	Discovering: no
+
+
+ info 1C:48:F9:B1:E2:C5
+Device 1C:48:F9:B1:E2:C5
+	Name: Jabra Mini v0.3.3
+	Alias: Jabra Mini v0.3.3
+	Class: 0x240404
+	Icon: audio-card
+	Paired: yes
+	Trusted: yes
+	Blocked: no
+	Connected: no
+	LegacyPairing: yes
+	UUID: Serial Port               (00001101-0000-1000-8000-00805f9b34fb)
+	UUID: Headset                   (00001108-0000-1000-8000-00805f9b34fb)
+	UUID: Audio Sink                (0000110b-0000-1000-8000-00805f9b34fb)
+	UUID: Handsfree                 (0000111e-0000-1000-8000-00805f9b34fb)
+
+
+https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/5.0/
+
+First some background: The BlueZ project decided to redesign their client interface. They also decided to drop support for the old client interface. BlueZ 4 has the old interface and BlueZ 5 has the new interface. The decision to drop support for the old interface in BlueZ 5 meant that all applications, including PulseAudio, that used to work with BlueZ 4 didn't work with BlueZ 5.
+
+The support for BlueZ 5 has been gradually added in various applications, and this is the first PulseAudio version that supports BlueZ 5. This means that everything is great, right? Not so. The BlueZ project also decided to drop support for the HSP and HFP profiles, which were the profiles responsible for handling telephony audio. If you have a headset, its microphone won't work with BlueZ 5, because the microphone is only supported by the HSP and HFP profiles.
+
+There are distributions that have migrated to BlueZ 5 without providing users the alternative of staying with BlueZ 4. Some of those distributions probably made the transition without understanding the consequences - they now have a serious regression in functionality, because their users' Bluetooth headsets have stopped working (well, the headsets can still be used for listening to music, but they're useless for VoIP applications).
+
+GNOME made also a decision, possibly misinformed one, to drop support for BlueZ 4 in their last release, which means that upgrading to the current GNOME version (3.10) has one of two problems depending on the BlueZ version in the system: with BlueZ 4, the GNOME UI for managing Bluetooth won't work, and with BlueZ 5 the headset audio functionality will be crippled.
+
+So what's the way forward with getting the HSP and HFP profiles work with BlueZ 5? There is partial support for those in oFono (a telephony daemon), which will hopefully be completed soon, and the next PulseAudio release will then hopefully support HSP/HFP through oFono. This pulls in a telephony stack as a dependency for using your Bluetooth headset, which might be considered overkill. This issue is yet to be resolved with the BlueZ developers.
+
+Now, the technical details of the BlueZ 5 support in PulseAudio: there are now separate modules for BlueZ 4 and BlueZ 5: module-bluez4-discover and module-bluez5-discover. The old module-bluetooth-discover still exists and is used in the default configuration. The role of module-bluetooth-discover is now to act as an abstraction layer: it will load module-bluez4-discover and/or module-bluez5-discover based on what's present in the system. This means that the migration to BlueZ 5 can be done without changing the PulseAudio configuration.
+
+
+
+
+**** revisit [2016-12-22 Thu 10:43]
+
+$ 
+
+bluetoothctl
+
+list
+
+power on
+
+agent on
+
+default-agent
+
+discoverable on
+
+pairable on
+
+scan on
+
+show 00:0B:0D:4E:2D:EF
+
+devices
+
+Device 00:24:1C:A5:08:18 Motorola HK200
+Device 1C:48:F9:B1:E2:C5 Jabra Mini v0.3.3
+
+# Motorola HK200
+
+info 00:24:1C:A5:08:18   
+
+connect 00:24:1C:A5:08:18   
+
+
+# Jabra Mini v0.3.3
+
+info 1C:48:F9:B1:E2:C5
+
+connect 1C:48:F9:B1:E2:C5
+
+
+
+
+ list
+Controller 00:0B:0D:4E:2D:EF BlueZ 5.43 [default]
+
+
+# list
+Controller 00:0B:0D:4E:2D:EF BlueZ 5.43 [default]
+[bluetooth]# show controller_mac_address
+Controller controller_mac_address not available
+[bluetooth]# list
+Controller 00:0B:0D:4E:2D:EF BlueZ 5.43 [default]
+[bluetooth]# show 00:0B:0D:4E:2D:EF
+Controller 00:0B:0D:4E:2D:EF
+	Name: BlueZ 5.43
+	Alias: BlueZ 5.43
+	Class: 0x000104
+	Powered: yes
+	Discoverable: no
+	Pairable: yes
+	UUID: Generic Attribute Profile (00001801-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control        (0000110e-0000-1000-8000-00805f9b34fb)
+	UUID: PnP Information           (00001200-0000-1000-8000-00805f9b34fb)
+	UUID: Generic Access Profile    (00001800-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control Target (0000110c-0000-1000-8000-00805f9b34fb)
+	Modalias: usb:v1D6Bp0246d052B
+	Discovering: no
+[bluetooth]# poweron
+Invalid command
+[bluetooth]# power on
+Changing power on succeeded
+[bluetooth]# agent on
+Agent registered
+[bluetooth]# default-agent
+Default agent request successful
+[bluetooth]# discoverable on
+Changing discoverable on succeeded
+[CHG] Controller 00:0B:0D:4E:2D:EF Discoverable: yes
+[bluetooth]# pairable on
+Changing pairable on succeeded
+[bluetooth]# scan on
+Discovery started
+[CHG] Controller 00:0B:0D:4E:2D:EF Discovering: yes
+[bluetooth]# devices
+[NEW] Device 00:24:1C:A5:08:18 00-24-1C-A5-08-18
+[CHG] Device 00:24:1C:A5:08:18 Connected: no
+[DEL] Device 00:24:1C:A5:08:18 00-24-1C-A5-08-18
+[NEW] Device 00:24:1C:A5:08:18 00-24-1C-A5-08-18
+[CHG] Device 00:24:1C:A5:08:18 RSSI: -60
+[CHG] Device 00:24:1C:A5:08:18 RSSI: -69
+[CHG] Device 00:24:1C:A5:08:18 LegacyPairing: no
+[CHG] Device 00:24:1C:A5:08:18 Name: Motorola HK200
+[CHG] Device 00:24:1C:A5:08:18 Alias: Motorola HK200
+[CHG] Device 00:24:1C:A5:08:18 LegacyPairing: yes
+[CHG] Device 00:24:1C:A5:08:18 RSSI: -60
+[bluetooth]# pair 00:24:1C:A5:08:18
+Attempting to pair with 00:24:1C:A5:08:18
+[CHG] Device 00:24:1C:A5:08:18 Connected: yes
+[CHG] Device 00:24:1C:A5:08:18 UUIDs: 00001108-0000-1000-8000-00805f9b34fb
+[CHG] Device 00:24:1C:A5:08:18 UUIDs: 0000111e-0000-1000-8000-00805f9b34fb
+[CHG] Device 00:24:1C:A5:08:18 ServicesResolved: yes
+[CHG] Device 00:24:1C:A5:08:18 Paired: yes
+Pairing successful
+[CHG] Device 00:24:1C:A5:08:18 ServicesResolved: no
+[CHG] Device 00:24:1C:A5:08:18 Connected: no
+[bluetooth]# trust 00:24:1C:A5:08:18
+[CHG] Device 00:24:1C:A5:08:18 Trusted: yes
+Changing 00:24:1C:A5:08:18 trust succeeded
+[bluetooth]# connect 00:24:1C:A5:08:18
+Attempting to connect to 00:24:1C:A5:08:18
+[CHG] Device 00:24:1C:A5:08:18 Connected: yes
+[CHG] Device 00:24:1C:A5:08:18 ServicesResolved: yes
+Failed to connect: org.bluez.Error.NotAvailable
+[CHG] Device 00:24:1C:A5:08:18 ServicesResolved: no
+[CHG] Device 00:24:1C:A5:08:18 Connected: no
+[bluetooth]# connect 00:24:1C:A5:08:18
+Attempting to connect to 00:24:1C:A5:08:18
+[CHG] Device 00:24:1C:A5:08:18 Connected: yes
+[CHG] Device 00:24:1C:A5:08:18 ServicesResolved: yes
+Failed to connect: org.bluez.Error.NotAvailable
+[Motorola HK200]# connect 00:24:1C:A5:08:18
+Attempting to connect to 00:24:1C:A5:08:18
+Failed to connect: org.bluez.Error.NotAvailable
+[CHG] Device 00:24:1C:A5:08:18 ServicesResolved: no
+[CHG] Device 00:24:1C:A5:08:18 Connected: no
+
+org.bluez.Error.NotAvailable
+
+
+connect 1C:48:F9:B1:E2:C5
+
+connect 1C:48:F9:B1:E2:C5
+Attempting to connect to 1C:48:F9:B1:E2:C5
+Failed to connect: org.bluez.Error.Failed
+
+connect 1C:48:F9:B1:E2:C5
+
+info 1C:48:F9:B1:E2:C5
+
+Device 1C:48:F9:B1:E2:C5
+	Name: Jabra Mini v0.3.3
+	Alias: Jabra Mini v0.3.3
+	Class: 0x240404
+	Icon: audio-card
+	Paired: yes
+	Trusted: yes
+	Blocked: no
+	Connected: no
+	LegacyPairing: yes
+	UUID: Serial Port               (00001101-0000-1000-8000-00805f9b34fb)
+	UUID: Headset                   (00001108-0000-1000-8000-00805f9b34fb)
+	UUID: Audio Sink                (0000110b-0000-1000-8000-00805f9b34fb)
+	UUID: Advanced Audio Distribu.. (0000110d-0000-1000-8000-00805f9b34fb)
+	UUID: Handsfree                 (0000111e-0000-1000-8000-00805f9b34fb)
+	RSSI: -70
+
+
+
+connect 1C:48:F9:B1:E2:C5 "hsp"
+
+info 1C:48:F9:B1:E2:C5
+Device 1C:48:F9:B1:E2:C5
+	Name: Jabra Mini v0.3.3
+	Alias: Jabra Mini v0.3.3
+	Class: 0x240404
+	Icon: audio-card
+	Paired: yes
+	Trusted: yes
+	Blocked: no
+	Connected: no
+	LegacyPairing: yes
+	UUID: Serial Port               (00001101-0000-1000-8000-00805f9b34fb)
+	UUID: Headset                   (00001108-0000-1000-8000-00805f9b34fb)
+	UUID: Audio Sink                (0000110b-0000-1000-8000-00805f9b34fb)
+	UUID: Advanced Audio Distribu.. (0000110d-0000-1000-8000-00805f9b34fb)
+	UUID: Handsfree                 (0000111e-0000-1000-8000-00805f9b34fb)
+	RSSI: -68
+
+
+**** controller bluez5
+
+Failed to pair: org.bluez.Error.AuthenticationRejected
+
+
+#
+
+hciconfig -a
+hci0:   Type: BR/EDR  Bus: USB
+        BD Address: 00:0B:0D:4E:2D:EF  ACL MTU: 1017:8  SCO MTU: 64:0
+        UP RUNNING 
+        RX bytes:994 acl:0 sco:0 events:43 errors:0
+        TX bytes:425 acl:0 sco:0 commands:43 errors:0
+        Features: 0xff 0xff 0x8d 0xfe 0x9b 0xf9 0x00 0x80
+        Packet type: DM1 DM3 DM5 DH1 DH3 DH5 HV1 HV2 HV3 
+        Link policy: RSWITCH HOLD SNIFF PARK 
+        Link mode: SLAVE ACCEPT 
+        Name: 'BlueZ 5.37'
+        Class: 0x000104
+        Service Classes: Unspecified
+        Device Class: Computer, Desktop workstation
+        HCI Version: 2.0 (0x3)  Revision: 0x40ec
+        LMP Version: 2.0 (0x3)  Subversion: 0x430e
+        Manufacturer: Broadcom Corporation (15)
+
+hciconfig hci0 up
+
+$
+
+bluetoothctl
+
+
+
+list
+
+info 00:24:1C:A5:08:18
+Device 00:24:1C:A5:08:18
+        Name: Motorola HK200
+        Alias: Motorola HK200
+        Class: 0x200404
+        Icon: audio-card
+        Paired: yes
+        Trusted: no
+        Blocked: no
+        Connected: no
+        LegacyPairing: yes
+        UUID: Headset                   (00001108-0000-1000-8000-00805f9b34fb)
+        UUID: Handsfree                 (0000111e-0000-1000-8000-00805f9b34fb)
+        RSSI: -66
+
+
+|   | controller        | device                       |   |   |
+|   | 00:0B:0D:4E:2D:EF | 00:24:1C:A5:08:18            |   |   |
+|---+-------------------+------------------------------+---+---|
+|   | list              | devices                      |   |   |
+|   |                   |                              |   |   |
+|   | show              | info 00:24:1C:A5:08:18       |   |   |
+|   |                   |                              |   |   |
+|   | select            |                              |   |   |
+|   | power on          |                              |   |   |
+|   | agent on          |                              |   |   |
+|   | default-agent     |                              |   |   |
+|   | discoverable on   |                              |   |   |
+|   | pairable on       |                              |   |   |
+|   | scan on           |                              |   |   |
+|---+-------------------+------------------------------+---+---|
+|   |                   | devices                      |   |   |
+|   |                   |                              |   |   |
+|   |                   | pair 00:24:1C:A5:08:18       |   |   |
+|   |                   |                              |   |   |
+|   |                   | trust 00:24:1C:A5:08:18      |   |   |
+|   |                   | untrust 00:24:1C:A5:08:18    |   |   |
+|   |                   |                              |   |   |
+|   |                   | connect 00:24:1C:A5:08:18    |   |   |
+|   |                   | disconnect 00:24:1C:A5:08:18 |   |   |
+|   |                   |                              |   |   |
+|   |                   | info 00:24:1C:A5:08:18       |   |   |
+
+power on 
+
+agent on 
+
+default-agent 
+
+discoverable on
+
+pairable on 
+
+scan on
+
+
+
+
+pair 00:24:1C:A5:08:18  
+
+
+info 00:24:1C:A5:08:18 
+
+
+
+trust 00:24:1C:A5:08:18 
+info 00:24:1C:A5:08:18 
+
+untrust 00:24:1C:A5:08:18 
+info 00:24:1C:A5:08:18 
+
+connect 00:24:1C:A5:08:18
+info 00:24:1C:A5:08:18 
+
+disconnect 00:24:1C:A5:08:18
+info 00:24:1C:A5:08:18 
+
+remove 00:24:1C:A5:08:18
+info 00:24:1C:A5:08:18 
+
+
+*** USE flag
+
+
+
+echo "media-sound/pulseaudio bluetooth dbus" > /etc/portage/package.use/pulseaudio
+
+echo "media-sound/pulseaudio bluetooth dbus udev" > /etc/portage/package.use/pulseaudio
+
+cat /etc/portage/package.use/pulseaudio
+
+emerge -pv pulseaudio
+ 
+emerge pulseaudio --autounmask-write 
+
+
+dispatch-conf
+
+
+emerge blueman
+
+
+https://wiki.gentoo.org/wiki/Bluetooth
+
+
+Device paring, which is done with simple-agent, requires the USE flag test-programs to be enabled for the net-wireless/bluez package.
+
+
+echo "net-wireless/bluez test-programs" >> /etc/portage/package.use/bluez 
+
+cat /etc/portage/package.use/bluez 
+
+emerge bluez  -pv
+
+
+emerge bluez 
+
+dispatch-conf
+
+
+emerge app-editors/emacs  --autounmask-write
+
+
+
+*** 重訂標點符號
+
+
+http://language.moe.gov.tw/001/Upload/FILES/SITE_CONTENT/M0001/HAU/haushou.htm#suo
+
+encoding big5
+
+
+
+手冊 
+
+http://language.moe.gov.tw/001/Upload/FILES/SITE_CONTENT/M0001/HAU/shiou.pdf
+
+
+| 標點符號逗號 | ，       |
+| 標點符號句號 | 。       |
+| 標點符號引號 | 「」『』 |
+| 標點符號問號 | ？       |
+| 標點符號冒號 | ：       |
+|              |          |
+
+**** 標點符號逗號，
+
+http://language.moe.gov.tw/001/Upload/FILES/SITE_CONTENT/M0001/HAU/h2.htm
+
+
+逗號，他洗了臉，穿好
+
+臺灣有美味的水果，還有秀麗的風景和多元的文化。
+
+
+**** 標點符號句號。
+
+http://language.moe.gov.tw/001/Upload/FILES/SITE_CONTENT/M0001/HAU/h1.htm
+
+
+句號 。
+
+
+**** 標點符號引號 「」『』
+
+
+
+冒號 ：
+
+出席會議人員有：專家、學者、各級代表、機關首長等。
+
+
+
+
+**** 標點符號問號 ？
+
+http://language.moe.gov.tw/001/Upload/FILES/SITE_CONTENT/M0001/HAU/h8.htm
+
+
+**** 標點符號冒號 ：
+
+
+http://language.moe.gov.tw/001/Upload/FILES/SITE_CONTENT/M0001/HAU/h5.htm
+
+
+
+
+
+
+
+
 
 
 * reference

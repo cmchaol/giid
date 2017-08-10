@@ -1,6 +1,4 @@
 
-FROM gentoo/stage3-amd64-hardened
+FROM c5766/giid:v.2
 
-RUN mkdir /usr/portage; \
-    emerge-webrsync; \
-    emerge net-misc/proxychains
+RUN emerge net-misc/dhcpcd
