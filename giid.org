@@ -1,6 +1,18 @@
 * Dockerfile
 
-** v1
+** v.2
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+FROM gentoo/stage3-amd64-hardened
+
+RUN mkdir /usr/portage; \
+    emerge-webrsync; \
+    emerge net-misc/proxychains
+#+END_SRC
+
+
+** v.1
 
 #+HEADER:  :tangle Dockerfile
 #+BEGIN_SRC sh
@@ -9,6 +21,9 @@ FROM gentoo/stage3-amd64-hardened
 RUN mkdir /usr/portage; \
     emerge-webrsync
 #+END_SRC
+
+
+** push
 
 | publishing the above block |
 | C-u C-c C-v t              |
