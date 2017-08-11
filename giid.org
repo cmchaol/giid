@@ -4188,28 +4188,32 @@ Calculating dependencies... done!
 
 ** tag
 
-| tag    | git commands                     |
-|--------+----------------------------------|
-| add    |                                  |
-|        | git tag -a                       |
-|        |                                  |
-|        | git tag -m                       |
-|        |                                  |
-|        | git tag -a -m                    |
-|        |                                  |
-|        | M-x magit-tag                    |
-|--------+----------------------------------|
-| push   |                                  |
-|        | git push origin tag_name         |
-|        |                                  |
-|        | magit push a tag                 |
-|--------+----------------------------------|
-| remove |                                  |
-|        | git push origin :tagname         |
-|        |                                  |
-|        | git push --delete origin tagname |
-|        |                                  |
-|        | git tag --delete tagname         |
+| tag           | git commands                     |
+|---------------+----------------------------------|
+| add           |                                  |
+|               | git tag -a                       |
+|               |                                  |
+|               | git tag -m                       |
+|               |                                  |
+|               | git tag -a -m                    |
+|               |                                  |
+|               | M-x magit-tag                    |
+|---------------+----------------------------------|
+| push          |                                  |
+|               | git push origin tag_name         |
+|               |                                  |
+|               | magit push a tag                 |
+|---------------+----------------------------------|
+| remove remote |                                  |
+|               | git push origin :tagname         |
+|               |                                  |
+|               | git push --delete origin tagname |
+|               |                                  |
+|---------------+----------------------------------|
+| remove local  |                                  |
+|               | git tag --delete tagname         |
+|               | (delete the local tag)           |
+|               |                                  |
 
 
 
