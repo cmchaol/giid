@@ -4295,20 +4295,29 @@ Calculating dependencies... done!
 | tag           | git commands                     |
 |---------------+----------------------------------|
 | add           |                                  |
+|               | M-x magit-tag                    |
+|               |                                  |
 |               | git tag -a                       |
 |               |                                  |
 |               | git tag -m                       |
 |               |                                  |
 |               | git tag -a -m                    |
 |               |                                  |
-|               | M-x magit-tag                    |
 |---------------+----------------------------------|
 | push          |                                  |
+|               | magit push master                |
+|               |                                  |
+|               | magit push T (a tag)             |
+|               |                                  |
+|               |                                  |
 |               | git push origin tag_name         |
 |               |                                  |
-|               | magit push a tag                 |
 |---------------+----------------------------------|
 | remove remote |                                  |
+|               | magit push r (explicit refspecs) |
+|               | :tagname                         |
+|               |                                  |
+|               |                                  |
 |               | git push origin :tagname         |
 |               |                                  |
 |               | git push --delete origin tagname |
