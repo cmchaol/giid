@@ -53,8 +53,8 @@ emerge \
        x11-wm/spectrwm \
        app-editors/emacs 
 
-emerge --autounmask-write www-client/google-chrome
+# emerge --autounmask-write www-client/google-chrome
 
-yes | etc-update --automode -3
+# yes | etc-update --automode -3
 
-emerge www-client/google-chrome
+# emerge www-client/google-chrome
