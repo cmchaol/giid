@@ -1,4 +1,6 @@
 
-FROM c5766/giid:v.2
+FROM gentoo/stage3-amd64-hardened
 
-RUN emerge net-misc/dhcpcd
+ADD build.sh /
+
+RUN /build.sh
