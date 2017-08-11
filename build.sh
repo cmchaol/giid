@@ -45,8 +45,8 @@ echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-
 echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
 
 emerge \
-       sys-kernel/hardened \
-       xorg-drivers \
+       sys-kernel/hardened-sources \
+       x11-base/xorg-drivers \
        x11-base/xorg-server \
        x11-apps/xrandr \
        x11-terms/xterm \
