@@ -50,8 +50,14 @@ emerge \
        x11-base/xorg-server \
        x11-apps/xrandr \
        x11-terms/xterm \
-       x11-wm/spectrwm \
+       x11-wm/spectrwm 
        app-editors/emacs 
+
+emerge --autounmask-write app-editors/emacs 
+
+yes | etc-update --automode -3
+
+emerge app-editors/emacs 
 
 # emerge --autounmask-write www-client/google-chrome
 
