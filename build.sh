@@ -1,7 +1,13 @@
 
+#!/bin/bash
+
+mkdir /usr/portage
+
+emerge-webrsync
+
 mkdir -p /etc/portage/package.mask/
 
-echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
 
 # udev, video cards, X, 
 
@@ -13,7 +19,7 @@ INPUT_DEVICES="libinput"
 
 VIDEO_CARDS="nouveau intel i915"
 
-PAX_MARKINGS="XT" 
+# PAX_MARKINGS="XT" 
 
 EOF
 
@@ -39,21 +45,11 @@ rc-update add net.enp1s0 default
 
 emerge --noreplace net-misc/netifrc
 
-
-echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-sources
-
-echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
-
-emerge sys-devel/llvm
-
-# emerge --autounmask-write app-editors/emacs 
-
-# yes | etc-update --automode -3
-
-# emerge app-editors/emacs 
-
-# emerge --autounmask-write www-client/google-chrome
-
-# yes | etc-update --automode -3
-
-# emerge www-client/google-chrome
+emerge \
+       dev-util/re2c \
+       dev-util/ninja \
+       app-arch/libarchive \
+       net-misc/curl \
+       dev-libs/libuv \
+       dev-util/cmake \
+       sys-devel/llvm
