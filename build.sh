@@ -44,7 +44,7 @@ echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-
 
 echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
 
-emerge sys-apps/sandbox
+emerge sys-devel/llvm
 
 # emerge --autounmask-write app-editors/emacs 
 
