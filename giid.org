@@ -20,7 +20,7 @@
 #+HEADER:  :tangle Dockerfile
 #+BEGIN_SRC sh
 
-FROM c5766/giid:v10
+FROM c5766/giid:v12
 # FROM gentoo/stage3-amd64-hardened
 
 ADD build.sh /
