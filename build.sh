@@ -51,5 +51,4 @@ emerge \
        app-arch/libarchive \
        net-misc/curl \
        dev-libs/libuv \
-       dev-util/cmake \
-       sys-devel/llvm
+       dev-util/cmake
