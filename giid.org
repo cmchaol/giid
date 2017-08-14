@@ -15,6 +15,105 @@
 |     |                             |
 
 
+** v8
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v.4
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir -p /etc/portage/package.mask/
+
+echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+# udev, video cards, X, 
+
+sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
+
+cat <<EOF >> /etc/portage/make.conf
+
+INPUT_DEVICES="libinput"
+
+VIDEO_CARDS="nouveau intel i915"
+
+PAX_MARKINGS="XT" 
+
+EOF
+
+
+emerge --changed-use --deep @world 
+
+rc-update add udev sysinit
+
+
+
+cat <<EOF >  /etc/conf.d/net
+
+dns_domain_lo="my_domain"
+
+config_enp1s0="dhcp"
+
+EOF
+
+
+cd /etc/init.d
+ln -s net.lo net.enp1s0
+rc-update add net.enp1s0 default
+
+emerge --noreplace net-misc/netifrc
+
+
+echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-sources
+
+echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
+
+emerge sys-apps/sandbox
+
+# emerge --autounmask-write app-editors/emacs 
+
+# yes | etc-update --automode -3
+
+# emerge app-editors/emacs 
+
+# emerge --autounmask-write www-client/google-chrome
+
+# yes | etc-update --automode -3
+
+# emerge www-client/google-chrome
+
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+# cat build.sh
+#+END_SRC
+
+error
+
+ /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x000000
+0000000000): Operation not permitted
+
+
+
 ** v7
 
 #+HEADER:  :tangle Dockerfile
@@ -112,6 +211,12 @@ ls -lha build.sh
 
 cat build.sh
 #+END_SRC
+
+error
+
+ /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x000000
+0000000000): Operation not permitted
 
 
 ** v.6
