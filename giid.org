@@ -15,6 +15,121 @@
 |     |                             |
 
 
+** v18
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v17
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
+
+emerge \
+       sys-kernel/hardened-sources \
+       x11-base/xorg-drivers \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm \
+       app-editors/emacs \
+       --autounmask-write 
+
+yes | etc-update --automode -3
+
+emerge \
+       sys-kernel/hardened-sources \
+       x11-base/xorg-drivers \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm \
+       app-editors/emacs 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+# cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 user1 user1 690 Aug 15 23:00 build.sh
+-rwxr-xr-x 1 user1 user1 690 Aug 15 23:00 build.sh
+
+
+
+exit  # exit docker
+
+
+docker login
+
+docker images
+
+# docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker tag  cb297b1d7185        c5766/giid:v16
+
+docker push c5766/giid:v16
+
+
+docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker push c5766/docker-gentoo-catalyst:v3
+
+
+
+
+
+** v17
+
+docker run -it c5766/giid:v15 /bin/bash 
+
+emerge sys-devel/llvm
+
+
+exit  # exit docker
+
+
+docker login
+
+docker ps
+
+# docker commit c3f279d17e0a  svendowideit/testimage:version3
+
+docker commit 3a7801581b03 c5766/giid:v17
+
+docker push c5766/giid:v17
+
+
+docker images
+
+# docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker tag  cb297b1d7185        c5766/giid:v15
+
+docker push c5766/giid:v15
+
+
+
 ** v16
 
 #+HEADER:  :tangle Dockerfile
@@ -73,6 +188,24 @@ ls -lha build.sh
 
 
 
+exit  # exit docker
+
+
+docker login
+
+docker images
+
+# docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker tag  cb297b1d7185        c5766/giid:v16
+
+docker push c5766/giid:v16
+
+
+docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker push c5766/docker-gentoo-catalyst:v3
+
 
 
 ** DONE v15 llvm 
@@ -87,7 +220,7 @@ exit  # exit docker
 
 docker login
 
-docker ps
+docker images
 
 # docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
 
@@ -97,6 +230,8 @@ docker push c5766/giid:v15
 
 # docker push c5766/docker-gentoo-catalyst:v3
 
+
+docker run -it c5766/giid:v15 /bin/bash 
 
 ** v14 llvm 1 of 2
 
