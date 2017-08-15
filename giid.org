@@ -15,6 +15,209 @@
 |     |                             |
 
 
+** v14 llvm 1 of 2
+
+*** Dockerfile 
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+# FROM c5766/giid:v.4
+FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+*** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+#!/bin/bash
+
+mkdir /usr/portage
+
+emerge-webrsync
+
+mkdir -p /etc/portage/package.mask/
+
+
+
+# udev, video cards, X, 
+
+sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
+
+cat <<EOF >> /etc/portage/make.conf
+
+INPUT_DEVICES="libinput"
+
+VIDEO_CARDS="nouveau intel i915"
+
+# PAX_MARKINGS="XT" 
+
+FEATURES="test"
+
+EOF
+
+
+emerge --changed-use --deep @world 
+
+rc-update add udev sysinit
+
+
+
+cat <<EOF >  /etc/conf.d/net
+
+dns_domain_lo="my_domain"
+
+config_enp1s0="dhcp"
+
+EOF
+
+mkdir /usr/portage/env
+
+cat <<EOF >  /etc/portage/env/compiler-clang  
+CC="clang"
+CXX="clang++"
+CFLAGS="${CFLAGS} -flto=thin"              
+CXXFLAGS="${CXXFLAGS} -flto=thin"          
+LDFLAGS="-Wl,-O2 -Wl,--as-needed"    #please use whichever optimization level you're comfortable with
+EOF
+
+cat <<EOF > /etc/portage/env/compiler-gcc
+CC="gcc"
+CXX="g++"
+CFLAGS="-O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+EOF
+
+
+cat <<EOF > /etc/portage/package.env
+sys-devel/llvm compiler-clang  
+EOF
+
+
+cd /etc/init.d
+ln -s net.lo net.enp1s0
+rc-update add net.enp1s0 default
+
+emerge --noreplace net-misc/netifrc
+
+echo "sys-devel/llvm gold clang" > /etc/portage/package.use/llvm
+
+
+
+emerge sys-devel/binutils-config
+
+binutils-config --linker ld.gold
+
+emerge \
+       dev-util/re2c \
+       dev-util/ninja \
+       app-arch/libarchive \
+       net-misc/curl \
+       dev-libs/libuv \
+       dev-util/cmake \
+       sys-devel/clang 
+
+#+END_SRC
+
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+# cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 1.4K Aug 15 13:03 build.sh
+-rwxr-xr-x 1 c5766 c5766 1.4K Aug 15 13:03 build.sh
+
+*** reference
+[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
+[ebuild     U  ] app-portage/elt-patches-20170422::gentoo [20170317::gentoo] 28 KiB
+[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
+[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
+[ebuild  N     ] net-misc/curl-7.54.1::gentoo  USE="ipv6 ssl -adns -http2 -idn -kerberos -ldap -metalink -rtmp -samba -ssh -static-libs {-test} -threads" ABI_X86="(64) -32 (-x32)" CURL_SSL="openssl -axtls -gnutls (-libressl) -mbedtls -nss (-winssl)" 2552 KiB
+[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
+[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
+[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
+
+Total: 8 packages (1 upgrade, 7 new), Size of downloads: 39645 KiB
+
+ * IMPORTANT: 9 news items need reading for repository 'gentoo'.
+ * Use eselect news read to view new items.
+
+https://github.com/thedcg/gentoo-llvm/blob/master/prep/Dockerfile
+
+
+
+Building Clang/LLVM efficiently
+
+http://llvm.org/devmtg/2015-04/slides/eurollvm-2015-build.pdf
+
+
+Summary
+● Always build with Clang if you care about compile time  1.34x
+● Use GNU gold rather than GNU ld 1.02x
+● Building Clang with GCC and PGO produces fastest binary 
+● Shared library builds speed up incremental debug builds tremendously
+● Overall speedup: 1.58x for release builds and 1.94x for debug builds (Switching from GCC + GNU ld to a PGO
+build of Clang + GNU gold)
+
+
+
+https://wiki.gentoo.org/wiki/Project:LLVM/Shared_libraries
+
+| LLVM                        |        |                         |
+|-----------------------------+--------+-------------------------|
+| split library               |        |                         |
+|                             | static | defaults                |
+|                             |        | not supported on gentoo |
+|                             |        |                         |
+|                             | shared | recent gentoo           |
+|                             |        |                         |
+|-----------------------------+--------+-------------------------|
+| additional combined library |        |                         |
+|                             | shared |                         |
+|                             |        |                         |
+
+
+
+https://wiki.gentoo.org/wiki/Clang
+
+
+
+
+
+
+
+*** add
+
+/etc/portage/make.conf
+USE="clang"
+FEATURES="test"
+
+/etc/portage/env/compiler-clang  
+CC="clang"
+CXX="clang++"
+
+
+emerge sys-devel/clang
+
+/etc/portage/env/compiler-gcc
+CC="gcc"
+CXX="g++"
+CFLAGS="-O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+
+
+
 ** v13 llvm 2 of 2
 
 #+HEADER:  :tangle Dockerfile
@@ -49,9 +252,13 @@ ls -lha build.sh
 # cat build.sh
 #+END_SRC
 
-error, time out 2 hours
+error, time out 2 hours, twice.
 
-[1013/1416] 
+[1230/1416]
+
+[1196/1416]  [2017-08-15 Tue 11:52]
+
+
 
 [ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
 [ebuild     U  ] app-portage/elt-patches-20170422::gentoo [20170317::gentoo] 28 KiB
@@ -70,9 +277,20 @@ Total: 8 packages (1 upgrade, 7 new), Size of downloads: 39645 KiB
 https://github.com/thedcg/gentoo-llvm/blob/master/prep/Dockerfile
 
 
+For example, run this command to use a directory called docker in the branch container:
+
+$ docker build https://github.com/docker/rootfs.git#container:docker
+
+cd /tmp
+
+# mkdir testdockerbuild
+
+docker build https://github.com/cmchaol/giid.git#v13:testdockerbuild
 
 
-** v12 llvm 1 of 2
+
+
+** DONE v12 llvm 1 of 2
 
 #+HEADER:  :tangle Dockerfile
 #+BEGIN_SRC sh
