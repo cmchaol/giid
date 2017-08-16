@@ -15,7 +15,102 @@
 |     |                             |
 
 
-** v22 xorg-drivers
+
+
+
+
+
+** v23
+*** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v22
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+*** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
+
+emerge \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm \
+       sys-kernel/hardened-sources \
+       app-editors/emacs \
+       --autounmask-write 
+
+yes | etc-update --automode -3
+
+emerge \
+       x11-base/xorg-drivers \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm \
+       sys-kernel/hardened-sources \
+       app-editors/emacs 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+# cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 659 Aug 16 16:09 build.sh
+-rwxr-xr-x 1 c5766 c5766 659 Aug 16 16:09 build.sh
+
+    
+*** docker path
+
+exit  # exit docker
+
+docker run -it c5766/giid:v15 /bin/bash 
+
+emerge sys-devel/llvm
+
+
+docker login
+
+docker images
+
+# docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker tag  cb297b1d7185        c5766/giid:v16
+
+docker push c5766/giid:v16
+
+
+docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker push c5766/docker-gentoo-catalyst:v3
+
+
+*** errors
+
+>>> Emerging (111 of 136) media-libs/mesa-17.0.6::gentoo
+
+
+** DONE v22 xorg-drivers
 
 *** Dockerfile
 #+HEADER:  :tangle Dockerfile
@@ -77,7 +172,6 @@ docker push c5766/docker-gentoo-catalyst:v3
 *** errors
 
 >>> Emerging (111 of 136) media-libs/mesa-17.0.6::gentoo
-
 
 
 
