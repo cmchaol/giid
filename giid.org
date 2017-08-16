@@ -15,6 +15,122 @@
 |     |                             |
 
 
+** v21
+
+*** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v19
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+*** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
+
+emerge \
+       sys-kernel/hardened-sources \
+       x11-base/xorg-drivers \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm \
+       app-editors/emacs \
+       --autounmask-write 
+
+yes | etc-update --automode -3
+
+emerge \
+       sys-kernel/hardened-sources \
+       x11-base/xorg-drivers \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm \
+       app-editors/emacs 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+# cat build.sh
+#+END_SRC
+
+*** docker path
+
+exit  # exit docker
+
+docker run -it c5766/giid:v15 /bin/bash 
+
+emerge sys-devel/llvm
+
+
+docker login
+
+docker images
+
+# docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker tag  cb297b1d7185        c5766/giid:v16
+
+docker push c5766/giid:v16
+
+
+docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker push c5766/docker-gentoo-catalyst:v3
+
+
+*** errors
+
+Emerging (67 of 139) dev-libs/gobject-introspection-1.50.0::gentoo
+
+ * Messages for package dev-libs/gobject-introspection-1.50.0:
+ * ERROR: dev-libs/gobject-introspection-1.50.0::gentoo failed (compile phase):
+ *   emake failed
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
+
+/usr/lib64/libsandbox.so
+(+0xd491)[0x7f7a51b61491]
+/usr/lib64/libsandbox.so(+0xd5a1)[0x7f7a51b615a1]
+/usr/lib64/libsandbox.so(+0x6699)[0x7f7a51b5a699]
+/usr/lib64/libsandbox.so(+0x6981)[0x7f7a51b5a981]
+/usr/lib64/libsandbox.so(+0x7317)[0x7f7a51b5b317]
+/usr/lib64/libsandbox.so(execve+0x5a)[0x7f7a51b5e90a]
+/bin/bash
+(
++0x25d1b)[0x55fd8611cd1b]
+/bin/bash(+0x2784c)[0x55fd8611e84c]
+/bin/bash(+0x28478)[0x55fd8611f478]
+/bin/bash(+0x77421)[0x55fd8616e421]
+/proc/18210/cmdline: /bin/bash /usr/bin/ldd /var/tmp/portage/dev-libs/gobject-introspection-1.50.0/work/gobject-introspection-1.50.0/tmp-introspect49wkojpy/GLib-2.0 
+
+
+ldd: exited with unknown exit code (134)
+ERROR: can't resolve libraries to shared libraries: gobject-2.0, glib-2.0
+
+
+
+
+
 ** v20 gobject-introspection docker hub
 
 *** Dockerfile
@@ -101,6 +217,8 @@ docker push c5766/docker-gentoo-catalyst:v3
 
 
 *** errors
+
+
 
 Emerging (67 of 139) dev-libs/gobject-introspection-1.50.0::gentoo
 
