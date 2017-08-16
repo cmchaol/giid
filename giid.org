@@ -9,12 +9,90 @@
 | needs escalted previledge    | gobject-introspection            |
 |                              |                                  |
 |                              |                                  |
+
+
+
+** v25
+*** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v24
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+*** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick" > /etc/portage/package.use/emacs
+
+emerge \
+       app-editors/emacs \
+       --autounmask-write 
+
+yes | etc-update --automode -3
+
+emerge \
+       app-editors/emacs 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+# cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 235 Aug 17 07:39 build.sh
+-rwxr-xr-x 1 c5766 c5766 235 Aug 17 07:39 build.sh
+
+    
+*** docker path
+
+exit  # exit docker
+
+docker run -it c5766/giid:v15 /bin/bash 
+
+emerge sys-devel/llvm
+
+
+docker login
+
+docker images
+
+# docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker tag  cb297b1d7185        c5766/giid:v16
+
+docker push c5766/giid:v16
+
+
+docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker push c5766/docker-gentoo-catalyst:v3
+
+
+*** errors
+
+>>> Emerging (111 of 136) media-libs/mesa-17.0.6::gentoo
  
 
 
 
 
-** v24
+** DONE v24
 *** Dockerfile
 #+HEADER:  :tangle Dockerfile
 #+BEGIN_SRC sh
@@ -91,7 +169,6 @@ docker push c5766/docker-gentoo-catalyst:v3
 *** errors
 
 >>> Emerging (111 of 136) media-libs/mesa-17.0.6::gentoo
-
 
 
 ** v23
