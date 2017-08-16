@@ -2,21 +2,95 @@
 
 ** summary
 
-| v.5 |                             |
-|     |                             |
-| v.4 | build.sh                    |
-|     |                             |
-| v.3 | emerge net-misc/dhcpcd      |
-|     | from v.2                    |
-|     |                             |
-| v.2 | emerge net-misc/proxychains |
-|     |                             |
-| v.1 | emerge-webrsync             |
-|     |                             |
+| takes 110 minutes to build   | xorg-driver consumes 110 minutes |
+|                              |                                  |
+| takes over 2h to build, dply | llvm                             |
+|                              |                                  |
+| needs escalted previledge    | gobject-introspection            |
+|                              |                                  |
+|                              |                                  |
+ 
 
 
 
 
+** v24
+*** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v22
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+*** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+# echo "app-editors/emacs xft X jpeg png svg tiff alsa gif imagemagick sound" > /etc/portage/package.use/emacs
+
+emerge \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm \
+       sys-kernel/hardened-sources 
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+# cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 365 Aug 16 18:10 build.sh
+-rwxr-xr-x 1 c5766 c5766 365 Aug 16 18:10 build.sh
+
+    
+*** docker path
+
+exit  # exit docker
+
+docker run -it c5766/giid:v15 /bin/bash 
+
+emerge sys-devel/llvm
+
+
+docker login
+
+docker images
+
+# docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker tag  cb297b1d7185        c5766/giid:v16
+
+docker push c5766/giid:v16
+
+
+docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
+
+docker push c5766/docker-gentoo-catalyst:v3
+
+
+*** errors
+
+>>> Emerging (111 of 136) media-libs/mesa-17.0.6::gentoo
 
 
 
