@@ -12,7 +12,109 @@
 
 
 
+** v27
+
+*** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v24
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+*** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
+wget -O /usr/src/linux/.config $f; \
+cd /usr/src/linux; \
+make && make modules_install; \
+KERNELVER=4.7.10-hardened; \
+EXTENSION=20170818; \
+cp .config /boot/config-${KERNELVER}-${EXTENSION}; \
+cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}; \
+cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}; \
+cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk; \
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+# cat build.sh
+#+END_SRC
+
+    
+*** docker 
+
+docker run -it c5766/giid:v26
+
+
+f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
+
+# print on screen
+# wget -O - -o /dev/null $f
+
+# save as 
+# wget -O /tmp/.config $f
+
+wget -O /usr/src/linux/.config $f
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+
+time nice -10 \
+make && make modules_install
+
+# time nice -10 \
+# make -j 6 && make modules_install
+
+KERNELVER=4.7.10-hardened
+EXTENSION=20170818
+
+cp .config /boot/config-${KERNELVER}-${EXTENSION}
+cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
+cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
+cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
+
+
+
+/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
+
+qemu-system-x86_64 -m 1G -drive file=/dev/sdd
+
+
+real    18m21.849s
+user    15m53.864s
+sys     1m41.244s
+
+DEPMOD  4.7.10-hardened
+
+
+*** errors
+
+
+
+
+
+
+
 ** v26
+
 *** Dockerfile
 #+HEADER:  :tangle Dockerfile
 #+BEGIN_SRC sh
@@ -57,29 +159,9 @@ ls -lha build.sh
 -rwxr-xr-x 1 c5766 c5766 181 Aug 17 09:26 build.sh
 
     
-*** docker path
+*** docker 
 
-exit  # exit docker
-
-docker run -it c5766/giid:v15 /bin/bash 
-
-emerge sys-devel/llvm
-
-
-docker login
-
-docker images
-
-# docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
-
-docker tag  cb297b1d7185        c5766/giid:v16
-
-docker push c5766/giid:v16
-
-
-docker tag docker-gentoo-catalyst-v2 c5766/docker-gentoo-catalyst:v3
-
-docker push c5766/docker-gentoo-catalyst:v3
+docker run c5766/giid:v26
 
 
 *** errors
@@ -6038,6 +6120,42 @@ http://language.moe.gov.tw/001/Upload/FILES/SITE_CONTENT/M0001/HAU/h5.htm
 
 
 * reference
+
+** kernel defconfig
+
+
+| aims                        | commands                               |
+|-----------------------------+----------------------------------------|
+| create a customized .config |                                        |
+|                             | cd /usr/src/linux                      |
+|                             |                                        |
+|                             | make allnoconfig                       |
+|                             |                                        |
+|                             | make menuconfig                        |
+|                             |                                        |
+|-----------------------------+----------------------------------------|
+| make savedefconfig          |                                        |
+|                             | f="/tmp/                               |
+|                             |                                        |
+|                             | make savedefconfig                     |
+|                             |                                        |
+|                             | cp defconfig $f                        |
+|-----------------------------+----------------------------------------|
+| restore                     |                                        |
+|                             | make KCONFIG_ALLCONFIG=$f alldefconfig |
+
+
+https://lwn.net/Articles/397363/
+
+
+| make alldefconfig  |                                                                         |
+|                    | all values set to default values.                                       |
+|--------------------+-------------------------------------------------------------------------|
+| make savedefconfig |                                                                         |
+|                    | reads the current configuration and save it as a minimal configuration. |
+|--------------------+-------------------------------------------------------------------------|
+|                    |                                                                         |
+|                    |                                                                         |
 
 ** dply
 
