@@ -10,6 +10,174 @@
 |                              |                                  |
 |                              |                                  |
 
+*** v30 - v39
+
+|     | parent | snapshot | PORTAGE_TMPDIR | emerge kernel | emerge grub |
+|-----+--------+----------+----------------+---------------+-------------|
+| v34 | gentoo | v        |                |               |             |
+|     |        |          |                |               |             |
+| v35 | v34    |          | v              | v             |             |
+|     |        |          |                |               |             |
+| v36 | v35    |          |                |               | v           |
+|     |        |          |                |               |             |
+
+
+
+** v36
+
+*** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v35
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+*** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+emerge \
+       sys-boot/grub \
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+    
+*** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v28
+
+docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
+
+
+
+cat <<EOF >  /tmp/stage4.excl
+.bash_history
+/mnt/*
+/tmp/*
+/proc/*
+/sys/*
+/dev/*
+EOF
+
+cat /tmp/stage4.excl
+
+
+f="stage4_20170821.tar.xz"
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
+
+  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
+
+real    38m54.779s
+user    37m0.468s
+sys     1m9.960s
+
+
+curl --upload-file  /tmp/$f https://transfer.sh/$f
+
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
+
+  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
+
+
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
+
+# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
+
+
+
+xz: (stdin): Cannot allocate memory
+
+
+f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
+
+# print on screen
+# wget -O - -o /dev/null $f
+
+# save as 
+# wget -O /tmp/.config $f
+
+wget -O /usr/src/linux/.config $f
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+
+time nice -10 \
+make && make modules_install
+
+# time nice -10 \
+# make -j 6 && make modules_install
+
+KERNELVER=4.7.10-hardened
+EXTENSION=20170818
+
+cp .config /boot/config-${KERNELVER}-${EXTENSION}
+cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
+cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
+cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
+
+
+
+/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
+
+qemu-system-x86_64 -m 1G -drive file=/dev/sdd
+
+
+real    18m21.849s
+user    15m53.864s
+sys     1m41.244s
+
+DEPMOD  4.7.10-hardened
+
+
+*** errors
+
+The directory specified in your PORTAGE_TMPDIR variable does not exist:
+ * /dev/tmp
+ * Please create this directory or correct your PORTAGE_TMPDIR setting.
+
 
 
 
