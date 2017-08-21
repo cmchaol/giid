@@ -1,15 +1,16 @@
 
-cat <<EOF >  /tmp/stage4.excl
-.bash_history
-/mnt/*
-/tmp/*
-/proc/*
-/sys/*
-/dev/*
+mkdir /etc/portage/repos.conf
+
+cat <<EOF >  /etc/portage/repos.conf/gentoo.conf
+[gentoo]
+location = /dev/portage
 EOF
 
-f="stage4_20170821.tar.xz"
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
+emerge-webrsync
 
-curl --upload-file  /tmp/$f https://transfer.sh/$f
+echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+emerge \
+       sys-kernel/hardened-sources
