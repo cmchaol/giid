@@ -317,8 +317,20 @@ make && make modules_install
 # time nice -10 \
 # make -j 6 && make modules_install
 
+
+[2017-08-21 Mon 11:54]
+
+real    6m47.235s
+user    13m1.281s
+sys     1m1.703s
+
+DEPMOD  4.7.10-hardened
+
+
+
+
 KERNELVER=4.7.10-hardened
-EXTENSION=20170818
+EXTENSION=20170821
 
 cp .config /boot/config-${KERNELVER}-${EXTENSION}
 cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
@@ -343,7 +355,9 @@ DEPMOD  4.7.10-hardened
 
 xz: (stdin): Cannot allocate memory
 
+make KCONFIG_ALLCONFIG=$f alldefconfig
 
+make KCONFIG_ALLCONFIG=./f alldefconfig
 
 
 
