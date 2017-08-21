@@ -1,11 +1,15 @@
 
-f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
-wget -O /usr/src/linux/.config $f; \
-cd /usr/src/linux; \
-make && make modules_install; \
-KERNELVER=4.7.10-hardened; \
-EXTENSION=20170818; \
-cp .config /boot/config-${KERNELVER}-${EXTENSION}; \
-cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}; \
-cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}; \
-cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk; \
+cat <<EOF >  /tmp/stage4.excl
+.bash_history
+/mnt/*
+/tmp/*
+/proc/*
+/sys/*
+/dev/*
+EOF
+
+f="stage4_20170821.tar.xz"
+
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
+
+curl --upload-file  /tmp/$f https://transfer.sh/$f
