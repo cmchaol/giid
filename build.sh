@@ -1,14 +1,5 @@
 
-mkdir /etc/portage/repos.conf
-
-cat <<EOF >  /etc/portage/repos.conf/gentoo.conf
-[gentoo]
-location = /dev/portage
-EOF
-
 echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-# emerge-webrsync
 
 emerge --sync
 
