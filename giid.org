@@ -12,7 +12,9 @@
 
 
 
-** v31
+
+
+** v32
 
 *** Dockerfile
 #+HEADER:  :tangle Dockerfile
@@ -21,8 +23,7 @@
 # FROM c5766/giid:v28
 FROM gentoo/stage3-amd64-hardened
 
-ADD build.sh /
-
+ADD build.sh; /
 RUN /build.sh 
 
 #+END_SRC
@@ -40,7 +41,9 @@ EOF
 
 echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 
-emerge-webrsync
+# emerge-webrsync
+
+emerge --sync
 
 echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
 
@@ -58,7 +61,7 @@ chmod +x build.sh
 
 ls -lha build.sh
 
-# cat build.sh
+cat build.sh
 #+END_SRC
 
     
@@ -187,17 +190,18 @@ DEPMOD  4.7.10-hardened
 
 *** errors
 
-xz: (stdin): Cannot allocate memory
+Section 'gentoo' in repos.conf has location attribute set to nonexistent directory: '/dev/portage'
+!!! Section 'x-portage' in repos.conf has location attribute set to nonexistent directory: '/usr/portage'
+!!! Invalid Repository Location (not a dir): '/dev/portage'
+
+!!! /etc/portage/make.profile is not a symlink and will probably prevent most merges.
+!!! It should point into a profile within /dev/portage/profiles/
+!!! (You can safely ignore this message when syncing. It's harmless.)
 
 
 
 
-
-
-
-
-
-** v30
+** v31
 
 *** Dockerfile
 #+HEADER:  :tangle Dockerfile
@@ -375,12 +379,13 @@ DEPMOD  4.7.10-hardened
 
 *** errors
 
-xz: (stdin): Cannot allocate memory
+Section 'gentoo' in repos.conf has location attribute set to nonexistent directory: '/dev/portage'
+!!! Section 'x-portage' in repos.conf has location attribute set to nonexistent directory: '/usr/portage'
+!!! Invalid Repository Location (not a dir): '/dev/portage'
 
-
-
-
-
+!!! /etc/portage/make.profile is not a symlink and will probably prevent most merges.
+!!! It should point into a profile within /dev/portage/profiles/
+!!! (You can safely ignore this message when syncing. It's harmless.)
 
 
 
