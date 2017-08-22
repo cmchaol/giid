@@ -10,6 +10,6 @@ EOF
 
 f="stage4_20170822.tar.xz"
 
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /dev/$f
+tar -X /tmp/stage4.excl -c / | xz -1vT0  > /dev/$f
 
 wget --method PUT --body-file=/dev/$f https://transfer.sh/$f -O - -nv
