@@ -212,6 +212,18 @@ https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/
 
 
 
+**** results
+
+14 minutes to build
+
+45 m to download
+
+
+528.4 MiB / 2228.6 MiB = 0.237, 4.3 MiB/s, 8:35
+
+
+https://transfer.sh/xrkbJ/stage4_20170822.tar.xz
+
 ** v41
    
 **** Dockerfile
