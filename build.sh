@@ -1,6 +1,7 @@
 
-# mandatory
-mkdir /dev/tmp   
+mkdir /dev/tmp
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 
 emerge \
-       =sys-kernel/hardened-sources-4.4.8-r1
+       sys-devel/llvm
