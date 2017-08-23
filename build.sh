@@ -1,15 +1,7 @@
 
-cat <<EOF >  /tmp/stage4.excl
-.bash_history
-/mnt/*
-/tmp/*
-/proc/*
-/sys/*
-/dev/*
-EOF
+mkdir /dev/tmp
 
-f="stage4_20170822.tar.xz"
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 
-tar -X /tmp/stage4.excl -c / | xz -1vT0  > /dev/$f
-
-wget --method PUT --body-file=/dev/$f https://transfer.sh/$f -O - -nv
+emerge \
+       sys-boot/grub
