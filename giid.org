@@ -29,6 +29,56 @@
 |     |        |          |                |               |             |              |               |
 | v43 | v34    |          | v              |               | v           |              |               |
 |     |        |          |                |               |             |              |               |
+| v44 | v43    |          |                | 4.4.8-r1      |             |              |               |
+|     |        |          |                |               |             |              |               |
+
+
+** v44
+
+**** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v43
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+# mandatory
+mkdir /dev/tmp   
+
+emerge \
+       sys-kernel/hardened-sources-4.4.8-r1
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+    
+
+**** errors
+
+**** results
+
+**** test in docker
+
 
 
 ** v43

@@ -1,7 +1,6 @@
 
-mkdir /dev/tmp
-
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+# mandatory
+mkdir /dev/tmp   
 
 emerge \
-       sys-boot/grub
+       sys-kernel/hardened-sources-4.4.8-r1
