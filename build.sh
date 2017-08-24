@@ -10,7 +10,7 @@ emerge \
        net-misc/keychain \
        sys-boot/grub \
        app-misc/mc \
-       dev-vcs/git
+       dev-vcs/git \
        dev-util/re2c \
        dev-util/ninja \
        app-arch/libarchive \
