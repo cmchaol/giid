@@ -7,15 +7,17 @@
 
 ** summary
 
-|                              |                                  |
-| takes over 2h to build, dply | llvm                             |
-|                              |                                  |
-| needs escalted previledge    | gobject-introspection            |
-|                              |                                  |
-| I build the above 2 in dply  |                                  |
-|------------------------------+----------------------------------|
-| takes 110 minutes to build   | xorg-driver 
-|                              |                                  |
+|                              |                       |
+| takes over 2h to build, dply | llvm                  |
+|                              |                       |
+| needs escalted previledge    | gobject-introspection |
+|                              |                       |
+| I build the above 2 in dply  |                       |
+|------------------------------+-----------------------|
+| takes 110 minutes to build   | xorg-driver           |
+|                              |                       |
+| seccomp=unconfined, v25      | emacs                 |
+|                              |                       |
 
 *** v30 - v50
 
@@ -59,11 +61,61 @@ emerge sys-devel/llvm
 | v53 |      |                              | done, almost 100 m |
 | v54 | v53  | llvm                         | time up, 1188/1416 |
 | v55 |      | llvm + gobject-introspection | done in dply       |
+| v56 | v55  | xorg-driver                  |                    |
+| v57 | v56  | xorg-server,                 |                    |
 |     |      |                              |                    |
 |-----+------+------------------------------+--------------------|
 |     |      | waiting                      |                    |
-| v56 | v55  | xorg-driver                  |                    |
-|     |      |                              |                    |
+
+*** v57
+
+**** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v56
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+emerge \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm 
+
+#+END_SRC
+
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+    
+**** docker path
+
+**** errors
+
+
+
+
 
 *** v56
 
