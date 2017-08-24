@@ -1,5 +1,6 @@
 * branches
 
+
 ** git commands
 
 
@@ -11,7 +12,9 @@
 |                              |                                  |
 | needs escalted previledge    | gobject-introspection            |
 |                              |                                  |
-| takes 110 minutes to build   | xorg-driver consumes 110 minutes |
+| I build the above 2 in dply  |                                  |
+|------------------------------+----------------------------------|
+| takes 110 minutes to build   | xorg-driver 
 |                              |                                  |
 
 *** v30 - v50
@@ -49,15 +52,256 @@ emerge sys-devel/llvm
 
 *** summary
 
-|     | FROM | aims             | results   |
-|-----+------+------------------+-----------|
-| v51 | v34  | llvm             | time up   |
-| v52 |      | prepare for llvm | missing \ |
-| v53 |      |                  | done      |
-|-----+------+------------------+-----------|
-|     |      | waiting          |           |
-| v54 | v53  | llvm             |           |
-|     |      |                  |           |
+|     | FROM | aims                         | results            |
+|-----+------+------------------------------+--------------------|
+| v51 | v34  | llvm                         | time up            |
+| v52 |      | prepare for llvm             | missing \          |
+| v53 |      |                              | done, almost 100 m |
+| v54 | v53  | llvm                         | time up, 1188/1416 |
+| v55 |      | llvm + gobject-introspection | done in dply       |
+|     |      |                              |                    |
+|-----+------+------------------------------+--------------------|
+|     |      | waiting                      |                    |
+| v56 | v55  | xorg-driver                  |                    |
+|     |      |                              |                    |
+
+*** v56
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v55
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
+
+cat <<EOF >> /etc/portage/make.conf
+
+INPUT_DEVICES="libinput"
+
+VIDEO_CARDS="nouveau intel i915"
+
+PAX_MARKINGS="XT" 
+
+EOF
+
+
+emerge --changed-use --deep @world 
+
+
+emerge \
+       x11-base/xorg-drivers 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+ 
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v55
+
+
+
+# mkdir -p /etc/portage/package.mask/
+
+# echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+# udev, video cards, X, 
+
+cat /etc/portage/make.conf
+
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
+
+cat <<EOF >> /etc/portage/make.conf
+
+INPUT_DEVICES="libinput"
+
+VIDEO_CARDS="nouveau intel i915"
+
+PAX_MARKINGS="XT" 
+
+EOF
+
+
+emerge --changed-use --deep @world 
+
+# rc-update add udev sysinit  # rc-update: udev already installed in runlevel `sysinit'; skipping
+
+
+emerge \
+       x11-base/xorg-drivers -pv
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit 9c789f7b1b5e  c5766/giid:v55
+
+
+docker login
+
+docker push c5766/giid:v55
+
+
+
+**** errors
+
+
+
+*** v55
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v53
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge \
+       sys-devel/llvm
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 110 Aug 24 11:56 build.sh
+-rwxr-xr-x 1 c5766 c5766 110 Aug 24 11:56 build.sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+ 
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v53
+
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+emerge \
+       sys-devel/llvm \
+       dev-libs/gobject-introspection
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit 9c789f7b1b5e  c5766/giid:v55
+
+
+docker login
+
+docker push c5766/giid:v55
+
+
+
+**** errors
+
 
 *** v54
 
@@ -226,6 +470,14 @@ DEPMOD  4.7.10-hardened
 
 
 **** errors
+time up
+
+v54
+
+[1188/1416] /usr/bin/x86_64-pc-linux-gnu-g++ 
+
+
+v51
 
 Emerging (7 of 7) sys-devel/llvm-3.9.1-r1::gentoo
 
@@ -1012,33 +1264,6 @@ If your permissions are different, you can fix them using:
 # chmod 4755 /bin/su
 
 
-
-
-**** ftp
-
-apt-get install vsftpd
-
-
-/etc/init.d/vsftpd stop
-
-
-/etc/init.d/vsftpd start listen_port=2121
-
-
-netstat -npl
-
-
-
-# anonymous_enable=YES
-
-
-
-sed -i 's/anonymous_enable=NO/anonymous_enable=YES/g' /etc/vsftpd.conf
-
-
-cat /etc/vsftpd.conf | grep anonymous_enable=
-
-# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
 
 
 ** DONE v45
@@ -10336,3 +10561,33 @@ https://hub.docker.com/r/pallavagarwal07/gentoo-stabilization/~/dockerfile/
 
 
 
+
+* ftp
+
+apt-get install vsftpd
+
+
+sed -i 's/anonymous_enable=NO/anonymous_enable=YES/g' /etc/vsftpd.conf
+
+
+cat /etc/vsftpd.conf | grep anonymous_enable=
+
+
+/etc/init.d/vsftpd start
+
+
+netstat -npl
+
+
+# only access to directory /srv/ftp/ is allowed:
+
+cp           /srv/ftp
+
+
+
+/etc/init.d/vsftpd stop
+
+
+https://wiki.debian.org/vsftpd
+
+[2017-08-24 Thu 15:46]
