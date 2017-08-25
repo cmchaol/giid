@@ -1,8 +1,26 @@
 
 mkdir /dev/tmp
 
-emerge \
-       x11-base/xorg-server \
-       x11-apps/xrandr \
-       x11-terms/xterm \
-       x11-wm/spectrwm
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge  \
+        dev-libs/lzo \
+        media-libs/libpng \
+        media-libs/giflib \
+        media-libs/tiff \
+        net-libs/liblockfile \
+        dev-libs/vala-common \
+        media-gfx/graphite2 \
+        sys-libs/binutils-libs \
+        app-eselect/eselect-ctags \
+        dev-lang/nasm \
+        x11-libs/cairo \
+        app-eselect/eselect-emacs \
+        media-gfx/imagemagick \
+        dev-libs/libcroco \
+        x11-libs/gdk-pixbuf \
+        media-libs/libjpeg-turbo \
+        media-libs/harfbuzz \
+        virtual/jpeg \
+        x11-libs/pango \
+        gnome-base/librsvg
