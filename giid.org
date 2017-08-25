@@ -64,10 +64,141 @@
 |     |      |                              |                    |
 |-----+------+------------------------------+--------------------|
 | v60 | v57  | emacs prepare                | lack USE           |
+| v61 |      | add USE                      |                    |
 |     |      |                              |                    |
 |     |      | waiting                      |                    |
-| v61 |      | dply emacs                   |                    |
+| v62 |      | dply emacs                   |                    |
 |     |      |                              |                    |
+
+
+
+
+*** v62
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v57
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
+
+emerge  \
+        dev-libs/lzo \
+        media-libs/libpng \
+        media-libs/giflib \
+        media-libs/tiff \
+        net-libs/liblockfile \
+        dev-libs/vala-common \
+        media-gfx/graphite2 \
+        sys-libs/binutils-libs \
+        app-eselect/eselect-ctags \
+        dev-lang/nasm \
+        x11-libs/cairo \
+        app-eselect/eselect-emacs \
+        media-gfx/imagemagick \
+        dev-libs/libcroco \
+        x11-libs/gdk-pixbuf \
+        media-libs/libjpeg-turbo \
+        media-libs/harfbuzz \
+        virtual/jpeg \
+        x11-libs/pango \
+        gnome-base/librsvg 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+ 
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v61
+
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
+
+emerge \
+       app-editors/emacs \
+       -pv
+
+
+emerge \
+       app-editors/emacs 
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit                  c5766/giid:v62
+
+
+docker login
+
+
+docker push c5766/giid:v62
+
+
+
+**** errors
+
+
+
 
 
 
