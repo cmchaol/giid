@@ -3,6 +3,8 @@ mkdir /dev/tmp
 
 # echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 
+echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
+
 emerge  \
         dev-libs/lzo \
         media-libs/libpng \

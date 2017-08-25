@@ -63,9 +63,205 @@
 | v57 | v56  | xorg-server,                 | succeed            |
 |     |      |                              |                    |
 |-----+------+------------------------------+--------------------|
-|     |      | waiting                      |                    |
-| v60 | v57  | emacs prepare                |                    |
+| v60 | v57  | emacs prepare                | lack USE           |
 |     |      |                              |                    |
+|     |      | waiting                      |                    |
+| v61 |      | dply emacs                   |                    |
+|     |      |                              |                    |
+
+
+
+
+*** v61
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v57
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
+
+emerge  \
+        dev-libs/lzo \
+        media-libs/libpng \
+        media-libs/giflib \
+        media-libs/tiff \
+        net-libs/liblockfile \
+        dev-libs/vala-common \
+        media-gfx/graphite2 \
+        sys-libs/binutils-libs \
+        app-eselect/eselect-ctags \
+        dev-lang/nasm \
+        x11-libs/cairo \
+        app-eselect/eselect-emacs \
+        media-gfx/imagemagick \
+        dev-libs/libcroco \
+        x11-libs/gdk-pixbuf \
+        media-libs/libjpeg-turbo \
+        media-libs/harfbuzz \
+        virtual/jpeg \
+        x11-libs/pango \
+        gnome-base/librsvg 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+ 
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v57
+
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
+
+emerge \
+       app-editors/emacs \
+       -pv
+
+[ebuild  N     ] dev-libs/lzo-2.09:2::gentoo  USE="-examples -static-libs" ABI_X86="(64) -32 (-x32)" 581 KiB
+[ebuild  N     ] media-libs/libpng-1.6.29:0/16::gentoo  USE="-apng (-neon) -static-libs" ABI_X86="(64) -32 (-x32)" CPU_FLAGS_X86="sse" 965 KiB
+[ebuild  N     ] media-libs/giflib-5.1.4:0/7::gentoo  USE="-doc -static-libs" ABI_X86="(64) -32 (-x32)" 625 KiB
+[ebuild  N     ] media-libs/tiff-4.0.8::gentoo  USE="cxx zlib -jbig -jpeg -lzma -static-libs {-test}" ABI_X86="(64) -32 (-x32)" 2018 KiB
+[ebuild  N     ] net-libs/liblockfile-1.09::gentoo  32 KiB
+[ebuild  N     ] dev-libs/vala-common-0.34.8::gentoo  2714 KiB
+[ebuild  N     ] media-gfx/graphite2-1.3.10::gentoo  USE="-perl {-test}" ABI_X86="(64) -32 (-x32)" 3799 KiB
+[ebuild  N     ] sys-libs/binutils-libs-2.28-r1:0/2.28::gentoo  USE="nls -64-bit-bfd -multitarget -static-libs" ABI_X86="(64) -32 (-x32)" 25952 KiB
+[ebuild  N     ] app-eselect/eselect-ctags-1.18::gentoo  9 KiB
+[ebuild  N     ] dev-lang/nasm-2.12.01::gentoo  USE="-doc" 762 KiB
+[ebuild  N     ] x11-libs/cairo-1.14.8::gentoo  USE="glib svg -X (-aqua) -debug (-directfb) (-gles2) -opengl -static-libs -valgrind -xcb" ABI_X86="(64) -32 (-x32)" 34563 KiB
+[ebuild  N     ] app-eselect/eselect-emacs-1.18::gentoo  0 KiB
+[ebuild  N     ] media-gfx/imagemagick-6.9.9.0:0/6.9.9.0::gentoo  USE="bzip2 cxx openmp zlib -X -corefonts -djvu -fftw -fontconfig -fpx -graphviz -hdri -jbig -jpeg -jpeg2k -lcms -lqr -lzma (-opencl) -openexr -pango -perl -png -postscript -q32 -q8 -raw -static-libs -svg {-test} -tiff -truetype -webp -wmf -xml" 8575 KiB
+[ebuild  N     ] dev-libs/libcroco-0.6.12-r1:0.6::gentoo  USE="{-test}" ABI_X86="(64) -32 (-x32)" 471 KiB
+[ebuild  N     ] x11-libs/gdk-pixbuf-2.36.6:2::gentoo  USE="introspection -X -debug -jpeg -jpeg2k {-test} -tiff" ABI_X86="(64) -32 (-x32)" 5046 KiB
+[ebuild  N     ] media-libs/libjpeg-turbo-1.5.1::gentoo  USE="-java -static-libs" ABI_X86="(64) -32 (-x32)" 1627 KiB
+[ebuild  N     ] media-libs/harfbuzz-1.4.6-r2:0/0.9.18::gentoo  USE="cairo glib graphite introspection truetype -debug -fontconfig -icu -static-libs {-test}" ABI_X86="(64) -32 (-x32)" 1441 KiB
+[ebuild  N     ] virtual/jpeg-0-r2::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 0 KiB
+[ebuild  N     ] x11-libs/pango-1.40.6::gentoo  USE="introspection -X {-test}" ABI_X86="(64) -32 (-x32)" 813 KiB
+[ebuild  N     ] gnome-base/librsvg-2.40.18:2::gentoo  USE="introspection -tools -vala" ABI_X86="(64) -32 (-x32)" 561 KiB
+[ebuild  N     ] app-emacs/emacs-common-gentoo-1.6::gentoo  USE="X -games" 60 KiB
+[ebuild  N     ] app-editors/emacs-25.2:25::gentoo  USE="X acl gif gtk3 imagemagick inotify jpeg pax_kernel png ssl svg tiff xft xpm zlib -Xaw3d -alsa (-aqua) -athena (-cairo) -dbus -dynamic-loading -games -gconf -gfile -gpm -gsettings -gtk -gzip-el (-hesiod) -kerberos -libxml2 -livecd -m17n-lib -motif (-selinux) -sound -source -toolkit-scroll-bars -wide-int (-xwidgets)" 45802 KiB
+[ebuild  N     ] virtual/emacs-25::gentoo  0 KiB
+
+emerge  \
+        dev-libs/lzo \
+        media-libs/libpng \
+        media-libs/giflib \
+        media-libs/tiff \
+        net-libs/liblockfile \
+        dev-libs/vala-common \
+        media-gfx/graphite2 \
+        sys-libs/binutils-libs \
+        app-eselect/eselect-ctags \
+        dev-lang/nasm \
+        x11-libs/cairo \
+        app-eselect/eselect-emacs \
+        media-gfx/imagemagick \
+        dev-libs/libcroco \
+        x11-libs/gdk-pixbuf \
+        media-libs/libjpeg-turbo \
+        media-libs/harfbuzz \
+        virtual/jpeg \
+        x11-libs/pango \
+        gnome-base/librsvg \
+        -pv
+
+
+        app-editors/emacs-25.2:25::gentoo  USE="X acl gif gtk3 imagemagick inotify jpeg pax_kernel png ssl svg tiff xft xpm zlib -Xaw3d -alsa (-aqua) -athena (-cairo) -dbus -dynamic-loading -games -gconf -gfile -gpm -gsettings -gtk -gzip-el (-hesiod) -kerberos -libxml2 -livecd -m17n-lib -motif (-selinux) -sound -source -toolkit-scroll-bars -wide-int (-xwidgets)" 45802 KiB
+        virtual/emacs-25::gentoo  0 KiB
+
+
+
+
+       --autounmask-write 
+
+yes | etc-update --automode -3
+
+emerge \
+       app-editors/emacs 
+
+
+
+
+emerge \
+       sys-devel/llvm \
+       dev-libs/gobject-introspection
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit 9c789f7b1b5e  c5766/giid:v55
+
+
+docker login
+
+docker push c5766/giid:v55
+
+
+
+**** errors
+
+
+
+
 
 
 *** v60
