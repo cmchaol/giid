@@ -321,8 +321,14 @@ sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf
 cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
 
 
+cd /srv/ftp
+
+f=https://transfer.sh/WW7R2/stage4_20170828.tar.xz
 
 
+wget $f
+
+cp           /srv/ftp
 
 
 
@@ -11745,11 +11751,23 @@ sed -i 's/anonymous_enable=NO/anonymous_enable=YES/g' /etc/vsftpd.conf
 cat /etc/vsftpd.conf | grep anonymous_enable=
 
 
+cat /etc/vsftpd.conf | grep pasv
+
+
+echo pasv_promiscuous=YES >>  /etc/vsftpd.conf
+
 /etc/init.d/vsftpd start
 
 
 netstat -npl
 
+
+f1=https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker4710-sm-cp-tm-fu-ev-mu-us-fs-ne-ud-x-go-20170822.defconfig
+
+
+cd /usr/src/linux
+
+# wget -O .config $f
 
 # only access to directory /srv/ftp/ is allowed:
 
@@ -11758,6 +11776,8 @@ cp           /srv/ftp
 
 
 /etc/init.d/vsftpd stop
+
+/etc/init.d/vsftpd start
 
 
 https://wiki.debian.org/vsftpd
