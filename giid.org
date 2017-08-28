@@ -1,4 +1,121 @@
 * branches
+** kernel build
+
+*** summary
+
+|     | FROM | aims                             | results            |
+|-----+------+----------------------------------+--------------------|
+| v51 | v34  | llvm                             | time up            |
+| v52 |      | prepare for llvm                 | missing \          |
+| v53 |      |                                  | done, almost 100 m |
+| v54 | v53  | llvm                             | time up, 1188/1416 |
+| v55 |      | llvm + gobject-introspection     | done in dply       |
+| v56 | v55  | xorg-driver                      | succeed            |
+| v57 | v56  | xorg-server,                     | succeed            |
+|     |      |                                  |                    |
+|-----+------+----------------------------------+--------------------|
+| v60 | v57  | emacs prepare                    | lack USE           |
+| v61 |      | add USE                          |                    |
+| v62 |      | dply emacs                       | succeed            |
+|     |      |                                  |                    |
+|-----+------+----------------------------------+--------------------|
+| v71 | v62  | emerge hardened-sources-4.4.8-r1 |                    |
+|     |      |                                  |                    |
+|     |      | pending                          |                    |
+| v72 |      |                                  |                    |
+|     |      |                                  |                    |
+
+
+
+
+
+
+
+
+*** v71
+
+***** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v62
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+***** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+# mandatory
+mkdir /dev/tmp   
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+    
+
+***** errors
+
+sys-kernel/hardened-sources-4.4.8-r1' is not a valid package atom.
+
+***** results
+
+***** test in docker
+
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v62
+
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
 
 
 ** git commands
@@ -12,11 +129,12 @@
 |                              |                       |
 | needs escalted previledge    | gobject-introspection |
 |                              |                       |
-| I build the above 2 in dply  |                       |
+| seccomp=unconfined, v25      | emacs                 |
+|                              |                       |
+| I build the above 3 in dply  |                       |
 |------------------------------+-----------------------|
 | takes 110 minutes to build   | xorg-driver           |
 |                              |                       |
-| seccomp=unconfined, v25      | emacs                 |
 |                              |                       |
 
 *** v30 - v50
@@ -65,15 +183,165 @@
 |-----+------+------------------------------+--------------------|
 | v60 | v57  | emacs prepare                | lack USE           |
 | v61 |      | add USE                      |                    |
+| v62 |      | dply emacs                   | succeed            |
 |     |      |                              |                    |
 |     |      | waiting                      |                    |
-| v62 |      | dply emacs                   |                    |
+| v63 | v57  |                              |                    |
 |     |      |                              |                    |
 
 
 
 
-*** v62
+*** v63, not test yet
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v57
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
+
+emerge  \
+        dev-libs/lzo \
+        media-libs/libpng \
+        media-libs/giflib \
+        media-libs/tiff \
+        net-libs/liblockfile \
+        dev-libs/vala-common \
+        media-gfx/graphite2 \
+        sys-libs/binutils-libs \
+        app-eselect/eselect-ctags \
+        dev-lang/nasm \
+        x11-libs/cairo \
+        app-eselect/eselect-emacs \
+        media-gfx/imagemagick \
+        dev-libs/libcroco \
+        x11-libs/gdk-pixbuf \
+        media-libs/libjpeg-turbo \
+        media-libs/harfbuzz \
+        virtual/jpeg \
+        x11-libs/pango \
+        gnome-base/librsvg 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+ 
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v57
+
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
+
+cat /etc/portage/package.use/emacs
+
+emerge \
+       app-editors/emacs \
+       -pv
+
+
+emerge \
+       app-editors/emacs \
+       --autounmask-write 
+
+dispatch-conf
+
+
+emerge \
+       app-editors/emacs 
+
+
+yes | etc-update --automode -3
+
+
+       --autounmask-write 
+
+exit
+
+docker ps -a
+
+
+
+docker commit                  c5766/giid:v62
+
+
+docker login
+
+
+docker push c5766/giid:v62
+
+
+
+**** errors
+
+The following USE changes are necessary to proceed:
+ (see "package.use" in the portage(5) man page for more details)
+# required by app-editors/emacs-25.2::gentoo
+# required by virtual/emacs-25::gentoo
+>=app-emacs/emacs-common-gentoo-1.6 X
+
+
+
+
+
+
+
+*** TODO v62
 
 **** Dockerfile
 
@@ -169,6 +437,8 @@ cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
 
 echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
 
+cat /etc/portage/package.use/emacs
+
 emerge \
        app-editors/emacs \
        -pv
@@ -178,6 +448,19 @@ emerge \
        app-editors/emacs 
 
 
+yes | etc-update --automode -3  # fails, not effective
+
+
+emerge \
+       app-editors/emacs \
+       --autounmask-write 
+
+dispatch-conf
+
+
+emerge \
+       app-editors/emacs 
+
 
 exit
 
@@ -185,7 +468,7 @@ docker ps -a
 
 
 
-docker commit                  c5766/giid:v62
+docker commit  3fe2c995bb45                c5766/giid:v62
 
 
 docker login
@@ -197,6 +480,11 @@ docker push c5766/giid:v62
 
 **** errors
 
+The following USE changes are necessary to proceed:
+ (see "package.use" in the portage(5) man page for more details)
+# required by app-editors/emacs-25.2::gentoo
+# required by virtual/emacs-25::gentoo
+>=app-emacs/emacs-common-gentoo-1.6 X
 
 
 
