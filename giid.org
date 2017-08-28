@@ -1,7 +1,6 @@
 * branches
-** kernel build
 
-*** summary
+** summary
 
 |     | FROM | aims                             | results            |
 |-----+------+----------------------------------+--------------------|
@@ -20,9 +19,11 @@
 |     |      |                                  |                    |
 |-----+------+----------------------------------+--------------------|
 | v71 | v62  | emerge hardened-sources-4.4.8-r1 | succeed            |
+| v72 | v71  | build kernel, tar, transfer.sh   | succeed            |
 |     |      |                                  |                    |
+|-----+------+----------------------------------+--------------------|
 |     |      | pending                          |                    |
-| v72 |      | build kernel, tar, transfer.sh   |                    |
+| v81 | v62  | google-chrome                    |                    |
 |     |      |                                  |                    |
 
 
@@ -31,6 +32,162 @@
 
 
 
+
+** google-chrome
+
+*** v81
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v62
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+emerge --autounmask-write www-client/google-chrome
+
+yes | etc-update --automode -3  
+
+emerge www-client/google-chrome
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+ 
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v62
+
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge www-client/google-chrome
+
+emerge www-client/google-chrome -pv
+
+
+emerge --autounmask-write www-client/google-chrome
+
+
+
+echo "app-editors/emacs xft X jpeg png svg tiff gif imagemagick" > /etc/portage/package.use/emacs
+
+cat /etc/portage/package.use/emacs
+
+emerge \
+       app-editors/emacs \
+       -pv
+
+
+emerge \
+       app-editors/emacs 
+
+
+yes | etc-update --automode -3  # fails, not effective
+
+
+emerge \
+       app-editors/emacs \
+       --autounmask-write 
+
+dispatch-conf
+
+
+emerge \
+       app-editors/emacs 
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  3fe2c995bb45                c5766/giid:v62
+
+
+docker login
+
+
+docker push c5766/giid:v62
+
+
+
+**** errors
+
+The following USE changes are necessary to proceed:
+ (see "package.use" in the portage(5) man page for more details)
+# required by app-editors/emacs-25.2::gentoo
+# required by virtual/emacs-25::gentoo
+>=app-emacs/emacs-common-gentoo-1.6 X
+
+
+
+
+
+
+
+
+
+
+** kernel build
 
 *** v72
 
@@ -119,6 +276,18 @@ cat build.sh
 
 ***** results
 
+real	28m46.277s
+user	25m57.464s
+sys	2m8.856s
+
+
+865.2 MiB / 2862.9 MiB = 0.302, 3.7 MiB/s, 12:44
+
+https://transfer.sh/WW7R2/stage4_20170828.tar.xz
+
+[2017-08-28 Mon 11:00] + 14 days
+
+
 ***** test in docker
 
 
@@ -160,6 +329,7 @@ cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
 ***** reference
 
 v41
+
 
 *** v71
 
@@ -470,7 +640,7 @@ The following USE changes are necessary to proceed:
 
 
 
-*** TODO v62
+*** DONE v62
 
 **** Dockerfile
 
