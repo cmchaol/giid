@@ -22,9 +22,118 @@
 | v72 | v71  | build kernel, tar, transfer.sh   | succeed            |
 |     |      |                                  |                    |
 |-----+------+----------------------------------+--------------------|
-|     |      | pending                          |                    |
-| v81 | v62  | google-chrome                    |                    |
+| v81 | v62  | google-chrome                    | succeed            |
 |     |      |                                  |                    |
+|-----+------+----------------------------------+--------------------|
+|     |      | pending                          |                    |
+| v91 |      | docker                           |                    |
+|     |      |                                  |                    |
+
+
+
+
+
+** docker 
+
+*** v91
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v81
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+emerge \
+       app-emulation/docker
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:v81
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+
+# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+emerge app-emulation/docker -pv
+
+
+emerge app-emulation/docker
+
+
+
+yes | etc-update --automode -3  # fails, not effective
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  3fe2c995bb45                c5766/giid:v62
+
+
+docker login
+
+
+docker push c5766/giid:v62
+
+
+
+**** errors
+
+The following USE changes are necessary to proceed:
+ (see "package.use" in the portage(5) man page for more details)
+# required by app-editors/emacs-25.2::gentoo
+# required by virtual/emacs-25::gentoo
+>=app-emacs/emacs-common-gentoo-1.6 X
+
+
+
 
 
 
