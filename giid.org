@@ -25,15 +25,225 @@
 | v81 | v62  | google-chrome                    | succeed            |
 |     |      |                                  |                    |
 |-----+------+----------------------------------+--------------------|
-|     |      | pending                          |                    |
-| v91 |      | docker                           |                    |
+| v91 | v81  | emerge docker                    | dev-lang/go, fails |
+| v92 |      | dply dev-lang/go                 | done               |
 |     |      |                                  |                    |
+|     |      | pending                          |                    |
+| v93 | v92  | emerge docker                    |                    |
+| v73 | v71  | docker kernel                    |                    |
 
 
 
 
 
 ** docker 
+
+*** v93
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v92
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+emerge \
+       app-emulation/docker
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:v81
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit   d5ed0033ad10              c5766/giid:v92
+
+
+docker login
+
+
+docker push c5766/giid:v92
+
+
+
+**** errors
+
+Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
+
+
+##### Building Go bootstrap tool.
+cmd/dist
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
+
+
+
+
+
+
+
+
+
+
+
+*** v92
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v81
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+emerge \
+       app-emulation/docker
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:v81
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit   d5ed0033ad10              c5766/giid:v92
+
+
+docker login
+
+
+docker push c5766/giid:v92
+
+
+
+**** errors
+
+Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
+
+
+##### Building Go bootstrap tool.
+cmd/dist
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
+
+
+
+
+
+
+
+
+
 
 *** v91
 
@@ -126,13 +336,14 @@ docker push c5766/giid:v62
 
 **** errors
 
-The following USE changes are necessary to proceed:
- (see "package.use" in the portage(5) man page for more details)
-# required by app-editors/emacs-25.2::gentoo
-# required by virtual/emacs-25::gentoo
->=app-emacs/emacs-common-gentoo-1.6 X
+Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
 
 
+##### Building Go bootstrap tool.
+cmd/dist
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
 
 
 
@@ -399,27 +610,12 @@ https://transfer.sh/WW7R2/stage4_20170828.tar.xz
 
 ***** test in docker
 
-
-
-# docker run -it c5766/giid:v26
-
 d="/tmp/dockertest"
 
 mkdir $d
 
-# docker create -v /usr/portage --name myportage gentoo/portage
+docker run -v $d:/tmp -it  c5766/giid:v71
 
-
-# docker run --volumes-from myportage \
-# -v $dt:/tmp \
-# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
-
-docker run -v $d:/tmp -it  c5766/giid:v62
-
-
-# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
 
 cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
 
@@ -428,6 +624,9 @@ sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf
 sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
 
 cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
 
 
 cd /srv/ftp
