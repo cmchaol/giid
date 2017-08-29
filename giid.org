@@ -33,12 +33,12 @@
 | v96  |      |                                  | fails, &&               |
 | v97  |      |                                  | succeed                 |
 |------+------+----------------------------------+-------------------------|
-| v101 | v97  | emerge qemu                      |                         |
+| v101 | v97  | emerge qemu                      | succeed                 |
+| v102 | v97  |                                  | succeed, USE sdl        |
+| v103 | v102 | qemu, kernel                     | succeed                 |
 |      |      |                                  |                         |
 |------+------+----------------------------------+-------------------------|
 |      |      | pending                          |                         |
-| v102 | v97  |                                  | USE sdl                 |
-| v103 | v102 | qemu, kernel                     |                         |
 |      |      |                                  |                         |
 | v73  | v71  | docker kernel                    |                         |
 | v74  |      | qemu kernel                      |                         |
@@ -253,6 +253,35 @@ Total: 14 packages (14 new), Size of downloads: 96631 KiB
 
 
 
+
+
+
+**** results
+
+https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+
+real	36m0.032s
+user	32m32.900s
+sys	2m40.408s
+
+1434.5 MiB / 4109.5 MiB = 0.349, 3.2 MiB/s, 21:25
+
+
+# dply
+
+
+cd /tmp
+
+f=https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+wget $f
+
+ 1.40G  6.83MB/s   in 2m 40s 2017-08-29 09:26:45 (8.95 MB/s)
+
+# local
+
+cd /tmp
 
 
 
@@ -13242,7 +13271,7 @@ https://hub.docker.com/r/pallavagarwal07/gentoo-stabilization/~/dockerfile/
 
 
 
-* ftp
+** ftp
 
 apt-get install vsftpd
 
@@ -13285,3 +13314,15 @@ cp           /srv/ftp
 https://wiki.debian.org/vsftpd
 
 [2017-08-24 Thu 15:46]
+
+** rsync
+
+  rsync -anv --delete -e "ssh -A -t user@home ssh -A -t user@target" /DISK1/ :/DISK2/
+
+http://mjbright.blogspot.tw/2012/09/using-rsync-over-multi-hop-ssh.html#last_para
+
+
+
+https://www.digitalocean.com/community/tutorials/how-to-use-rsync-to-sync-local-and-remote-directories-on-a-vps#useful-options-for-rsync
+
+rsync -rnve "ssh -A -t user@home ssh -A -t user@target" :/tmp/stage4* /tmp
