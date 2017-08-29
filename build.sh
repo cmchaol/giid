@@ -8,6 +8,7 @@ mkdir /dev/tmp
 sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
 
 
+echo "app-emulation/qemu sdl" > /etc/portage/package.use/qemu
 
 emerge \
        app-emulation/qemu
