@@ -1,7 +1,6 @@
 
-# FROM c5766/giid:v102
-FROM gentoo/stage3-amd64-hardened
+FROM busybox
+# FROM c5766/giid:b11
+# FROM gentoo/stage3-amd64-hardened
 
-ADD build.sh /
-
-RUN /build.sh
+RUN echo "hello"
