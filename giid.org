@@ -2,43 +2,46 @@
 
 ** plan
 
-| branches | tag | packages                                | kernel    |
-|----------+-----+-----------------------------------------+-----------|
-| master   |     |                                         |           |
-|          |     |                                         |           |
-|----------+-----+-----------------------------------------+-----------|
-| boot     |     |                                         |           |
-|          | b11 | 80 min                                  |           |
-|          |     | emerge-webrsync                         |           |
-|          |     |                                         |           |
-|          |     | sys-boot/grub                           |           |
-|          |     | net-misc/proxychains                    |           |
-|          |     | net-misc/dhcpcd                         |           |
-|          |     | net-misc/autossh                        |           |
-|          |     | net-misc/keychain                       |           |
-|          |     | app-misc/mc                             |           |
-|          |     | dev-vcs/git                             |           |
-|          |     | sys-fs/squashfs-tools                   | squashfs  |
-|          |     |                                         |           |
-|          |     |                                         |           |
-|          | b12 | above and add                           |           |
-|          |     | net-fs/cifs-utils                       |           |
-|          |     | sys-fs/squashfs-tools                   |           |
-|          |     | # =sys-kernel/hardened-sources-4.4.8-r1 |           |
-|          |     |                                         | overlayfs |
-|          |     |                                         | fuse      |
-|          |     |                                         | cifs      |
-|          |     |                                         |           |
-|          | b13 | b11                                     |           |
-|          |     | net-fs/curlftpfs                        |           |
-|          |     |                                         |           |
-|          | b19 | 70 min, succeed                         |           |
-|          |     |                                         |           |
-|          | b20 | add kernel, build,                      |           |
-|----------+-----+-----------------------------------------+-----------|
-| xorg     |     |                                         |           |
-|          |     |                                         |           |
-|          |     |                                         |           |
+| branches        | tag | packages                                | kernel    |
+|-----------------+-----+-----------------------------------------+-----------|
+| master          |     |                                         |           |
+|                 |     |                                         |           |
+|-----------------+-----+-----------------------------------------+-----------|
+| boot            |     |                                         |           |
+|                 | b11 | 80 min                                  |           |
+|                 |     | emerge-webrsync                         |           |
+|                 |     |                                         |           |
+|                 |     | sys-boot/grub                           |           |
+|                 |     | net-misc/proxychains                    |           |
+|                 |     | net-misc/dhcpcd                         |           |
+|                 |     | net-misc/autossh                        |           |
+|                 |     | net-misc/keychain                       |           |
+|                 |     | app-misc/mc                             |           |
+|                 |     | dev-vcs/git                             |           |
+|                 |     | sys-fs/squashfs-tools                   | squashfs  |
+|                 |     |                                         |           |
+|                 |     |                                         |           |
+|                 | b12 | above and add                           |           |
+|                 |     | net-fs/cifs-utils                       |           |
+|                 |     | sys-fs/squashfs-tools                   |           |
+|                 |     | # =sys-kernel/hardened-sources-4.4.8-r1 |           |
+|                 |     |                                         | overlayfs |
+|                 |     |                                         | fuse      |
+|                 |     |                                         | cifs      |
+|                 |     |                                         |           |
+|                 | b13 | b11                                     |           |
+|                 |     | net-fs/curlftpfs                        |           |
+|                 |     |                                         |           |
+| 70 min, succeed | b19 | 70 min, succeed                         |           |
+|                 |     |                                         |           |
+|                 | b20 | add kernel, build,                      |           |
+|                 |     |                                         |           |
+|                 | b21 | tar, transfer.sh                        |           |
+|                 |     |                                         |           |
+|-----------------+-----+-----------------------------------------+-----------|
+| xorg            |     |                                         |           |
+|                 |     |                                         |           |
+|                 |     |                                         |           |
 
 
 overlayfs
@@ -184,6 +187,274 @@ File Systems --->
 
 
 ** boot
+
+*** b21
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:b19
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-sources
+
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 
+
+
+time \
+make  && make modules_install
+
+
+
+f1=https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170901.defconfig
+
+cd /usr/src/linux
+wget -O /tmp/defconfig $f1
+make KCONFIG_ALLCONFIG=/tmp/defconfig alldefconfig
+
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 589 Sep  1 16:35 build.sh
+-rwxr-xr-x 1 c5766 c5766 589 Sep  1 16:35 build.sh
+
+mkdir /dev/tmp
+
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-sources
+
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 
+
+
+time \
+make  && make modules_install
+
+
+
+f1=https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170901.defconfig
+
+cd /usr/src/linux
+wget -O /tmp/defconfig $f1
+make KCONFIG_ALLCONFIG=/tmp/defconfig alldefconfig
+
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf
+
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:v97
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  5b3b3c182bf7             c5766/giid:v94
+
+
+docker login
+
+
+docker push c5766/giid:v94
+
+
+
+**** errors
+
+
+
+The following USE changes are necessary to proceed:
+ (see "package.use" in the portage(5) man page for more details)
+# required by sys-libs/ldb-1.1.29-r1::gentoo
+# required by net-fs/samba-4.5.10-r1::gentoo
+# required by net-fs/cifs-utils-6.4::gentoo[acl]
+# required by net-fs/cifs-utils (argument)
+>=sys-libs/tevent-0.9.31-r1 python
+# required by sys-libs/ldb-1.1.29-r1::gentoo
+# required by net-fs/samba-4.5.10-r1::gentoo
+# required by net-fs/cifs-utils-6.4::gentoo[acl]
+# required by net-fs/cifs-utils (argument)
+>=sys-libs/tdb-1.3.13 python
+
+Use --autounmask-write to write changes to config files (honoring
+CONFIG_PROTECT). Carefully examine the list of proposed changes,
+paying special attention to mask or keyword changes that may expose
+experimental or unstable packages.
+
+ * In order to avoid wasting time, backtracking has terminated early
+ * due to the above autounmask change(s). The --autounmask-backtrack=y
+ * option can be used to force further backtracking, but there is no
+ * guarantee that it will produce a solution.
+
+
+
+
+
+yes | etc-update --automode -3  # fails, not effective
+
+
+
+
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs -pv
+
+
+emerge \
+       net-fs/cifs-utils -pv
+
+
+emerge \
+       net-fs/cifs-utils \
+       --autounmask-write 
+
+yes | etc-update --automode -3  # fails, not effective
+
+emerge \
+       net-fs/cifs-utils \
+       --autounmask-write 
+
+
+
+
+
+
+**** results
+
+https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+
+real	36m0.032s
+user	32m32.900s
+sys	2m40.408s
+
+1434.5 MiB / 4109.5 MiB = 0.349, 3.2 MiB/s, 21:25
+
+
+# dply
+
+
+cd /tmp
+
+f=https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+wget $f
+
+ 1.40G  6.83MB/s   in 2m 40s 2017-08-29 09:26:45 (8.95 MB/s)
+
+# local
+
+cd /tmp
+
+
+
+
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
 
 *** b20
 
