@@ -25,16 +25,6 @@ emerge \
        net-fs/curlftpfs 
 
 
-emerge \
-       net-fs/cifs-utils \
-       --autounmask-write 
-
-yes | etc-update --automode -3  # fails, not effective
-
-emerge \
-       net-fs/cifs-utils 
-
-
 cat <<EOF >  /etc/conf.d/net
 dns_domain_lo="my_domain"
 config_enp1s0="dhcp"
