@@ -2,52 +2,52 @@
 
 ** plan
 
-| branches        | tag | packages                                  | kernel    |
-|-----------------+-----+-------------------------------------------+-----------|
-| master          |     |                                           |           |
-|                 |     |                                           |           |
-|-----------------+-----+-------------------------------------------+-----------|
-| boot            |     |                                           |           |
-|                 | b11 | 80 min                                    |           |
-|                 |     | emerge-webrsync                           |           |
-|                 |     |                                           |           |
-|                 |     | sys-boot/grub                             |           |
-|                 |     | net-misc/proxychains                      |           |
-|                 |     | net-misc/dhcpcd                           |           |
-|                 |     | net-misc/autossh                          |           |
-|                 |     | net-misc/keychain                         |           |
-|                 |     | app-misc/mc                               |           |
-|                 |     | dev-vcs/git                               |           |
-|                 |     | sys-fs/squashfs-tools                     | squashfs  |
-|                 |     |                                           |           |
-|                 |     |                                           |           |
-|                 | b12 | above and add                             |           |
-|                 |     | net-fs/cifs-utils                         |           |
-|                 |     | sys-fs/squashfs-tools                     |           |
-|                 |     | # =sys-kernel/hardened-sources-4.4.8-r1   |           |
-|                 |     |                                           | overlayfs |
-|                 |     |                                           | fuse      |
-|                 |     |                                           | cifs      |
-|                 |     |                                           |           |
-|                 | b13 | b11                                       |           |
-|                 |     | net-fs/curlftpfs                          |           |
-|                 |     |                                           |           |
-| 70 min, succeed | b19 | 70 min, succeed                           |           |
-|                 |     |                                           |           |
-| 6 min, succeed  | b20 | add kernel, bring in configuration        |           |
-|                 |     |                                           |           |
-|                 | b21 | add kernel, bring in configuration, build |           |
-|                 |     |                                           |           |
-|                 | b23 |                                           |           |
-|                 |     |                                           |           |
-|                 | b24 |                                           |           |
-|                 |     |                                           |           |
-|                 | b22 | tar, transfer.sh                          |           |
-|                 |     |                                           |           |
-|-----------------+-----+-------------------------------------------+-----------|
-| xorg            |     |                                           |           |
-|                 |     |                                           |           |
-|                 |     |                                           |           |
+| branches         | tag | packages                                  | kernel    |
+|------------------+-----+-------------------------------------------+-----------|
+| master           |     |                                           |           |
+|                  |     |                                           |           |
+|------------------+-----+-------------------------------------------+-----------|
+| boot             |     |                                           |           |
+|                  | b11 | 80 min                                    |           |
+|                  |     | emerge-webrsync                           |           |
+|                  |     |                                           |           |
+|                  |     | sys-boot/grub                             |           |
+|                  |     | net-misc/proxychains                      |           |
+|                  |     | net-misc/dhcpcd                           |           |
+|                  |     | net-misc/autossh                          |           |
+|                  |     | net-misc/keychain                         |           |
+|                  |     | app-misc/mc                               |           |
+|                  |     | dev-vcs/git                               |           |
+|                  |     | sys-fs/squashfs-tools                     | squashfs  |
+|                  |     |                                           |           |
+|                  |     |                                           |           |
+|                  | b12 | above and add                             |           |
+|                  |     | net-fs/cifs-utils                         |           |
+|                  |     | sys-fs/squashfs-tools                     |           |
+|                  |     | # =sys-kernel/hardened-sources-4.4.8-r1   |           |
+|                  |     |                                           | overlayfs |
+|                  |     |                                           | fuse      |
+|                  |     |                                           | cifs      |
+|                  |     |                                           |           |
+|                  | b13 | b11                                       |           |
+|                  |     | net-fs/curlftpfs                          |           |
+|                  |     |                                           |           |
+| 70 min, succeed  | b19 | 70 min, succeed                           |           |
+|                  |     |                                           |           |
+| 6 min, succeed   | b20 | add kernel, bring in configuration        |           |
+|                  |     |                                           |           |
+|                  | b21 | add kernel, bring in configuration, build |           |
+|                  |     |                                           |           |
+|                  | b23 |                                           |           |
+|                  |     |                                           |           |
+| 40 min, succeeds | b24 |                                           |           |
+|                  |     |                                           |           |
+|                  | b22 | tar, transfer.sh                          |           |
+|                  |     |                                           |           |
+|------------------+-----+-------------------------------------------+-----------|
+| xorg             |     |                                           |           |
+|                  |     |                                           |           |
+|                  |     |                                           |           |
 
 
 overlayfs
@@ -194,7 +194,7 @@ File Systems --->
 
 ** boot
 
-*** b
+*** b25
 
 
 **** Dockerfile
@@ -202,7 +202,7 @@ File Systems --->
 #+HEADER:  :tangle Dockerfile
 #+BEGIN_SRC sh
 
-FROM c5766/giid:b21
+FROM c5766/giid:b24
 # FROM gentoo/stage3-amd64-hardened
 
 ADD build.sh /
