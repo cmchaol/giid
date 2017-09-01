@@ -2,36 +2,32 @@
 
 ** plan
 
-| branches | packages                                | kernel    |
-|----------+-----------------------------------------+-----------|
-| master   |                                         |           |
-|          |                                         |           |
-|----------+-----------------------------------------+-----------|
-| boot     |                                         |           |
-|          | emerge-webrsync                         |           |
-|          |                                         |           |
-|          | sys-boot/grub                           |           |
-|          |                                         |           |
-|          | net-misc/proxychains                    |           |
-|          |                                         |           |
-|          | net-misc/dhcpcd                         |           |
-|          |                                         |           |
-|          | net-misc/autossh                        |           |
-|          |                                         |           |
-|          | net-misc/keychain                       |           |
-|          |                                         |           |
-|          | app-misc/mc                             |           |
-|          |                                         |           |
-|          | dev-vcs/git                             |           |
-|          |                                         |           |
-|          | sys-fs/squashfs-tools                   | squashfs  |
-|          |                                         |           |
-|          | # =sys-kernel/hardened-sources-4.4.8-r1 |           |
-|          |                                         |           |
-|          |                                         | overlayfs |
-|          |                                         |           |
-|----------+-----------------------------------------+-----------|
-| xorg     |                                         |           |
+| branches | tag | packages                                | kernel    |
+|----------+-----+-----------------------------------------+-----------|
+| master   |     |                                         |           |
+|          |     |                                         |           |
+|----------+-----+-----------------------------------------+-----------|
+| boot     |     |                                         |           |
+|          | b11 |                                         |           |
+|          |     | emerge-webrsync                         |           |
+|          |     |                                         |           |
+|          |     | sys-boot/grub                           |           |
+|          |     | net-misc/proxychains                    |           |
+|          |     | net-misc/dhcpcd                         |           |
+|          |     | net-misc/autossh                        |           |
+|          |     | net-misc/keychain                       |           |
+|          |     | app-misc/mc                             |           |
+|          |     | dev-vcs/git                             |           |
+|          |     | sys-fs/squashfs-tools                   | squashfs  |
+|          |     |                                         |           |
+|          |     |                                         |           |
+|          | b12 |                                         |           |
+|          |     | # =sys-kernel/hardened-sources-4.4.8-r1 |           |
+|          |     |                                         | overlayfs |
+|          |     |                                         |           |
+|          |     |                                         |           |
+|----------+-----+-----------------------------------------+-----------|
+| xorg     |     |                                         |           |
 
 
 overlayfs
@@ -152,7 +148,7 @@ File systems  --->
 
 ** boot
 
-*** b10
+*** b11
 
 
 **** Dockerfile
@@ -199,8 +195,10 @@ emerge \
        net-misc/keychain \
        app-misc/mc \
        dev-vcs/git \
-       sys-fs/squashfs-tools \
-       =sys-kernel/hardened-sources-4.4.8-r1 \
+       sys-fs/squashfs-tools 
+
+
+#       =sys-kernel/hardened-sources-4.4.8-r1 \
 
 
 cat <<EOF >  /etc/conf.d/net
@@ -371,6 +369,11 @@ cd /tmp
 
 
 
+
+
+**** git
+
+magit branch and checkout
 
 
 ** qemu
