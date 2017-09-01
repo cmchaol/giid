@@ -456,6 +456,195 @@ emerge \
        app-misc/mc \
        dev-vcs/git \
        sys-fs/squashfs-tools \
+       net-fs/curlftpfs 
+
+
+cat <<EOF >  /etc/conf.d/net
+dns_domain_lo="my_domain"
+config_enp1s0="dhcp"
+EOF
+
+emerge --noreplace net-misc/netifrc
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:v97
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  5b3b3c182bf7             c5766/giid:v94
+
+
+docker login
+
+
+docker push c5766/giid:v94
+
+
+
+**** errors
+
+time up
+
+>>> Emerging (29 of 30) net-fs/samba-4.5.10-r1::gentoo
+
+
+>>> Compiling source in /dev/tmp/portage/net-fs/samba-4.5.10-r1/work/samba-4.5.10
+
+
+[1439/2693] Compiling source4/torture/libnet/libnet_domain.c
+
+
+
+
+
+**** results
+
+https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+
+real	36m0.032s
+user	32m32.900s
+sys	2m40.408s
+
+1434.5 MiB / 4109.5 MiB = 0.349, 3.2 MiB/s, 21:25
+
+
+# dply
+
+
+cd /tmp
+
+f=https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+wget $f
+
+ 1.40G  6.83MB/s   in 2m 40s 2017-08-29 09:26:45 (8.95 MB/s)
+
+# local
+
+cd /tmp
+
+
+
+
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
+
+*** b18
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+# FROM c5766/giid:v102
+FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+
+mkdir /usr/portage
+
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+emerge-webrsync
+
+
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
        sys-fs/squashfs-tools \
        net-fs/curlftpfs 
 

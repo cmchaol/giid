@@ -21,7 +21,6 @@ emerge \
        app-misc/mc \
        dev-vcs/git \
        sys-fs/squashfs-tools \
-       sys-fs/squashfs-tools \
        net-fs/curlftpfs 
 
 
