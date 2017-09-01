@@ -36,7 +36,7 @@
 |                 |     |                                           |           |
 | 6 min, succeed  | b20 | add kernel, bring in configuration        |           |
 |                 |     |                                           |           |
-|                 | b21 | add kernel, bring in configuration, build |           |
+| fails           | b21 | add kernel, bring in configuration, build |           |
 |                 |     |                                           |           |
 |                 | b22 | tar, transfer.sh                          |           |
 |                 |     |                                           |           |
@@ -190,7 +190,7 @@ File Systems --->
 
 ** boot
 
-*** b22
+*** b
 
 
 **** Dockerfile
@@ -271,6 +271,389 @@ sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
 sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
 
 cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  5b3b3c182bf7             c5766/giid:v94
+
+
+docker login
+
+
+docker push c5766/giid:v94
+
+
+
+**** errors
+
+The following mask changes are necessary to proceed:
+ (see "package.unmask" in the portage(5) man page for more details)
+# required by =sys-kernel/hardened-sources-4.4.8-r1 (argument)
+# /usr/portage/profiles/package.mask:
+# Anthony G. Basile <blueness@gentoo.org> (27 Aug 2017)
+# Upstream is no longer providing public patches
+=sys-kernel/hardened-sources-4.4.8-r1
+
+NOTE: The --autounmask-keep-masks option will prevent emerge
+      from creating package.unmask or ** keyword changes.
+
+Use --autounmask-write to write changes to config files (honoring
+CONFIG_PROTECT). Carefully examine the list of proposed changes,
+paying special attention to mask or keyword changes that may expose
+experimental or unstable packages.
+
+
+
+
+
+yes | etc-update --automode -3  # fails, not effective
+
+
+
+
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs -pv
+
+
+emerge \
+       net-fs/cifs-utils -pv
+
+
+emerge \
+       net-fs/cifs-utils \
+       --autounmask-write 
+
+yes | etc-update --automode -3  # fails, not effective
+
+emerge \
+       net-fs/cifs-utils \
+       --autounmask-write 
+
+
+
+
+
+
+**** results
+
+https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+
+real	36m0.032s
+user	32m32.900s
+sys	2m40.408s
+
+1434.5 MiB / 4109.5 MiB = 0.349, 3.2 MiB/s, 21:25
+
+
+# dply
+
+
+cd /tmp
+
+f=https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+wget $f
+
+ 1.40G  6.83MB/s   in 2m 40s 2017-08-29 09:26:45 (8.95 MB/s)
+
+# local
+
+cd /tmp
+
+
+
+
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
+
+
+*** b23
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:b19
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-sources
+
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 \
+       --autounmask-write 
+
+yes | etc-update --automode -3  
+
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 
+
+
+time \
+make  && make modules_install
+
+
+
+f1=https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170901.defconfig
+
+cd /usr/src/linux
+wget -O /tmp/defconfig $f1
+make KCONFIG_ALLCONFIG=/tmp/defconfig alldefconfig
+
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+echo $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:b21
+
+
+# cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+# sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+# cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+ls /usr/portage/sys-kernel/hardened-sources -l | grep har
+
+-rw-r--r-- 1 root root   1266 Feb 28  2017 hardened-sources-4.4.8-r1.ebuild
+-rw-r--r-- 1 root root   1266 Feb 28  2017 hardened-sources-4.7.10.ebuild
+-rw-r--r-- 1 root root   1266 Feb 28  2017 hardened-sources-4.7.6.ebuild
+-rw-r--r-- 1 root root   1267 Feb 28  2017 hardened-sources-4.8.17-r2.ebuild
+-rw-r--r-- 1 root root   1316 Apr 11 00:19 hardened-sources-4.9.21.ebuild
+-rw-r--r-- 1 root root   1316 Apr 14 14:54 hardened-sources-4.9.22.ebuild
+-rw-r--r-- 1 root root   1316 Apr 19 15:17 hardened-sources-4.9.23.ebuild
+-rw-r--r-- 1 root root   1316 Apr 22 16:18 hardened-sources-4.9.24.ebuild
+
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 -pv
+
+[ebuild  N     ] sys-devel/bc-1.06.95-r1::gentoo  USE="readline -libedit -static" 284 KiB
+[ebuild  N    #] sys-kernel/hardened-sources-4.4.8-r1:4.4.8-r1::gentoo  USE="symlink -build -deblob" 87250 KiB
+
+Total: 2 packages (2 new), Size of downloads: 87534 KiB
+
+The following mask changes are necessary to proceed:
+ (see "package.unmask" in the portage(5) man page for more details)
+# required by =sys-kernel/hardened-sources-4.4.8-r1 (argument)
+# /usr/portage/profiles/package.mask:
+# Anthony G. Basile <blueness@gentoo.org> (27 Aug 2017)
+# Upstream is no longer providing public patches
+=sys-kernel/hardened-sources-4.4.8-r1
+
+NOTE: The --autounmask-keep-masks option will prevent emerge
+      from creating package.unmask or ** keyword changes.
+
+
+
+
+
+
+
+emerge \
+       sys-kernel/hardened-sources -pv
+
+
+[ebuild  N     ] sys-devel/bc-1.06.95-r1::gentoo  USE="readline -libedit -static" 284 KiB
+[ebuild  N    #] sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2::gentoo  USE="symlink -build -deblob" 91997 KiB
+
+Total: 2 packages (2 new), Size of downloads: 92280 KiB
+
+The following mask changes are necessary to proceed:
+ (see "package.unmask" in the portage(5) man page for more details)
+# required by sys-kernel/hardened-sources (argument)
+# /usr/portage/profiles/package.mask:
+# Anthony G. Basile <blueness@gentoo.org> (27 Aug 2017)
+# Upstream is no longer providing public patches
+=sys-kernel/hardened-sources-4.8.17-r2
+
+NOTE: The --autounmask-keep-masks option will prevent emerge
+      from creating package.unmask or ** keyword changes.
+
+
+# echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+echo ">=sys-kernel/hardened-sources-4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+
+cat /etc/portage/package.mask/hardened-sources
+
+ sys-kernel/hardened-sources -pv
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+[ebuild  N     ] sys-devel/bc-1.06.95-r1::gentoo  USE="readline -libedit -static" 284 KiB
+[ebuild  N    #] sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2::gentoo  USE="symlink -build -deblob" 91997 KiB
+
+Total: 2 packages (2 new), Size of downloads: 92280 KiB
+
+The following mask changes are necessary to proceed:
+ (see "package.unmask" in the portage(5) man page for more details)
+# required by sys-kernel/hardened-sources (argument)
+# /etc/portage/package.mask/hardened-sources:
+=sys-kernel/hardened-sources-4.8.17-r2
+
+NOTE: The --autounmask-keep-masks option will prevent emerge
+      from creating package.unmask or ** keyword changes.
+
+
+
+echo ">=sys-kernel/hardened-sources:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+
+cat /etc/portage/package.mask/hardened-sources
+
+                   Example:
+                     # mask docs for GTK 2.x
+                     =x11-libs/gtk+-2* doc
+                     # unmask mysql support for QT
+                     x11-libs/qt -mysql
+
+
+emerge \
+       sys-kernel/hardened-sources -pv
+
+--- Invalid atom in /etc/portage/package.mask/hardened-sources: >=sys-kernel/hardened-sources:4.8.17-r2
+
+
+echo ">=sys-kernel/hardened-sources:4.8.*" > /etc/portage/package.mask/hardened-sources
+
+cat /etc/portage/package.mask/hardened-sources
+
+--- Invalid atom in /etc/portage/package.mask/hardened-sources: >=sys-kernel/hardened-sources:4.8.*
+
+
+
+echo ">=sys-kernel/hardened-sources-4.8*" > /etc/portage/package.mask/hardened-sources
+
+cat /etc/portage/package.mask/hardened-sources
+
+
+
+# echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+emerge \
+       sys-kernel/hardened-sources \
+       --autounmask-write 
+
+yes | etc-update --automode -3  
+
+emerge \
+       sys-kernel/hardened-sources 
+
+
+
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 \
+       -pv
+
+
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 \
+       --autounmask-write 
+
+yes | etc-update --automode -3  
+
 
 
 
@@ -488,38 +871,6 @@ ls -lha build.sh
 cat build.sh
 #+END_SRC
 
-#+RESULTS:
--rw-r--r-- 1 c5766 c5766 589 Sep  1 16:35 build.sh
--rwxr-xr-x 1 c5766 c5766 589 Sep  1 16:35 build.sh
-
-mkdir /dev/tmp
-
-
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
-
-
-echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-sources
-
-
-emerge \
-       =sys-kernel/hardened-sources-4.4.8-r1 
-
-
-time \
-make  && make modules_install
-
-
-
-f1=https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170901.defconfig
-
-cd /usr/src/linux
-wget -O /tmp/defconfig $f1
-make KCONFIG_ALLCONFIG=/tmp/defconfig alldefconfig
-
-
-sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf
-
      
  
 **** docker 
@@ -530,16 +881,146 @@ d="/tmp/dockertest"
 mkdir $d
 
 
-docker run -v $d:/tmp -it  c5766/giid:v97
+docker run -v $d:/tmp -it  c5766/giid:b21
 
 
-cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+# cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
 
-sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+# sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
 
-sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
 
-cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+# cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+ls /usr/portage/sys-kernel/hardened-sources -l | grep har
+
+-rw-r--r-- 1 root root   1266 Feb 28  2017 hardened-sources-4.4.8-r1.ebuild
+-rw-r--r-- 1 root root   1266 Feb 28  2017 hardened-sources-4.7.10.ebuild
+-rw-r--r-- 1 root root   1266 Feb 28  2017 hardened-sources-4.7.6.ebuild
+-rw-r--r-- 1 root root   1267 Feb 28  2017 hardened-sources-4.8.17-r2.ebuild
+-rw-r--r-- 1 root root   1316 Apr 11 00:19 hardened-sources-4.9.21.ebuild
+-rw-r--r-- 1 root root   1316 Apr 14 14:54 hardened-sources-4.9.22.ebuild
+-rw-r--r-- 1 root root   1316 Apr 19 15:17 hardened-sources-4.9.23.ebuild
+-rw-r--r-- 1 root root   1316 Apr 22 16:18 hardened-sources-4.9.24.ebuild
+
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 -pv
+
+[ebuild  N     ] sys-devel/bc-1.06.95-r1::gentoo  USE="readline -libedit -static" 284 KiB
+[ebuild  N    #] sys-kernel/hardened-sources-4.4.8-r1:4.4.8-r1::gentoo  USE="symlink -build -deblob" 87250 KiB
+
+Total: 2 packages (2 new), Size of downloads: 87534 KiB
+
+The following mask changes are necessary to proceed:
+ (see "package.unmask" in the portage(5) man page for more details)
+# required by =sys-kernel/hardened-sources-4.4.8-r1 (argument)
+# /usr/portage/profiles/package.mask:
+# Anthony G. Basile <blueness@gentoo.org> (27 Aug 2017)
+# Upstream is no longer providing public patches
+=sys-kernel/hardened-sources-4.4.8-r1
+
+NOTE: The --autounmask-keep-masks option will prevent emerge
+      from creating package.unmask or ** keyword changes.
+
+
+
+
+
+
+
+emerge \
+       sys-kernel/hardened-sources -pv
+
+
+[ebuild  N     ] sys-devel/bc-1.06.95-r1::gentoo  USE="readline -libedit -static" 284 KiB
+[ebuild  N    #] sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2::gentoo  USE="symlink -build -deblob" 91997 KiB
+
+Total: 2 packages (2 new), Size of downloads: 92280 KiB
+
+The following mask changes are necessary to proceed:
+ (see "package.unmask" in the portage(5) man page for more details)
+# required by sys-kernel/hardened-sources (argument)
+# /usr/portage/profiles/package.mask:
+# Anthony G. Basile <blueness@gentoo.org> (27 Aug 2017)
+# Upstream is no longer providing public patches
+=sys-kernel/hardened-sources-4.8.17-r2
+
+NOTE: The --autounmask-keep-masks option will prevent emerge
+      from creating package.unmask or ** keyword changes.
+
+
+# echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+echo ">=sys-kernel/hardened-sources-4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+
+cat /etc/portage/package.mask/hardened-sources
+
+ sys-kernel/hardened-sources -pv
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+[ebuild  N     ] sys-devel/bc-1.06.95-r1::gentoo  USE="readline -libedit -static" 284 KiB
+[ebuild  N    #] sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2::gentoo  USE="symlink -build -deblob" 91997 KiB
+
+Total: 2 packages (2 new), Size of downloads: 92280 KiB
+
+The following mask changes are necessary to proceed:
+ (see "package.unmask" in the portage(5) man page for more details)
+# required by sys-kernel/hardened-sources (argument)
+# /etc/portage/package.mask/hardened-sources:
+=sys-kernel/hardened-sources-4.8.17-r2
+
+NOTE: The --autounmask-keep-masks option will prevent emerge
+      from creating package.unmask or ** keyword changes.
+
+
+
+echo ">=sys-kernel/hardened-sources:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+
+cat /etc/portage/package.mask/hardened-sources
+
+                   Example:
+                     # mask docs for GTK 2.x
+                     =x11-libs/gtk+-2* doc
+                     # unmask mysql support for QT
+                     x11-libs/qt -mysql
+
+
+emerge \
+       sys-kernel/hardened-sources -pv
+
+--- Invalid atom in /etc/portage/package.mask/hardened-sources: >=sys-kernel/hardened-sources:4.8.17-r2
+
+
+echo ">=sys-kernel/hardened-sources:4.8.*" > /etc/portage/package.mask/hardened-sources
+
+cat /etc/portage/package.mask/hardened-sources
+
+--- Invalid atom in /etc/portage/package.mask/hardened-sources: >=sys-kernel/hardened-sources:4.8.*
+
+
+
+echo ">=sys-kernel/hardened-sources-4.8*" > /etc/portage/package.mask/hardened-sources
+
+cat /etc/portage/package.mask/hardened-sources
+
+
+
+# echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+emerge \
+       sys-kernel/hardened-sources \
+       --autounmask-write 
+
+yes | etc-update --automode -3  
+
+emerge \
+       sys-kernel/hardened-sources 
 
 
 
