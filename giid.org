@@ -182,6 +182,232 @@ File Systems --->
 
 ** boot
 
+*** b16
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+# FROM c5766/giid:v102
+FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+
+mkdir /usr/portage
+
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+# sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+emerge-webrsync
+
+
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       net-fs/cifs-utils \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs 
+
+
+cat <<EOF >  /etc/conf.d/net
+dns_domain_lo="my_domain"
+config_enp1s0="dhcp"
+EOF
+
+emerge --noreplace net-misc/netifrc
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:v97
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  5b3b3c182bf7             c5766/giid:v94
+
+
+docker login
+
+
+docker push c5766/giid:v94
+
+
+
+**** errors
+
+Emerging (12 of 14) dev-go/go-md2man-1.0.3::gentoo
+
+Install go-md2man-1.0.3 into /var/tmp/portage/dev-go/go-md2man-1.0.3/image/ category dev-go
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x000000000000000
+0, 0x0000000000000000): Operation not permitted
+
+
+
+
+
+Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
+
+
+##### Building Go bootstrap tool.
+cmd/dist
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
+
+
+
+[ebuild  N     ] sys-devel/autoconf-archive-2016.03.20-r1::gentoo  600 KiB
+[ebuild  N     ] dev-libs/libaio-0.3.110::gentoo  USE="-static-libs {-test}" ABI_X86="(64) -32 (-x32)" 42 KiB
+[ebuild  N     ] dev-util/boost-build-1.62.0-r1::gentoo  USE="-examples -python {-test}" PYTHON_TARGETS="python2_7" 82533 KiB
+[ebuild  N     ] app-emulation/docker-runc-1.0.0_rc2_p20170308::gentoo  USE="hardened seccomp (-apparmor)" 549 KiB
+[ebuild  N     ] app-emulation/docker-proxy-0.8.0_p20161111::gentoo  2101 KiB
+[ebuild  N     ] sys-process/tini-0.13.2::gentoo  USE="args static" 28 KiB
+[ebuild  N     ] dev-go/sanitized-anchor-name-0_pre20151027::gentoo  2 KiB
+[ebuild  N     ] dev-libs/boost-1.62.0-r1:0/1.62.0::gentoo  USE="nls threads -context -debug -doc -icu -mpi -python -static-libs -tools" ABI_X86="(64) -32 (-x32)" PYTHON_TARGETS="python2_7 python3_4 (-python3_5)" 0 KiB
+[ebuild  N     ] app-emulation/containerd-0.2.5_p20170308::gentoo  USE="hardened seccomp" 998 KiB
+[ebuild  N     ] dev-go/blackfriday-1.2_p20150720::gentoo  67 KiB
+[ebuild  N     ] sys-block/thin-provisioning-tools-0.4.1::gentoo  USE="{-test}" 183 KiB
+[ebuild  N     ] sys-fs/lvm2-2.02.145-r2::gentoo  USE="readline thin udev (-clvm) (-cman) -corosync -device-mapper-only -lvm1 -lvm2create_initrd -openais (-selinux) -static -static-libs -systemd" 1940 KiB
+[ebuild  N     ] dev-go/go-md2man-1.0.3::gentoo  4 KiB
+[ebuild  N     ] app-emulation/docker-17.03.1::gentoo  USE="container-init device-mapper hardened seccomp (-apparmor) -aufs -btrfs -overlay -pkcs11" 7592 KiB
+
+Total: 14 packages (14 new), Size of downloads: 96631 KiB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**** results
+
+https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+
+real	36m0.032s
+user	32m32.900s
+sys	2m40.408s
+
+1434.5 MiB / 4109.5 MiB = 0.349, 3.2 MiB/s, 21:25
+
+
+# dply
+
+
+cd /tmp
+
+f=https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+
+wget $f
+
+ 1.40G  6.83MB/s   in 2m 40s 2017-08-29 09:26:45 (8.95 MB/s)
+
+# local
+
+cd /tmp
+
+
+
+
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
 
 
 *** b14
