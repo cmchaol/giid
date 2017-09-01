@@ -21,9 +21,18 @@ emerge \
        app-misc/mc \
        dev-vcs/git \
        sys-fs/squashfs-tools \
-       net-fs/cifs-utils \
        sys-fs/squashfs-tools \
        net-fs/curlftpfs 
+
+
+emerge \
+       net-fs/cifs-utils \
+       --autounmask-write 
+
+yes | etc-update --automode -3  # fails, not effective
+
+emerge \
+       net-fs/cifs-utils 
 
 
 cat <<EOF >  /etc/conf.d/net
