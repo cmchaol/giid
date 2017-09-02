@@ -192,6 +192,1828 @@ File Systems --->
 |         |        |          |                |               |             |              |               |
 
 
+** initramfs
+
+| echo | shell | Dynamic devices |    | mount | UUID | switch_root | overlayfs | tmpfs | ro rw  |
+|      |       |                 |    |       |      |             |           |       | access |
+|------+-------+-----------------+----+-------+------+-------------+-----------+-------+--------|
+| v    |       |                 | 20 |       |      |             |           |       |        |
+|      |       |                 |    |       |      |             |           |       |        |
+| v    | v     |                 | 30 |       |      |             |           |       |        |
+|      |       |                 |    |       |      |             |           |       |        |
+| v    | v     | v               | 40 |       |      |             |           |       |        |
+|      |       |                 |    |       |      |             |           |       |        |
+| v    | v     | v               | 42 | v     |      |             |           |       |        |
+|      |       |                 |    |       |      |             |           |       |        |
+| v    | v     | v               | 44 | v     | v    |             |           |       |        |
+|      |       |                 |    |       |      |             |           |       |        |
+| v    | v     | v               | 46 | v     | v    | v           |           |       |        |
+|      |       |                 |    |       |      |             |           |       |        |
+|      |       |                 | 48 |       |      |             | v         |       |        |
+|      |       |                 |    |       |      |             |           |       |        |
+|      |       |                 | 50 |       |      |             | v         | v     |        |
+|      |       |                 |    |       |      |             |           |       |        |
+|      |       |                 | 52 |       |      |             |           |       | v      |
+|      |       |                 |    |       |      |             |           |       |        |
+
+#
+
+*** 52
+
+|          | physical | mount point | mount point |          |
+|          |          | b1 yusb     | 14 yusb     |          |
+|----------+----------+-------------+-------------+----------|
+| kernel   |        2 | /mnt/sdd2   | /mnt/sdb2   |          |
+|          |          |             |             |          |
+| squashfs |        4 | /mnt/sdd4   | /mnt/sdb4   | fs2.sqsh |
+|          |          |             |             |          |
+| root     |        5 |             | /mnt/sdb5   |          |
+|          |          |             |             |          |
+
+# mount /dev/sdb2 /mnt/sdb2   # 14
+
+mount /dev/sdd2 /mnt/sdd2   # b1
+
+mount /dev/sdb4 /mnt/sdb4
+
+
+
+blkid | grep sdb4
+
+/dev/sdb4: UUID="c056f324-d30c-47f3-b5d1-c33813dc0766" TYPE="ext4" PARTLABEL="fs1" PARTUUID="43f2cfbc-187f-4bb4-a16c-0ad2760d8771"
+
+
+thedir="/tmp/initramfs"
+rm -rf $thedir
+mkdir $thedir
+mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root-ro,mnt/root,proc,root,sbin,sys,tmp}
+cp -a /dev/{null,console,tty} $thedir/dev/
+cp -a /bin/busybox $thedir/bin/busybox
+cd $thedir
+
+
+cat <<EOF >> $thedir/init
+#!/bin/busybox sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+# Do your stuff here.
+echo "
+
+
+
+This script just echo, nothing else!"
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+uu="c056f324-d30c-47f3-b5d1-c33813dc0766" # the uuid
+
+echo \$uu      \# print the uuid
+
+echo \$(findfs UUID=\$uu) \# the device contains squashfs file
+
+# sf="fs2.sqsh.default"      # the squashfs file name of root 
+sf="stage4.20170423.squashfs"      # the squashfs file name of root 
+
+echo \$sf      \# the squashfs name of root
+
+mkdir /mnt/tmp
+
+mount \$(findfs UUID=\$uu) /mnt/tmp
+
+ls /mnt/tmp      
+
+mount -o loop /mnt/tmp/\$sf /mnt/root-ro
+
+mount -o size=90%,noatime,nodiratime -t tmpfs tmpfs /tmp
+
+
+mkdir /tmp/upper
+mkdir /tmp/work
+
+mount -t overlay overlay -olowerdir=/mnt/root-ro,upperdir=/tmp/upper,workdir=/tmp/work /mnt/root
+
+
+mkdir /mnt/root/mnt/upper
+
+mount --bind /tmp/upper /mnt/root/mnt/upper
+
+mkdir /mnt/root/mnt/work
+
+mount --bind /tmp/work /mnt/root/mnt/work
+
+# rescue_shell     #  interrupt the initramfs, for debug.
+umount /proc
+umount /sys
+umount /dev
+exec switch_root /mnt/root /sbin/init
+EOF
+chmod +x $thedir/init
+
+
+pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
+# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+# pk="/mnt/sdb2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, 14 yusb
+
+# b1
+qemu-system-x86_64 -m 2G \
+-append "console=ttyS0" -nographic \
+-drive file=/dev/sdd \
+-kernel $pk \
+-initrd $pi
+
+
+# 14
+
+qemu-system-x86_64 -m 2G\
+-append "console=ttyS0" -nographic \
+-drive file=/dev/sdb \
+-kernel $pk \
+-initrd $pi
+
+
+close the terminal by windowskey + x
+
+kill the qemu
+
+
+squashfs: SQUASHFS error: Filesystem uses "xz" compression. This is not supported
+
+#
+
+cd /tmp
+
+mkdir fs2
+
+mount -o loop /tmp/fs2.sqsh /tmp/fs2
+
+mksquashfs /tmp/fs2 /tmp/fs2.sqsh.default
+
+cp /tmp/fs2.sqsh.default /mnt/sdb4
+
+Parallel mksquashfs: Using 2 processors
+Creating 4.0 filesystem on /tmp/fs2.sqsh.default, block size 131072.
+[====================================================================================================================================================================================================================================================|] 46546/46546 100%
+
+Exportable Squashfs 4.0 filesystem, gzip compressed, data block size 131072
+        compressed data, compressed metadata, compressed fragments, compressed xattrs
+        duplicates are removed
+Filesystem size 252480.36 Kbytes (246.56 Mbytes)
+        32.69% of uncompressed filesystem size (772392.44 Kbytes)
+Inode table size 522677 bytes (510.43 Kbytes)
+        18.99% of uncompressed inode table size (2751700 bytes)
+Directory table size 462751 bytes (451.91 Kbytes)
+        40.70% of uncompressed directory table size (1136870 bytes)
+Xattr table size 57 bytes (0.06 Kbytes)
+        95.00% of uncompressed xattr table size (60 bytes)
+Number of duplicate files found 7733
+Number of inodes 50947
+Number of files 43833
+Number of fragments 3047
+Number of symbolic links  4355
+Number of device nodes 271
+Number of fifo nodes 1
+Number of socket nodes 0
+Number of directories 2487
+Number of ids (unique uids + gids) 9
+Number of uids 5
+        root (0)
+        unknown (88)
+        man (13)
+        portage (250)
+        messagebus (101)
+Number of gids 7
+        root (0)
+        disk (6)
+        kmem (9)
+        tty (5)
+        unknown (88)
+        man (15)
+        portage (250)
+
+
+
+sf="fs2.sqsh.default"      # the squashfs file name of root 
+
+mkdir /tmp/fs3
+
+mount -o loop /tmp/$sf /tmp/fs3
+
+mkdir /tmp/fs4
+
+mount -o loop /mnt/sdb4/$sf /tmp/fs3
+
+
+
+
+
+
+
+
+*** 50
+
+|          | physical | mount point | mount point |          |
+|          |          | b1 yusb     | 14 yusb     |          |
+|----------+----------+-------------+-------------+----------|
+| kernel   |        2 | /mnt/sdd2   | /mnt/sdb2   |          |
+|          |          |             |             |          |
+| squashfs |        4 | /mnt/sdd4   | /mnt/sdb4   | fs2.sqsh |
+|          |          |             |             |          |
+| root     |        5 |             | /mnt/sdb5   |          |
+|          |          |             |             |          |
+
+# mount /dev/sdb2 /mnt/sdb2   # 14
+
+mount /dev/sdd2 /mnt/sdd2   # b1
+
+mount /dev/sdb4 /mnt/sdb4
+
+
+
+blkid | grep sdb4
+
+/dev/sdb4: UUID="c056f324-d30c-47f3-b5d1-c33813dc0766" TYPE="ext4" PARTLABEL="fs1" PARTUUID="43f2cfbc-187f-4bb4-a16c-0ad2760d8771"
+
+
+thedir="/tmp/initramfs"
+rm -rf $thedir
+mkdir $thedir
+mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root-ro,mnt/root,proc,root,sbin,sys,tmp}
+cp -a /dev/{null,console,tty} $thedir/dev/
+cp -a /bin/busybox $thedir/bin/busybox
+cd $thedir
+
+
+cat <<EOF >> $thedir/init
+#!/bin/busybox sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+# Do your stuff here.
+echo "
+
+
+
+This script just echo, nothing else!"
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+uu="c056f324-d30c-47f3-b5d1-c33813dc0766" # the uuid
+
+echo \$uu      \# print the uuid
+
+echo \$(findfs UUID=\$uu) \# the device of the usb
+
+# sf="fs2.sqsh.default"      # the squashfs file name of root 
+sf="stage4.20170423.squashfs"      # the squashfs file name of root 
+
+echo \$sf      \# the squashfs file name of root
+
+mkdir /mnt/tmp
+
+mount \$(findfs UUID=\$uu) /mnt/tmp
+
+ls /mnt/tmp      
+
+mount -o loop /mnt/tmp/\$sf /mnt/root-ro
+
+mount -o size=90%,noatime,nodiratime -t tmpfs tmpfs /tmp
+
+
+mkdir /tmp/upper
+mkdir /tmp/work
+
+mount -t overlay overlay -olowerdir=/mnt/root-ro,upperdir=/tmp/upper,workdir=/tmp/work /mnt/root
+
+# rescue_shell     #  interrupt the initramfs, for debug.
+
+umount /proc
+umount /sys
+umount /dev
+exec switch_root /mnt/root /sbin/init
+EOF
+
+
+chmod +x $thedir/init
+
+
+pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
+
+# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+
+pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+
+# pk="/mnt/sdb2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, 14 yusb
+
+
+# b1
+
+qemu-system-x86_64 -m 2G \
+-append "console=ttyS0" -nographic \
+-drive file=/dev/sdd \
+-kernel $pk \
+-initrd $pi
+
+
+# 14
+
+qemu-system-x86_64 -m 2G\
+-append "console=ttyS0" -nographic \
+-drive file=/dev/sdb \
+-kernel $pk \
+-initrd $pi
+
+
+close the terminal by windowskey + x
+
+kill the qemu
+
+
+squashfs: SQUASHFS error: Filesystem uses "xz" compression. This is not supported
+
+#
+
+cd /tmp
+
+mkdir fs2
+
+mount -o loop /tmp/fs2.sqsh /tmp/fs2
+
+mksquashfs /tmp/fs2 /tmp/fs2.sqsh.default
+
+cp /tmp/fs2.sqsh.default /mnt/sdb4
+
+Parallel mksquashfs: Using 2 processors
+Creating 4.0 filesystem on /tmp/fs2.sqsh.default, block size 131072.
+[====================================================================================================================================================================================================================================================|] 46546/46546 100%
+
+Exportable Squashfs 4.0 filesystem, gzip compressed, data block size 131072
+        compressed data, compressed metadata, compressed fragments, compressed xattrs
+        duplicates are removed
+Filesystem size 252480.36 Kbytes (246.56 Mbytes)
+        32.69% of uncompressed filesystem size (772392.44 Kbytes)
+Inode table size 522677 bytes (510.43 Kbytes)
+        18.99% of uncompressed inode table size (2751700 bytes)
+Directory table size 462751 bytes (451.91 Kbytes)
+        40.70% of uncompressed directory table size (1136870 bytes)
+Xattr table size 57 bytes (0.06 Kbytes)
+        95.00% of uncompressed xattr table size (60 bytes)
+Number of duplicate files found 7733
+Number of inodes 50947
+Number of files 43833
+Number of fragments 3047
+Number of symbolic links  4355
+Number of device nodes 271
+Number of fifo nodes 1
+Number of socket nodes 0
+Number of directories 2487
+Number of ids (unique uids + gids) 9
+Number of uids 5
+        root (0)
+        unknown (88)
+        man (13)
+        portage (250)
+        messagebus (101)
+Number of gids 7
+        root (0)
+        disk (6)
+        kmem (9)
+        tty (5)
+        unknown (88)
+        man (15)
+        portage (250)
+
+
+
+sf="fs2.sqsh.default"      # the squashfs file name of root 
+
+mkdir /tmp/fs3
+
+mount -o loop /tmp/$sf /tmp/fs3
+
+mkdir /tmp/fs4
+
+mount -o loop /mnt/sdb4/$sf /tmp/fs3
+
+
+
+
+
+
+
+
+*** 48 
+
+|          | physical | mount point |          |
+|----------+----------+-------------+----------|
+|          |  yusb 14 |             |          |
+|          |          |             |          |
+| kernel   |        2 | /mnt/sdb2   |          |
+|          |          |             |          |
+| squashfs |        4 | /mnt/sdb4   | fs2.sqsh |
+|          |          |             |          |
+| root     |        5 | /mnt/sdb5   |          |
+|          |          |             |          | 
+
+# mount /dev/sdb2 /mnt/sdb2   # 14
+
+mount /dev/sdd2 /mnt/sdd2   # b1
+
+mount /dev/sdb4 /mnt/sdb4
+
+
+
+blkid | grep sdb4
+
+/dev/sdb4: UUID="c056f324-d30c-47f3-b5d1-c33813dc0766" TYPE="ext4" PARTLABEL="fs1" PARTUUID="43f2cfbc-187f-4bb4-a16c-0ad2760d8771"
+
+
+thedir="/tmp/initramfs"
+rm -rf $thedir
+mkdir $thedir
+mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys,tmp}
+cp -a /dev/{null,console,tty} $thedir/dev/
+cp -a /bin/busybox $thedir/bin/busybox
+cd $thedir
+
+
+cat <<EOF >> $thedir/init
+#!/bin/busybox sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+# Do your stuff here.
+echo "
+
+
+
+This script just echo, nothing else!"
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+uu="c056f324-d30c-47f3-b5d1-c33813dc0766" # the uuid
+
+echo \$uu      \# print the uuid
+
+echo \$(findfs UUID=\$uu) \# the device of the usb
+
+# sf="fs2.sqsh.default"      # the squashfs file name of root 
+sf="stage4.20170423.squashfs"      # the squashfs file name of root 
+
+echo \$sf      \# the squashfs file name of root
+
+mkdir /mnt/tmp
+
+mount \$(findfs UUID=\$uu) /mnt/tmp
+
+ls /mnt/tmp      
+
+mount -o loop /mnt/tmp/\$sf /mnt/root
+rescue_shell     #  interrupt the initramfs, for debug.
+
+umount /proc
+umount /sys
+umount /dev
+exec switch_root /mnt/root /sbin/init
+EOF
+
+
+chmod +x $thedir/init
+
+
+pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
+
+# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+
+  pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+
+# pk="/mnt/sdb2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, 14 yusb
+
+
+# b1
+
+qemu-system-x86_64 \
+-append "console=ttyS0" -nographic \
+-drive file=/dev/sdd \
+-kernel $pk \
+-initrd $pi
+
+
+# 14
+
+qemu-system-x86_64 \
+-append "console=ttyS0" -nographic \
+-drive file=/dev/sdb \
+-kernel $pk \
+-initrd $pi
+
+
+close the terminal by windowskey + x
+
+kill the qemu
+
+
+squashfs: SQUASHFS error: Filesystem uses "xz" compression. This is not supported
+
+#
+
+cd /tmp
+
+mkdir fs2
+
+mount -o loop /tmp/fs2.sqsh /tmp/fs2
+
+mksquashfs /tmp/fs2 /tmp/fs2.sqsh.default
+
+cp /tmp/fs2.sqsh.default /mnt/sdb4
+
+Parallel mksquashfs: Using 2 processors
+Creating 4.0 filesystem on /tmp/fs2.sqsh.default, block size 131072.
+[====================================================================================================================================================================================================================================================|] 46546/46546 100%
+
+Exportable Squashfs 4.0 filesystem, gzip compressed, data block size 131072
+        compressed data, compressed metadata, compressed fragments, compressed xattrs
+        duplicates are removed
+Filesystem size 252480.36 Kbytes (246.56 Mbytes)
+        32.69% of uncompressed filesystem size (772392.44 Kbytes)
+Inode table size 522677 bytes (510.43 Kbytes)
+        18.99% of uncompressed inode table size (2751700 bytes)
+Directory table size 462751 bytes (451.91 Kbytes)
+        40.70% of uncompressed directory table size (1136870 bytes)
+Xattr table size 57 bytes (0.06 Kbytes)
+        95.00% of uncompressed xattr table size (60 bytes)
+Number of duplicate files found 7733
+Number of inodes 50947
+Number of files 43833
+Number of fragments 3047
+Number of symbolic links  4355
+Number of device nodes 271
+Number of fifo nodes 1
+Number of socket nodes 0
+Number of directories 2487
+Number of ids (unique uids + gids) 9
+Number of uids 5
+        root (0)
+        unknown (88)
+        man (13)
+        portage (250)
+        messagebus (101)
+Number of gids 7
+        root (0)
+        disk (6)
+        kmem (9)
+        tty (5)
+        unknown (88)
+        man (15)
+        portage (250)
+
+
+
+sf="fs2.sqsh.default"      # the squashfs file name of root 
+
+mkdir /tmp/fs3
+
+mount -o loop /tmp/$sf /tmp/fs3
+
+mkdir /tmp/fs4
+
+mount -o loop /mnt/sdb4/$sf /tmp/fs3
+
+
+
+
+
+*** 46
+
+td="/tmp/initramfs"  # the dir
+rm -rf $td
+mkdir $td
+mkdir -p $td/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+cp -a /dev/{null,console,tty} $td/dev/
+cp -a /bin/busybox $td/bin/busybox
+cd $td
+
+
+cat <<EOF >> $td/init
+#!/bin/busybox sh
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+# Do your stuff here.
+echo "
+
+
+
+This script just echo, nothing else!"
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+
+theuuid="2d913413-05a1-4959-a715-8b873f463037"
+
+echo \$theuuid      \# print theuuid
+
+echo \$(findfs UUID=\$theuuid) \# print 4, the working one
+
+df -h
+
+mount -o ro \$(findfs UUID=\$theuuid) /mnt/root
+
+df -h
+
+# Clean up.
+umount /proc
+umount /sys
+umount /dev
+# Boot the real thing.
+# exec switch_root /mnt/root /sbin/init
+exec switch_root /mnt/root /sbin/init
+EOF
+
+# cat $thedir/init
+
+# chmod +x /usr/src/initramfs/init
+
+chmod +x $thedir/init
+
+# ls -lha $thedir/init
+
+# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
+
+pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
+
+# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+
+# pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+
+pk="/mnt/sdb2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+
+qemu-system-x86_64 \
+-append "console=ttyS0" -nographic \
+-drive file=/dev/sdb \
+-kernel $pk \
+-initrd $pi
+
+close the terminal by windowskey + x
+
+kill the qemu
+
+
+
+
+
+*** 46 a usb
+
+#
+d="/tmp/initramfs"
+rm -rf $d
+mkdir $d
+mkdir -p $d/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+cp -a /dev/{null,console,tty,sda} $d/dev/
+cp -a /bin/busybox $d/bin/busybox
+cd $d
+
+
+cat <<EOF >> $d/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+# Do your stuff here.
+
+while [ ! -e /dev/sda5 ]; do
+	sleep 1
+done
+
+u5="5ef03537-3fde-41b1-aa53-1e576d7a21e4"
+
+# echo $u5   # in shell
+echo \$u5  # for init
+
+# findfs UUID=$u5  # in shell
+findfs UUID=\$u5  # for init
+
+# echo $(findfs UUID=$u5) # in shell
+echo \$(findfs UUID=\$u5) \# for init
+
+
+# mount -o ro $(findfs UUID=$u5) /mnt/root  # in shell
+mount -o ro \$(findfs UUID=\$u5) /mnt/root
+
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+rescue_shell
+
+# Clean up.
+umount /proc
+umount /sys
+umount /dev
+# Boot the real thing.
+exec switch_root /mnt/root /sbin/init
+EOF
+
+cat $d/init
+chmod +x $d/init
+ls -lha $d/init
+
+i="/tmp/initramfs-hellonly.cpio.gz" 
+find . -print0 | cpio --null -ov --format=newc | xz --check=crc32 > $i
+
+
+
+
+# working direcxtory
+w="/tmp/gentoo"
+
+mkdir $w
+
+# sdc
+mount /dev/sdc5 $w
+
+#  mkdir $w/boot
+
+mount /dev/sdc2 $w/boot
+
+k=/tmp/gentoo/boot/kernel-4.4.8-r1-hardened-20170902
+
+
+
+umount $w/boot
+
+umount $w
+
+echo $i $k
+
+
+qemu-system-x86_64 \
+-drive file=/dev/sdc \
+-append "console=ttyS0" -nographic \
+-kernel $k \
+-initrd $i
+
+
+exit qemu by
+
+Control a
+c
+q
+
+
+
+while [ ! -e /dev/mapper/${MAPPER} ]; do
+	sleep 1
+done
+
+
+while [ ! -e /dev/sda5 ]; do
+	sleep 1
+done
+
+
+
+
+
+
+
+
+*** DONE 44 a usb
+
+#
+d="/tmp/initramfs"
+rm -rf $d
+mkdir $d
+mkdir -p $d/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+cp -a /dev/{null,console,tty,sda} $d/dev/
+cp -a /bin/busybox $d/bin/busybox
+cd $d
+
+
+cat <<EOF >> $d/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+# Do your stuff here.
+
+while [ ! -e /dev/sda5 ]; do
+	sleep 1
+done
+
+u5="5ef03537-3fde-41b1-aa53-1e576d7a21e4"
+
+# echo $u5   # in shell
+echo \$u5  # for init
+
+# findfs UUID=$u5  # in shell
+findfs UUID=\$u5  # for init
+
+# echo $(findfs UUID=$u5) # in shell
+echo \$(findfs UUID=\$u5) \# for init
+
+
+# mount -o ro $(findfs UUID=$u5) /mnt/root  # in shell
+
+mount -o ro \$(findfs UUID=\$u5) /mnt/root
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+rescue_shell
+
+# Clean up.
+umount /proc
+umount /sys
+umount /dev
+# Boot the real thing.
+# exec switch_root /mnt/root /sbin/init
+EOF
+
+cat $d/init
+chmod +x $d/init
+ls -lha $d/init
+
+i="/tmp/initramfs-hellonly.cpio.gz" 
+find . -print0 | cpio --null -ov --format=newc | xz --check=crc32 > $i
+
+
+
+
+# working direcxtory
+w="/tmp/gentoo"
+
+mkdir $w
+
+# sdc
+mount /dev/sdc5 $w
+
+#  mkdir $w/boot
+
+mount /dev/sdc2 $w/boot
+
+k=/tmp/gentoo/boot/kernel-4.4.8-r1-hardened-20170902
+
+
+
+umount $w/boot
+
+umount $w
+
+echo $i $k
+
+
+qemu-system-x86_64 \
+-drive file=/dev/sdc \
+-append "console=ttyS0" -nographic \
+-kernel $k \
+-initrd $i
+
+
+exit qemu by
+
+Control a
+c
+q
+
+
+
+while [ ! -e /dev/mapper/${MAPPER} ]; do
+	sleep 1
+done
+
+
+while [ ! -e /dev/sda5 ]; do
+	sleep 1
+done
+
+
+
+
+
+
+
+*** DONE 42 a usb
+
+#
+d="/tmp/initramfs"
+rm -rf $d
+mkdir $d
+mkdir -p $d/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+cp -a /dev/{null,console,tty,sda} $d/dev/
+cp -a /bin/busybox $d/bin/busybox
+cd $d
+
+
+cat <<EOF >> $d/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+# Do your stuff here.
+
+while [ ! -e /dev/sda5 ]; do
+	sleep 1
+done
+
+echo "
+
+
+
+This script just echo, nothing else!"
+
+mount -o ro /dev/sda5 /mnt/root 
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+rescue_shell
+
+
+# Clean up.
+umount /proc
+umount /sys
+umount /dev
+# Boot the real thing.
+# exec switch_root /mnt/root /sbin/init
+
+EOF
+
+cat $d/init
+chmod +x $d/init
+ls -lha $d/init
+
+i="/tmp/initramfs-hellonly.cpio.gz" 
+find . -print0 | cpio --null -ov --format=newc | xz --check=crc32 > $i
+
+
+
+
+# working direcxtory
+w="/tmp/gentoo"
+
+mkdir $w
+
+# sdc
+mount /dev/sdc5 $w
+
+#  mkdir $w/boot
+
+mount /dev/sdc2 $w/boot
+
+k=/tmp/gentoo/boot/kernel-4.4.8-r1-hardened-20170902
+
+
+
+umount $w/boot
+
+umount $w
+
+echo $i $k
+
+
+qemu-system-x86_64 \
+-drive file=/dev/sdc \
+-append "console=ttyS0" -nographic \
+-kernel $k \
+-initrd $i
+
+
+exit qemu by
+
+Control a
+c
+q
+
+
+
+while [ ! -e /dev/mapper/${MAPPER} ]; do
+	sleep 1
+done
+
+
+while [ ! -e /dev/sda5 ]; do
+	sleep 1
+done
+
+
+
+
+
+
+*** DONE 40 a usb
+
+#
+d="/tmp/initramfs"
+rm -rf $d
+mkdir $d
+mkdir -p $d/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+cp -a /dev/{null,console,tty,sda} $d/dev/
+cp -a /bin/busybox $d/bin/busybox
+cd $d
+
+
+cat <<EOF >> $d/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+# Do your stuff here.
+echo "
+
+
+
+This script just echo, nothing else!"
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+rescue_shell
+
+# Clean up.
+umount /proc
+umount /sys
+umount /dev
+# Boot the real thing.
+# exec switch_root /mnt/root /sbin/init
+
+EOF
+
+cat $d/init
+chmod +x $d/init
+ls -lha $d/init
+
+i="/tmp/initramfs-hellonly.cpio.gz" 
+find . -print0 | cpio --null -ov --format=newc | xz --check=crc32 > $i
+
+
+
+
+# working direcxtory
+w="/tmp/gentoo"
+
+mkdir $w
+
+# sdc
+mount /dev/sdc5 $w
+
+#  mkdir $w/boot
+
+mount /dev/sdc2 $w/boot
+
+k=/tmp/gentoo/boot/kernel-4.4.8-r1-hardened-20170902
+
+
+
+umount $w/boot
+
+umount $w
+
+echo $i $k
+
+
+qemu-system-x86_64 \
+-drive file=/dev/sdc \
+-append "console=ttyS0" -nographic \
+-kernel $k \
+-initrd $i
+
+
+exit qemu by
+
+Control a
+c
+q
+
+
+
+
+
+
+
+
+
+
+*** DONE 30
+
+#
+d="/tmp/initramfs"
+rm -rf $d
+mkdir $d
+mkdir -p $d/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+cp -a /dev/{null,console,tty,sda} $d/dev/
+cp -a /bin/busybox $d/bin/busybox
+cd $d
+
+
+cat <<EOF >> $d/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+
+# Do your stuff here.
+echo "
+
+
+
+This script just echo, nothing else!"
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+rescue_shell
+
+# Clean up.
+umount /proc
+umount /sys
+
+# Boot the real thing.
+# exec switch_root /mnt/root /sbin/init
+
+EOF
+
+cat $d/init
+chmod +x $d/init
+ls -lha $d/init
+
+# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
+
+i="/tmp/initramfs-hellonly.cpio.gz" 
+
+# find . -print0 | cpio --null -ov --format=newc | gzip -9 > $i
+
+
+
+# Initramfs unpacking failed: compression method gzip not configured
+
+# find . -print0 | cpio --null -ov --format=newc | xz > $i
+
+
+
+# Initramfs unpacking failed: Input was encoded with settings that are not supported by this XZ decoder
+
+# Update: use "xz --check=crc32" instead, because some latest xz support "none,crc32,crc64,sha256" or more types of integrity check, default as crc64; the kernel xz dec is "xz embedded" that only support "none or crc32",  kernel may report XZ_OPTIONS_ERROR, you could use "xz -vl ..." to check it, read Documentation/xz.txt for more;
+
+http://blog.crquan.info/2011/08/step-2-livedvd-amd64-multilib-11.html
+
+
+
+find . -print0 | cpio --null -ov --format=newc | xz --check=crc32 > $i
+
+
+# working direcxtory
+w="/tmp/gentoo"
+
+mkdir $w
+
+# sdc
+mount /dev/sdc5 $w
+
+#  mkdir $w/boot
+
+mount /dev/sdc2 $w/boot
+
+k=/tmp/gentoo/boot/kernel-4.4.8-r1-hardened-20170902
+
+
+
+umount $w/boot
+
+umount $w
+
+echo $i $k
+
+
+qemu-system-x86_64 \
+-append "console=ttyS0" -nographic \
+-kernel $k \
+-initrd $i
+
+
+exit qemu by
+
+Control a
+c
+q
+
+
+
+
+
+
+
+
+
+*** DONE 20 echo only
+
+#
+d="/tmp/initramfs"
+rm -rf $d
+mkdir $d
+mkdir -p $d/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+cp -a /dev/{null,console,tty,sda} $d/dev/
+cp -a /bin/busybox $d/bin/busybox
+cd $d
+
+
+cat <<EOF >> $d/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+
+# Do your stuff here.
+echo "
+
+
+
+This script just echo, nothing else!"
+
+# Clean up.
+umount /proc
+umount /sys
+
+# Boot the real thing.
+# exec switch_root /mnt/root /sbin/init
+
+EOF
+
+cat $d/init
+chmod +x $d/init
+ls -lha $d/init
+
+# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
+
+i="/tmp/initramfs-hellonly.cpio.gz" 
+
+# find . -print0 | cpio --null -ov --format=newc | gzip -9 > $i
+
+
+
+# Initramfs unpacking failed: compression method gzip not configured
+
+find . -print0 | cpio --null -ov --format=newc | xz > $i
+
+
+
+# Initramfs unpacking failed: Input was encoded with settings that are not supported by this XZ decoder
+
+# Update: use "xz --check=crc32" instead, because some latest xz support "none,crc32,crc64,sha256" or more types of integrity check, default as crc64; the kernel xz dec is "xz embedded" that only support "none or crc32",  kernel may report XZ_OPTIONS_ERROR, you could use "xz -vl ..." to check it, read Documentation/xz.txt for more;
+
+http://blog.crquan.info/2011/08/step-2-livedvd-amd64-multilib-11.html
+
+
+
+find . -print0 | cpio --null -ov --format=newc | xz --check=crc32 > $i
+
+
+# working direcxtory
+w="/tmp/gentoo"
+
+mkdir $w
+
+# sdc
+mount /dev/sdc5 $w
+
+#  mkdir $w/boot
+
+mount /dev/sdc2 $w/boot
+
+k=/tmp/gentoo/boot/kernel-4.4.8-r1-hardened-20170902
+
+
+
+umount $w/boot
+
+umount $w
+
+echo $i $k
+
+
+qemu-system-x86_64 \
+-append "console=ttyS0" -nographic \
+-kernel $k \
+-initrd $i
+
+
+exit qemu by
+
+Control a
+c
+q
+
+
+
+
+
+
+
+
+*** echo, shell, UUID
+
+thedir="/tmp/initramfs"
+
+rm -rf $thedir
+
+mkdir $thedir
+
+# mkdir -p /usr/src/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+# cp -a /dev/{null,console,tty,sda1} /usr/src/initramfs/dev/
+
+cp -a /dev/{null,console,tty,sda} $thedir/dev/
+
+# emerge -pv busybox  # verify the status of USE flag static
+
+# cp -a /bin/busybox /usr/src/initramfs/bin/busybox
+
+cp -a /bin/busybox $thedir/bin/busybox
+
+# cd /usr/src/initramfs
+
+cd $thedir
+
+
+
+cat <<EOF >> $thedir/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+
+mount -t devtmpfs none /dev
+
+# Do your stuff here.
+echo "
+
+
+
+Test UUID!"
+
+rescue_shell() {
+    echo "Something went wrong. Dropping to a shell."
+    exec sh
+}
+
+rescue_shell
+
+mount -o ro $(findfs UUID=2d913413-05a1-4959-a715-8b873f463037) /mnt/root
+
+# Clean up.
+umount /proc
+umount /sys
+umount /dev
+# Boot the real thing.
+exec switch_root /mnt/root /sbin/init
+
+EOF
+
+cat $thedir/init
+
+# chmod +x /usr/src/initramfs/init
+
+chmod +x $thedir/init
+
+# ls -lha $thedir/init
+
+# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
+
+pi="/tmp/initramfs-shellonly.cpio.gz"   # the path of initramfs, /tmp
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
+
+pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
+
+
+qemu-system-x86_64 \
+-append "console=ttyS0" -nographic \
+-kernel $pk \
+-initrd $pi
+
+close the terminal by windowskey + x
+
+kill the qemu
+
+
+blkid | grep sdd
+/dev/sdd2: UUID="a82da97b-7b96-4264-8bc8-48c5778b6a96" TYPE="ext2" PARTLABEL="boot" PARTUUID="c5c85134-91f5-4ebd-90e6-a64fd81c772b"
+/dev/sdd4: UUID="c056f324-d30c-47f3-b5d1-c33813dc0766" TYPE="ext4" PARTLABEL="fs1" PARTUUID="43f2cfbc-187f-4bb4-a16c-0ad2760d8771"
+/dev/sdd5: UUID="2d913413-05a1-4959-a715-8b873f463037" TYPE="ext4" PARTLABEL="fs2" PARTUUID="4339bd21-0ee1-45a5-9ff0-156da4fb981e"
+/dev/sdd1: PARTLABEL="grub" PARTUUID="1505bb84-6c3c-43c1-8f99-909d2cf5aaff"
+/dev/sdd3: PARTLABEL="swap" PARTUUID="26a67c91-194b-45ae-a36c-ab1d66e8ac30"
+
+
+ls $pi
+
+cp $pi /mnt/sdd5/boot/initramfs-uuid.cpio.gz
+
+adjust /mnt/sdd5/etc/grub.d/40_custom
+
+# inside chroot
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+
+
+qemu-system-x86_64 -m 1G -drive file=/dev/sdd
+
+*** TODO 
+
+thedir="/tmp/initramfs"
+
+rm -rf $thedir
+
+mkdir $thedir
+
+
+echo $thedir
+
+echo $thedir/bin
+
+
+# mkdir -p /usr/src/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+# cp -a /dev/{null,console,tty,sda1} /usr/src/initramfs/dev/
+
+cp -a /dev/{null,console,tty,sda,sdb,sdc} $thedir/dev/
+
+# emerge -pv busybox  # verify the status of USE flag static
+
+# cp -a /bin/busybox /usr/src/initramfs/bin/busybox
+
+cp -a /bin/busybox $thedir/bin/busybox
+
+
+# cd /usr/src/initramfs
+
+cd $thedir
+
+
+cat <<EOF > $thedir/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+
+# Do your stuff here.
+echo "This script just mounts and boots the rootfs, nothing else!"
+
+rescue_shell() {
+    echo "Something went wrong. Dropping to a shell."
+    exec sh
+}
+
+# mount -o ro /dev/sdc /mnt/root || rescue_shell
+mount -o ro /dev/sda5 /mnt/root || rescue_shell
+
+# Mount the root filesystem.
+# mount -o ro /dev/sda /mnt/root
+
+# Clean up.
+umount /proc
+umount /sys
+
+# Boot the real thing.
+exec switch_root /mnt/root /sbin/init
+
+EOF
+
+cat $thedir/init
+
+
+
+
+# chmod +x /usr/src/initramfs/init
+
+chmod +x $thedir/init
+
+ls -lha $thedir/init
+
+# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > /tmp/custom-initramfs-shell-20170417.cpio.gz
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > /tmp/initramfs.cpio.gz
+
+find .         | cpio        -ov --format=newc | gzip -9 > /tmp/initramfs.cpio.igz
+
+find . | cpio -o -H newc | gzip > /tmp/initramfs.cpio.gz
+
+
+ls -lha /tmp/*initramfs*
+
+-rw-r--r-- 1 root root 1.1M Feb 15 14:28 /tmp/custom-initramfs-201702151400.cpio.gz
+
+-rw-r--r--  1 root root 1.1M Apr 18 11:43 /tmp/custom-initramfs-shell-20170417.cpio.gz
+
+mkdir /root/initramfstest
+
+cp /tmp/custom-initramfs-201702151400.cpio.gz /root/initramfstest
+
+ls -l /root/initramfstest/*
+
+-rw-r--r-- 1 root root 1055740 Feb 15 14:39 /root/initramfstest/custom-initramfs-201702151400.cpio.gz
+
+
+
+How to add a GRUB2 menu entry 
+
+adjust /etc/grub.d/40_custom
+
+initrd /root/initramfstest/custom-initramfs-201702151400.cpio.gz
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+less /boot/grub/grub.cfg
+
+
+qemu-system-x86_64 \
+-append "console=ttyS0" -nographic \
+-kernel /boot/kernel-4.8.17-20170213 \
+-initrd /tmp/initramfs.cpio.gz
+
+
+
+
+
+
+*** DONE thedir
+
+|   |                            |   |
+|   | prepare the work directory |   |
+|   |                            |   |
+|   | prepare the structure      |   |
+|   |                            |   |
+|   |                            |   |
+
+thedir="/tmp/initramfs"
+
+rm -rf $thedir
+
+mkdir $thedir
+
+# mkdir -p /usr/src/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+# cp -a /dev/{null,console,tty,sda1} /usr/src/initramfs/dev/
+
+cp -a /dev/{null,console,tty,sda} $thedir/dev/
+
+# emerge -pv busybox  # verify the status of USE flag static
+
+# cp -a /bin/busybox /usr/src/initramfs/bin/busybox
+
+cp -a /bin/busybox $thedir/bin/busybox
+
+
+# cd /usr/src/initramfs
+
+cd $thedir
+
+cat <<EOF >> $thedir/init
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+
+# Do your stuff here.
+echo "This script just mounts and boots the rootfs, nothing else!"
+
+rescue_shell() {
+    echo "Something went wrong. Dropping to a shell."
+    exec sh
+}
+
+mount -o ro /dev/sda /mnt/root || rescue_shell
+
+# Mount the root filesystem.
+# mount -o ro /dev/sda /mnt/root
+
+# Clean up.
+umount /proc
+umount /sys
+
+# Boot the real thing.
+# exec switch_root /mnt/root /sbin/init
+
+EOF
+
+cat $thedir/init
+
+# chmod +x /usr/src/initramfs/init
+
+chmod +x $thedir/init
+
+# ls -lha $thedir/init
+
+# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > /tmp/initramfs.cpio.gz
+
+qemu-system-x86_64 \
+-append "console=ttyS0" -nographic \
+-kernel /boot/kernel-4.8.17-20170213 \
+-initrd /tmp/initramfs.cpio.gz
+
+
+
+
+
+
+
+
+
+*** original
+
+mkdir -p /usr/src/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+cp -a /dev/{null,console,tty,sda1} /usr/src/initramfs/dev/
+
+emerge -pv busybox  # verify the status of USE flag static
+
+cp -a /bin/busybox /usr/src/initramfs/bin/busybox
+
+
+cd /usr/src/initramfs
+root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
+
+
+*** my modification, Rescue shell, set the target directory to /tmp
+
+ls /tmp/initr*
+
+
+rm -rf /tmp/initramfs
+
+
+mkdir -p /tmp/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+cp -a /dev/{null,console,tty,sda} /tmp/initramfs/dev/
+
+cp -a /bin/busybox /tmp/initramfs/bin/busybox
+
+
+cat <<EOF >> /tmp/initramfs/init
+
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+
+echo "Something went wrong. Dropping to a shell."
+exec sh
+
+EOF
+
+cat /tmp/initramfs/init
+
+chmod +x /tmp/initramfs/init
+
+verify the kernel; it is default.
+
+General setup  --->
+    [*] Initial RAM filesystem and RAM disk (initramfs/initrd) support
+
+
+cd /tmp/initramfs
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-minimalistic-20170131-initramfs.cpio.gz
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-minimalistic-20170202-initramfs.cpio.gz
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-rescueshell-20170202-initramfs.cpio.gz
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../custom-rescueshell-20170202-initramfs.cpio.gz
+
+
+
+*** my modification, set the target directory to /tmp
+
+
+ls /tmp/initr*
+
+rm -rf /tmp/initramfs
+
+
+
+mkdir -p /tmp/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+
+cp -a /dev/{null,console,tty,sda} /tmp/initramfs/dev/
+
+cp -a /bin/busybox /tmp/initramfs/bin/busybox
+
+
+cat <<EOF >> /tmp/initramfs/init
+
+#!/bin/busybox sh
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+
+# Do your stuff here.
+echo "This script just mounts and boots the rootfs, nothing else!"
+
+rescue_shell() {
+    echo "Something went wrong. Dropping to a shell."
+    exec sh
+}
+
+# Mount the root filesystem.
+mount -o ro /dev/sda /mnt/root  || rescue_shell
+
+# Clean up.
+umount /proc
+umount /sys
+
+# Boot the real thing.
+exec switch_root /mnt/root /sbin/init
+
+EOF
+
+cat /tmp/initramfs/init
+
+chmod +x /tmp/initramfs/init
+
+verify the kernel; it is default.
+
+General setup  --->
+    [*] Initial RAM filesystem and RAM disk (initramfs/initrd) support
+
+
+cd /tmp/initramfs
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-minimalistic-20170131-initramfs.cpio.gz
+
+find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-minimalistic-20170202-initramfs.cpio.gz
+
+
+*** adjust grub
+
+/etc/grub.d/40_custom 
+
+initrd /fs4/boot/custom-minimalistic-20170131-initramfs.cpio.gz
+
+initrd /fs4/boot/custom-minimalistic-20170202-initramfs.cpio.gz
+
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+
+
+
+
+
 ** boot
 
 *** b25
@@ -16992,1660 +18814,4 @@ http://mjbright.blogspot.tw/2012/09/using-rsync-over-multi-hop-ssh.html#last_par
 https://www.digitalocean.com/community/tutorials/how-to-use-rsync-to-sync-local-and-remote-directories-on-a-vps#useful-options-for-rsync
 
 rsync -rnve "ssh -A -t user@home ssh -A -t user@target" :/tmp/stage4* /tmp
-
-** initramfs
-
-| echo | shell | Dynamic devices | mount | UUID | switch_root | overlayfs |    | tmpfs | ro rw  |
-|      |       |                 |       |      |             |           |    |       | access |
-|------+-------+-----------------+-------+------+-------------+-----------+----+-------+--------|
-| v    |       |                 |       |      |             |           | 20 |       |        |
-|      |       |                 |       |      |             |           |    |       |        |
-| v    | v     |                 |       |      |             |           | 30 |       |        |
-|      |       |                 |       |      |             |           |    |       |        |
-| v    | v     | v               |       |      |             |           | 40 |       |        |
-|      |       |                 |       |      |             |           |    |       |        |
-| v    | v     | v               | v     |      |             |           | 42 |       |        |
-|      |       |                 |       |      |             |           |    |       |        |
-| v    | v     | v               | v     | v    |             |           | 44 |       |        |
-|      |       |                 |       |      |             |           |    |       |        |
-| v    | v     | v               | v     | v    | v           |           | 46 |       |        |
-|      |       |                 |       |      |             |           |    |       |        |
-|      |       |                 |       |      |             | v         | 48 |       |        |
-|      |       |                 |       |      |             |           |    |       |        |
-|      |       |                 |       |      |             | v         | 50 | v     |        |
-|      |       |                 |       |      |             |           |    |       |        |
-|      |       |                 |       |      |             |           | 52 |       | v      |
-|      |       |                 |       |      |             |           |    |       |        |
-
-#
-
-*** 52
-
-|          | physical | mount point | mount point |          |
-|          |          | b1 yusb     | 14 yusb     |          |
-|----------+----------+-------------+-------------+----------|
-| kernel   |        2 | /mnt/sdd2   | /mnt/sdb2   |          |
-|          |          |             |             |          |
-| squashfs |        4 | /mnt/sdd4   | /mnt/sdb4   | fs2.sqsh |
-|          |          |             |             |          |
-| root     |        5 |             | /mnt/sdb5   |          |
-|          |          |             |             |          |
-
-# mount /dev/sdb2 /mnt/sdb2   # 14
-
-mount /dev/sdd2 /mnt/sdd2   # b1
-
-mount /dev/sdb4 /mnt/sdb4
-
-
-
-blkid | grep sdb4
-
-/dev/sdb4: UUID="c056f324-d30c-47f3-b5d1-c33813dc0766" TYPE="ext4" PARTLABEL="fs1" PARTUUID="43f2cfbc-187f-4bb4-a16c-0ad2760d8771"
-
-
-thedir="/tmp/initramfs"
-rm -rf $thedir
-mkdir $thedir
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root-ro,mnt/root,proc,root,sbin,sys,tmp}
-cp -a /dev/{null,console,tty} $thedir/dev/
-cp -a /bin/busybox $thedir/bin/busybox
-cd $thedir
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-mount -t proc none /proc
-mount -t sysfs none /sys
-mount -t devtmpfs none /dev
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-rescue_shell() {
-    echo "Dropping to a shell."
-    exec sh
-}
-
-uu="c056f324-d30c-47f3-b5d1-c33813dc0766" # the uuid
-
-echo \$uu      \# print the uuid
-
-echo \$(findfs UUID=\$uu) \# the device contains squashfs file
-
-# sf="fs2.sqsh.default"      # the squashfs file name of root 
-sf="stage4.20170423.squashfs"      # the squashfs file name of root 
-
-echo \$sf      \# the squashfs name of root
-
-mkdir /mnt/tmp
-
-mount \$(findfs UUID=\$uu) /mnt/tmp
-
-ls /mnt/tmp      
-
-mount -o loop /mnt/tmp/\$sf /mnt/root-ro
-
-mount -o size=90%,noatime,nodiratime -t tmpfs tmpfs /tmp
-
-
-mkdir /tmp/upper
-mkdir /tmp/work
-
-mount -t overlay overlay -olowerdir=/mnt/root-ro,upperdir=/tmp/upper,workdir=/tmp/work /mnt/root
-
-
-mkdir /mnt/root/mnt/upper
-
-mount --bind /tmp/upper /mnt/root/mnt/upper
-
-mkdir /mnt/root/mnt/work
-
-mount --bind /tmp/work /mnt/root/mnt/work
-
-# rescue_shell     #  interrupt the initramfs, for debug.
-umount /proc
-umount /sys
-umount /dev
-exec switch_root /mnt/root /sbin/init
-EOF
-chmod +x $thedir/init
-
-
-pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-# pk="/mnt/sdb2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, 14 yusb
-
-# b1
-qemu-system-x86_64 -m 2G \
--append "console=ttyS0" -nographic \
--drive file=/dev/sdd \
--kernel $pk \
--initrd $pi
-
-
-# 14
-
-qemu-system-x86_64 -m 2G\
--append "console=ttyS0" -nographic \
--drive file=/dev/sdb \
--kernel $pk \
--initrd $pi
-
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-squashfs: SQUASHFS error: Filesystem uses "xz" compression. This is not supported
-
-#
-
-cd /tmp
-
-mkdir fs2
-
-mount -o loop /tmp/fs2.sqsh /tmp/fs2
-
-mksquashfs /tmp/fs2 /tmp/fs2.sqsh.default
-
-cp /tmp/fs2.sqsh.default /mnt/sdb4
-
-Parallel mksquashfs: Using 2 processors
-Creating 4.0 filesystem on /tmp/fs2.sqsh.default, block size 131072.
-[====================================================================================================================================================================================================================================================|] 46546/46546 100%
-
-Exportable Squashfs 4.0 filesystem, gzip compressed, data block size 131072
-        compressed data, compressed metadata, compressed fragments, compressed xattrs
-        duplicates are removed
-Filesystem size 252480.36 Kbytes (246.56 Mbytes)
-        32.69% of uncompressed filesystem size (772392.44 Kbytes)
-Inode table size 522677 bytes (510.43 Kbytes)
-        18.99% of uncompressed inode table size (2751700 bytes)
-Directory table size 462751 bytes (451.91 Kbytes)
-        40.70% of uncompressed directory table size (1136870 bytes)
-Xattr table size 57 bytes (0.06 Kbytes)
-        95.00% of uncompressed xattr table size (60 bytes)
-Number of duplicate files found 7733
-Number of inodes 50947
-Number of files 43833
-Number of fragments 3047
-Number of symbolic links  4355
-Number of device nodes 271
-Number of fifo nodes 1
-Number of socket nodes 0
-Number of directories 2487
-Number of ids (unique uids + gids) 9
-Number of uids 5
-        root (0)
-        unknown (88)
-        man (13)
-        portage (250)
-        messagebus (101)
-Number of gids 7
-        root (0)
-        disk (6)
-        kmem (9)
-        tty (5)
-        unknown (88)
-        man (15)
-        portage (250)
-
-
-
-sf="fs2.sqsh.default"      # the squashfs file name of root 
-
-mkdir /tmp/fs3
-
-mount -o loop /tmp/$sf /tmp/fs3
-
-mkdir /tmp/fs4
-
-mount -o loop /mnt/sdb4/$sf /tmp/fs3
-
-
-
-
-
-
-
-
-*** 50
-
-|          | physical | mount point | mount point |          |
-|          |          | b1 yusb     | 14 yusb     |          |
-|----------+----------+-------------+-------------+----------|
-| kernel   |        2 | /mnt/sdd2   | /mnt/sdb2   |          |
-|          |          |             |             |          |
-| squashfs |        4 | /mnt/sdd4   | /mnt/sdb4   | fs2.sqsh |
-|          |          |             |             |          |
-| root     |        5 |             | /mnt/sdb5   |          |
-|          |          |             |             |          |
-
-# mount /dev/sdb2 /mnt/sdb2   # 14
-
-mount /dev/sdd2 /mnt/sdd2   # b1
-
-mount /dev/sdb4 /mnt/sdb4
-
-
-
-blkid | grep sdb4
-
-/dev/sdb4: UUID="c056f324-d30c-47f3-b5d1-c33813dc0766" TYPE="ext4" PARTLABEL="fs1" PARTUUID="43f2cfbc-187f-4bb4-a16c-0ad2760d8771"
-
-
-thedir="/tmp/initramfs"
-rm -rf $thedir
-mkdir $thedir
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root-ro,mnt/root,proc,root,sbin,sys,tmp}
-cp -a /dev/{null,console,tty} $thedir/dev/
-cp -a /bin/busybox $thedir/bin/busybox
-cd $thedir
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-mount -t proc none /proc
-mount -t sysfs none /sys
-mount -t devtmpfs none /dev
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-rescue_shell() {
-    echo "Dropping to a shell."
-    exec sh
-}
-
-uu="c056f324-d30c-47f3-b5d1-c33813dc0766" # the uuid
-
-echo \$uu      \# print the uuid
-
-echo \$(findfs UUID=\$uu) \# the device of the usb
-
-# sf="fs2.sqsh.default"      # the squashfs file name of root 
-sf="stage4.20170423.squashfs"      # the squashfs file name of root 
-
-echo \$sf      \# the squashfs file name of root
-
-mkdir /mnt/tmp
-
-mount \$(findfs UUID=\$uu) /mnt/tmp
-
-ls /mnt/tmp      
-
-mount -o loop /mnt/tmp/\$sf /mnt/root-ro
-
-mount -o size=90%,noatime,nodiratime -t tmpfs tmpfs /tmp
-
-
-mkdir /tmp/upper
-mkdir /tmp/work
-
-mount -t overlay overlay -olowerdir=/mnt/root-ro,upperdir=/tmp/upper,workdir=/tmp/work /mnt/root
-
-# rescue_shell     #  interrupt the initramfs, for debug.
-
-umount /proc
-umount /sys
-umount /dev
-exec switch_root /mnt/root /sbin/init
-EOF
-
-
-chmod +x $thedir/init
-
-
-pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-# pk="/mnt/sdb2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, 14 yusb
-
-
-# b1
-
-qemu-system-x86_64 -m 2G \
--append "console=ttyS0" -nographic \
--drive file=/dev/sdd \
--kernel $pk \
--initrd $pi
-
-
-# 14
-
-qemu-system-x86_64 -m 2G\
--append "console=ttyS0" -nographic \
--drive file=/dev/sdb \
--kernel $pk \
--initrd $pi
-
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-squashfs: SQUASHFS error: Filesystem uses "xz" compression. This is not supported
-
-#
-
-cd /tmp
-
-mkdir fs2
-
-mount -o loop /tmp/fs2.sqsh /tmp/fs2
-
-mksquashfs /tmp/fs2 /tmp/fs2.sqsh.default
-
-cp /tmp/fs2.sqsh.default /mnt/sdb4
-
-Parallel mksquashfs: Using 2 processors
-Creating 4.0 filesystem on /tmp/fs2.sqsh.default, block size 131072.
-[====================================================================================================================================================================================================================================================|] 46546/46546 100%
-
-Exportable Squashfs 4.0 filesystem, gzip compressed, data block size 131072
-        compressed data, compressed metadata, compressed fragments, compressed xattrs
-        duplicates are removed
-Filesystem size 252480.36 Kbytes (246.56 Mbytes)
-        32.69% of uncompressed filesystem size (772392.44 Kbytes)
-Inode table size 522677 bytes (510.43 Kbytes)
-        18.99% of uncompressed inode table size (2751700 bytes)
-Directory table size 462751 bytes (451.91 Kbytes)
-        40.70% of uncompressed directory table size (1136870 bytes)
-Xattr table size 57 bytes (0.06 Kbytes)
-        95.00% of uncompressed xattr table size (60 bytes)
-Number of duplicate files found 7733
-Number of inodes 50947
-Number of files 43833
-Number of fragments 3047
-Number of symbolic links  4355
-Number of device nodes 271
-Number of fifo nodes 1
-Number of socket nodes 0
-Number of directories 2487
-Number of ids (unique uids + gids) 9
-Number of uids 5
-        root (0)
-        unknown (88)
-        man (13)
-        portage (250)
-        messagebus (101)
-Number of gids 7
-        root (0)
-        disk (6)
-        kmem (9)
-        tty (5)
-        unknown (88)
-        man (15)
-        portage (250)
-
-
-
-sf="fs2.sqsh.default"      # the squashfs file name of root 
-
-mkdir /tmp/fs3
-
-mount -o loop /tmp/$sf /tmp/fs3
-
-mkdir /tmp/fs4
-
-mount -o loop /mnt/sdb4/$sf /tmp/fs3
-
-
-
-
-
-
-
-
-*** 48 
-
-|          | physical | mount point |          |
-|----------+----------+-------------+----------|
-|          |  yusb 14 |             |          |
-|          |          |             |          |
-| kernel   |        2 | /mnt/sdb2   |          |
-|          |          |             |          |
-| squashfs |        4 | /mnt/sdb4   | fs2.sqsh |
-|          |          |             |          |
-| root     |        5 | /mnt/sdb5   |          |
-|          |          |             |          | 
-
-# mount /dev/sdb2 /mnt/sdb2   # 14
-
-mount /dev/sdd2 /mnt/sdd2   # b1
-
-mount /dev/sdb4 /mnt/sdb4
-
-
-
-blkid | grep sdb4
-
-/dev/sdb4: UUID="c056f324-d30c-47f3-b5d1-c33813dc0766" TYPE="ext4" PARTLABEL="fs1" PARTUUID="43f2cfbc-187f-4bb4-a16c-0ad2760d8771"
-
-
-thedir="/tmp/initramfs"
-rm -rf $thedir
-mkdir $thedir
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys,tmp}
-cp -a /dev/{null,console,tty} $thedir/dev/
-cp -a /bin/busybox $thedir/bin/busybox
-cd $thedir
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-mount -t proc none /proc
-mount -t sysfs none /sys
-mount -t devtmpfs none /dev
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-rescue_shell() {
-    echo "Dropping to a shell."
-    exec sh
-}
-
-uu="c056f324-d30c-47f3-b5d1-c33813dc0766" # the uuid
-
-echo \$uu      \# print the uuid
-
-echo \$(findfs UUID=\$uu) \# the device of the usb
-
-# sf="fs2.sqsh.default"      # the squashfs file name of root 
-sf="stage4.20170423.squashfs"      # the squashfs file name of root 
-
-echo \$sf      \# the squashfs file name of root
-
-mkdir /mnt/tmp
-
-mount \$(findfs UUID=\$uu) /mnt/tmp
-
-ls /mnt/tmp      
-
-mount -o loop /mnt/tmp/\$sf /mnt/root
-rescue_shell     #  interrupt the initramfs, for debug.
-
-umount /proc
-umount /sys
-umount /dev
-exec switch_root /mnt/root /sbin/init
-EOF
-
-
-chmod +x $thedir/init
-
-
-pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-  pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-# pk="/mnt/sdb2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, 14 yusb
-
-
-# b1
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--drive file=/dev/sdd \
--kernel $pk \
--initrd $pi
-
-
-# 14
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--drive file=/dev/sdb \
--kernel $pk \
--initrd $pi
-
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-squashfs: SQUASHFS error: Filesystem uses "xz" compression. This is not supported
-
-#
-
-cd /tmp
-
-mkdir fs2
-
-mount -o loop /tmp/fs2.sqsh /tmp/fs2
-
-mksquashfs /tmp/fs2 /tmp/fs2.sqsh.default
-
-cp /tmp/fs2.sqsh.default /mnt/sdb4
-
-Parallel mksquashfs: Using 2 processors
-Creating 4.0 filesystem on /tmp/fs2.sqsh.default, block size 131072.
-[====================================================================================================================================================================================================================================================|] 46546/46546 100%
-
-Exportable Squashfs 4.0 filesystem, gzip compressed, data block size 131072
-        compressed data, compressed metadata, compressed fragments, compressed xattrs
-        duplicates are removed
-Filesystem size 252480.36 Kbytes (246.56 Mbytes)
-        32.69% of uncompressed filesystem size (772392.44 Kbytes)
-Inode table size 522677 bytes (510.43 Kbytes)
-        18.99% of uncompressed inode table size (2751700 bytes)
-Directory table size 462751 bytes (451.91 Kbytes)
-        40.70% of uncompressed directory table size (1136870 bytes)
-Xattr table size 57 bytes (0.06 Kbytes)
-        95.00% of uncompressed xattr table size (60 bytes)
-Number of duplicate files found 7733
-Number of inodes 50947
-Number of files 43833
-Number of fragments 3047
-Number of symbolic links  4355
-Number of device nodes 271
-Number of fifo nodes 1
-Number of socket nodes 0
-Number of directories 2487
-Number of ids (unique uids + gids) 9
-Number of uids 5
-        root (0)
-        unknown (88)
-        man (13)
-        portage (250)
-        messagebus (101)
-Number of gids 7
-        root (0)
-        disk (6)
-        kmem (9)
-        tty (5)
-        unknown (88)
-        man (15)
-        portage (250)
-
-
-
-sf="fs2.sqsh.default"      # the squashfs file name of root 
-
-mkdir /tmp/fs3
-
-mount -o loop /tmp/$sf /tmp/fs3
-
-mkdir /tmp/fs4
-
-mount -o loop /mnt/sdb4/$sf /tmp/fs3
-
-
-
-
-
-*** 46
-
-td="/tmp/initramfs"  # the dir
-rm -rf $td
-mkdir $td
-mkdir -p $td/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-cp -a /dev/{null,console,tty} $td/dev/
-cp -a /bin/busybox $td/bin/busybox
-cd $td
-
-
-cat <<EOF >> $td/init
-#!/bin/busybox sh
-mount -t proc none /proc
-mount -t sysfs none /sys
-mount -t devtmpfs none /dev
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-rescue_shell() {
-    echo "Dropping to a shell."
-    exec sh
-}
-
-
-theuuid="2d913413-05a1-4959-a715-8b873f463037"
-
-echo \$theuuid      \# print theuuid
-
-echo \$(findfs UUID=\$theuuid) \# print 4, the working one
-
-df -h
-
-mount -o ro \$(findfs UUID=\$theuuid) /mnt/root
-
-df -h
-
-# Clean up.
-umount /proc
-umount /sys
-umount /dev
-# Boot the real thing.
-# exec switch_root /mnt/root /sbin/init
-exec switch_root /mnt/root /sbin/init
-EOF
-
-# cat $thedir/init
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-# ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-# pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-pk="/mnt/sdb2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--drive file=/dev/sdb \
--kernel $pk \
--initrd $pi
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-
-*** 44
-
-thedir="/tmp/initramfs"
-
-rm -rf $thedir
-
-mkdir $thedir
-
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-cp -a /dev/{null,console,tty} $thedir/dev/
-# cp -a /dev/sdd5 $thedir/dev/sda5
-
-cp -a /bin/busybox $thedir/bin/busybox
-
-cd $thedir
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-mount -t devtmpfs none /dev
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-rescue_shell() {
-    echo "Dropping to a shell."
-    exec sh
-}
-
-# mount -o ro /dev/sda5 /mnt/root || rescue_shell
-
-# mount -o ro /dev/sda5 /mnt/root 
-# /dev/sdd5: UUID="2d913413-05a1-4959-a715-8b873f463037"
-theuuid="2d913413-05a1-4959-a715-8b873f463037"
-
-echo \$theuuid      \# print theuuid
-
-# sleep 10
-
-findfs UUID=\$theuuid      
-
-df -h
-
-echo $(findfs UUID=$theuuid) \# print 1
-
-echo $(findfs UUID=\$theuuid) \# print 2
-
-echo \$(findfs UUID=$theuuid) \# print 3
-
-echo \$(findfs UUID=\$theuuid) \# print 4, the working one
-
-mount -o ro \$(findfs UUID=\$theuuid) /mnt/root
-
-df -h
-
-rescue_shell   # everything below will not show
-
-df -h    # failed to show
-
-# Clean up.
-umount /proc
-umount /sys
-umount /dev
-# Boot the real thing.
-# exec switch_root /mnt/root /sbin/init
-EOF
-
-# cat $thedir/init
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-# ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--drive file=/dev/sdd \
--kernel $pk \
--initrd $pi
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-
-*** 42
-
-thedir="/tmp/initramfs"
-
-rm -rf $thedir
-
-mkdir $thedir
-
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-cp -a /dev/{null,console,tty} $thedir/dev/
-# cp -a /dev/sdd5 $thedir/dev/sda5
-
-cp -a /bin/busybox $thedir/bin/busybox
-
-cd $thedir
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-mount -t devtmpfs none /dev
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-rescue_shell() {
-    echo "Dropping to a shell."
-    exec sh
-}
-
-# mount -o ro /dev/sda5 /mnt/root || rescue_shell
-
-mount -o ro /dev/sda5 /mnt/root 
-
-rescue_shell
-
-# Clean up.
-umount /proc
-umount /sys
-umount /dev
-# Boot the real thing.
-# exec switch_root /mnt/root /sbin/init
-EOF
-
-# cat $thedir/init
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-# ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--drive file=/dev/sdd \
--kernel $pk \
--initrd $pi
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-
-ALSA device list:
-  #0: Dummy 1
-Freeing unused kernel memory: 2672K (ffffffff82600000 - ffffffff8289c000)
-Write protecting the kernel read-only data: 20480k
-
-
-
-
-This script just echo, nothing else!
-EXT4-fs (sda5): couldn't mount as ext3 due to feature incompatibilities
-EXT4-fs (sda5): INFO: recovery required on readonly filesystem
-EXT4-fs (sda5): write access will be enabled during recovery
-EXT4-fs (sda5): recovery complete
-EXT4-fs (sda5): mounted filesystem with ordered data mode. Opts: (null)
-Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000000
-
-CPU: 0 PID: 1 Comm: init Not tainted 4.8.17-hardened-r2-openstack #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.1-0-g8891697-prebuilt.qemu-project.org 04/01/2014
- 0000000000000086 0000000000000086 ffffc9000004bd70 ffffffff81613809
- 0000000000000001 ffff88000709b300 ffffffff82032ce2 ffffc9000004bdf8
- ffffffff811d9e74 ffff880000000010 ffffc9000004be08 ffffc9000004bd98
-Call Trace:
- [<ffffffff81613809>] dump_stack+0x58/0x83
- [<ffffffff811d9e74>] panic+0xd0/0x253
- [<ffffffff8113aa3a>] do_exit+0x4d2/0x933
- [<ffffffff8113bb81>] do_group_exit+0x45/0xb1
- [<ffffffff8113bbff>] sys_exit_group+0x12/0x1a
- [<ffffffff8100158c>] do_syscall_64+0x9d/0x14f
- [<ffffffff81cd7823>] entry_SYSCALL64_slow_path+0x25/0x25
-Kernel Offset: disabled
----[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000000
-
-
-
-
-
-
-
-
-
-
-*** 40
-
-thedir="/tmp/initramfs"
-
-rm -rf $thedir
-
-mkdir $thedir
-
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-cp -a /dev/{null,console,tty} $thedir/dev/
-# cp -a /dev/sdd5 $thedir/dev/sda5
-
-cp -a /bin/busybox $thedir/bin/busybox
-
-cd $thedir
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-mount -t devtmpfs none /dev
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-rescue_shell() {
-    echo "Dropping to a shell."
-    exec sh
-}
-
-# mount -o ro /dev/sda5 /mnt/root || rescue_shell
-rescue_shell
-
-# Clean up.
-umount /proc
-umount /sys
-umount /dev
-# Boot the real thing.
-# exec switch_root /mnt/root /sbin/init
-EOF
-
-# cat $thedir/init
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-# ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-pi="/tmp/initramfs.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--drive file=/dev/sdd \
--kernel $pk \
--initrd $pi
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-
-ALSA device list:
-  #0: Dummy 1
-Freeing unused kernel memory: 2672K (ffffffff82600000 - ffffffff8289c000)
-Write protecting the kernel read-only data: 20480k
-
-
-
-
-This script just echo, nothing else!
-EXT4-fs (sda5): couldn't mount as ext3 due to feature incompatibilities
-EXT4-fs (sda5): INFO: recovery required on readonly filesystem
-EXT4-fs (sda5): write access will be enabled during recovery
-EXT4-fs (sda5): recovery complete
-EXT4-fs (sda5): mounted filesystem with ordered data mode. Opts: (null)
-Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000000
-
-CPU: 0 PID: 1 Comm: init Not tainted 4.8.17-hardened-r2-openstack #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.10.1-0-g8891697-prebuilt.qemu-project.org 04/01/2014
- 0000000000000086 0000000000000086 ffffc9000004bd70 ffffffff81613809
- 0000000000000001 ffff88000709b300 ffffffff82032ce2 ffffc9000004bdf8
- ffffffff811d9e74 ffff880000000010 ffffc9000004be08 ffffc9000004bd98
-Call Trace:
- [<ffffffff81613809>] dump_stack+0x58/0x83
- [<ffffffff811d9e74>] panic+0xd0/0x253
- [<ffffffff8113aa3a>] do_exit+0x4d2/0x933
- [<ffffffff8113bb81>] do_group_exit+0x45/0xb1
- [<ffffffff8113bbff>] sys_exit_group+0x12/0x1a
- [<ffffffff8100158c>] do_syscall_64+0x9d/0x14f
- [<ffffffff81cd7823>] entry_SYSCALL64_slow_path+0x25/0x25
-Kernel Offset: disabled
----[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000000
-
-
-
-
-
-
-
-
-
-*** 30 echo, shell
-
-thedir="/tmp/initramfs"
-
-rm -rf $thedir
-
-mkdir $thedir
-
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-cp -a /dev/{null,console,tty,sda} $thedir/dev/
-
-cp -a /bin/busybox $thedir/bin/busybox
-
-cd $thedir
-
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-
-rescue_shell() {
-    echo "Dropping to a shell."
-    exec sh
-}
-
-rescue_shell
-
-
-# Clean up.
-umount /proc
-umount /sys
-
-# Boot the real thing.
-# exec switch_root /mnt/root /sbin/init
-
-EOF
-
-cat $thedir/init
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-# ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-pi="/tmp/initramfs-shellonly.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--kernel $pk \
--initrd $pi
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-
-
-
-
-
-
-
-
-
-*** 20 echo only
-
-thedir="/tmp/initramfs"
-
-rm -rf $thedir
-
-mkdir $thedir
-
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-cp -a /dev/{null,console,tty,sda} $thedir/dev/
-
-cp -a /bin/busybox $thedir/bin/busybox
-
-cd $thedir
-
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-
-# Do your stuff here.
-echo "
-
-
-
-This script just echo, nothing else!"
-
-# Clean up.
-umount /proc
-umount /sys
-
-# Boot the real thing.
-# exec switch_root /mnt/root /sbin/init
-
-EOF
-
-cat $thedir/init
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-# ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-pi="/tmp/initramfs-shellonly.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-# pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-pk="/mnt/sdd2/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--kernel $pk \
--initrd $pi
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-
-
-
-
-
-*** echo, shell, UUID
-
-thedir="/tmp/initramfs"
-
-rm -rf $thedir
-
-mkdir $thedir
-
-# mkdir -p /usr/src/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-# cp -a /dev/{null,console,tty,sda1} /usr/src/initramfs/dev/
-
-cp -a /dev/{null,console,tty,sda} $thedir/dev/
-
-# emerge -pv busybox  # verify the status of USE flag static
-
-# cp -a /bin/busybox /usr/src/initramfs/bin/busybox
-
-cp -a /bin/busybox $thedir/bin/busybox
-
-# cd /usr/src/initramfs
-
-cd $thedir
-
-
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-
-mount -t devtmpfs none /dev
-
-# Do your stuff here.
-echo "
-
-
-
-Test UUID!"
-
-rescue_shell() {
-    echo "Something went wrong. Dropping to a shell."
-    exec sh
-}
-
-rescue_shell
-
-mount -o ro $(findfs UUID=2d913413-05a1-4959-a715-8b873f463037) /mnt/root
-
-# Clean up.
-umount /proc
-umount /sys
-umount /dev
-# Boot the real thing.
-exec switch_root /mnt/root /sbin/init
-
-EOF
-
-cat $thedir/init
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-# ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-pi="/tmp/initramfs-shellonly.cpio.gz"   # the path of initramfs, /tmp
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > $pi
-
-pk="/mnt/sdd5/boot/kernel-genkernel-x86_64-4.8.17-hardened-r2-openstack"  # the path of kernel, b1 yusb
-
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--kernel $pk \
--initrd $pi
-
-close the terminal by windowskey + x
-
-kill the qemu
-
-
-blkid | grep sdd
-/dev/sdd2: UUID="a82da97b-7b96-4264-8bc8-48c5778b6a96" TYPE="ext2" PARTLABEL="boot" PARTUUID="c5c85134-91f5-4ebd-90e6-a64fd81c772b"
-/dev/sdd4: UUID="c056f324-d30c-47f3-b5d1-c33813dc0766" TYPE="ext4" PARTLABEL="fs1" PARTUUID="43f2cfbc-187f-4bb4-a16c-0ad2760d8771"
-/dev/sdd5: UUID="2d913413-05a1-4959-a715-8b873f463037" TYPE="ext4" PARTLABEL="fs2" PARTUUID="4339bd21-0ee1-45a5-9ff0-156da4fb981e"
-/dev/sdd1: PARTLABEL="grub" PARTUUID="1505bb84-6c3c-43c1-8f99-909d2cf5aaff"
-/dev/sdd3: PARTLABEL="swap" PARTUUID="26a67c91-194b-45ae-a36c-ab1d66e8ac30"
-
-
-ls $pi
-
-cp $pi /mnt/sdd5/boot/initramfs-uuid.cpio.gz
-
-adjust /mnt/sdd5/etc/grub.d/40_custom
-
-# inside chroot
-
-grub-mkconfig -o /boot/grub/grub.cfg
-
-
-
-qemu-system-x86_64 -m 1G -drive file=/dev/sdd
-
-*** TODO 
-
-thedir="/tmp/initramfs"
-
-rm -rf $thedir
-
-mkdir $thedir
-
-
-echo $thedir
-
-echo $thedir/bin
-
-
-# mkdir -p /usr/src/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-# cp -a /dev/{null,console,tty,sda1} /usr/src/initramfs/dev/
-
-cp -a /dev/{null,console,tty,sda,sdb,sdc} $thedir/dev/
-
-# emerge -pv busybox  # verify the status of USE flag static
-
-# cp -a /bin/busybox /usr/src/initramfs/bin/busybox
-
-cp -a /bin/busybox $thedir/bin/busybox
-
-
-# cd /usr/src/initramfs
-
-cd $thedir
-
-
-cat <<EOF > $thedir/init
-#!/bin/busybox sh
-
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-
-# Do your stuff here.
-echo "This script just mounts and boots the rootfs, nothing else!"
-
-rescue_shell() {
-    echo "Something went wrong. Dropping to a shell."
-    exec sh
-}
-
-# mount -o ro /dev/sdc /mnt/root || rescue_shell
-mount -o ro /dev/sda5 /mnt/root || rescue_shell
-
-# Mount the root filesystem.
-# mount -o ro /dev/sda /mnt/root
-
-# Clean up.
-umount /proc
-umount /sys
-
-# Boot the real thing.
-exec switch_root /mnt/root /sbin/init
-
-EOF
-
-cat $thedir/init
-
-
-
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > /tmp/custom-initramfs-shell-20170417.cpio.gz
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > /tmp/initramfs.cpio.gz
-
-find .         | cpio        -ov --format=newc | gzip -9 > /tmp/initramfs.cpio.igz
-
-find . | cpio -o -H newc | gzip > /tmp/initramfs.cpio.gz
-
-
-ls -lha /tmp/*initramfs*
-
--rw-r--r-- 1 root root 1.1M Feb 15 14:28 /tmp/custom-initramfs-201702151400.cpio.gz
-
--rw-r--r--  1 root root 1.1M Apr 18 11:43 /tmp/custom-initramfs-shell-20170417.cpio.gz
-
-mkdir /root/initramfstest
-
-cp /tmp/custom-initramfs-201702151400.cpio.gz /root/initramfstest
-
-ls -l /root/initramfstest/*
-
--rw-r--r-- 1 root root 1055740 Feb 15 14:39 /root/initramfstest/custom-initramfs-201702151400.cpio.gz
-
-
-
-How to add a GRUB2 menu entry 
-
-adjust /etc/grub.d/40_custom
-
-initrd /root/initramfstest/custom-initramfs-201702151400.cpio.gz
-
-grub-mkconfig -o /boot/grub/grub.cfg
-
-less /boot/grub/grub.cfg
-
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--kernel /boot/kernel-4.8.17-20170213 \
--initrd /tmp/initramfs.cpio.gz
-
-
-
-
-
-
-*** DONE thedir
-
-|   |                            |   |
-|   | prepare the work directory |   |
-|   |                            |   |
-|   | prepare the structure      |   |
-|   |                            |   |
-|   |                            |   |
-
-thedir="/tmp/initramfs"
-
-rm -rf $thedir
-
-mkdir $thedir
-
-# mkdir -p /usr/src/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-mkdir -p $thedir/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-# cp -a /dev/{null,console,tty,sda1} /usr/src/initramfs/dev/
-
-cp -a /dev/{null,console,tty,sda} $thedir/dev/
-
-# emerge -pv busybox  # verify the status of USE flag static
-
-# cp -a /bin/busybox /usr/src/initramfs/bin/busybox
-
-cp -a /bin/busybox $thedir/bin/busybox
-
-
-# cd /usr/src/initramfs
-
-cd $thedir
-
-cat <<EOF >> $thedir/init
-#!/bin/busybox sh
-
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-
-# Do your stuff here.
-echo "This script just mounts and boots the rootfs, nothing else!"
-
-rescue_shell() {
-    echo "Something went wrong. Dropping to a shell."
-    exec sh
-}
-
-mount -o ro /dev/sda /mnt/root || rescue_shell
-
-# Mount the root filesystem.
-# mount -o ro /dev/sda /mnt/root
-
-# Clean up.
-umount /proc
-umount /sys
-
-# Boot the real thing.
-# exec switch_root /mnt/root /sbin/init
-
-EOF
-
-cat $thedir/init
-
-# chmod +x /usr/src/initramfs/init
-
-chmod +x $thedir/init
-
-# ls -lha $thedir/init
-
-# root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > /tmp/initramfs.cpio.gz
-
-qemu-system-x86_64 \
--append "console=ttyS0" -nographic \
--kernel /boot/kernel-4.8.17-20170213 \
--initrd /tmp/initramfs.cpio.gz
-
-
-
-
-
-
-
-
-
-*** original
-
-mkdir -p /usr/src/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-cp -a /dev/{null,console,tty,sda1} /usr/src/initramfs/dev/
-
-emerge -pv busybox  # verify the status of USE flag static
-
-cp -a /bin/busybox /usr/src/initramfs/bin/busybox
-
-
-cd /usr/src/initramfs
-root #find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-initramfs.cpio.gz
-
-
-*** my modification, Rescue shell, set the target directory to /tmp
-
-ls /tmp/initr*
-
-
-rm -rf /tmp/initramfs
-
-
-mkdir -p /tmp/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-cp -a /dev/{null,console,tty,sda} /tmp/initramfs/dev/
-
-cp -a /bin/busybox /tmp/initramfs/bin/busybox
-
-
-cat <<EOF >> /tmp/initramfs/init
-
-#!/bin/busybox sh
-
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-
-echo "Something went wrong. Dropping to a shell."
-exec sh
-
-EOF
-
-cat /tmp/initramfs/init
-
-chmod +x /tmp/initramfs/init
-
-verify the kernel; it is default.
-
-General setup  --->
-    [*] Initial RAM filesystem and RAM disk (initramfs/initrd) support
-
-
-cd /tmp/initramfs
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-minimalistic-20170131-initramfs.cpio.gz
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-minimalistic-20170202-initramfs.cpio.gz
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-rescueshell-20170202-initramfs.cpio.gz
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../custom-rescueshell-20170202-initramfs.cpio.gz
-
-
-
-*** my modification, set the target directory to /tmp
-
-
-ls /tmp/initr*
-
-rm -rf /tmp/initramfs
-
-
-
-mkdir -p /tmp/initramfs/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
-
-cp -a /dev/{null,console,tty,sda} /tmp/initramfs/dev/
-
-cp -a /bin/busybox /tmp/initramfs/bin/busybox
-
-
-cat <<EOF >> /tmp/initramfs/init
-
-#!/bin/busybox sh
-
-# Mount the /proc and /sys filesystems.
-mount -t proc none /proc
-mount -t sysfs none /sys
-
-# Do your stuff here.
-echo "This script just mounts and boots the rootfs, nothing else!"
-
-rescue_shell() {
-    echo "Something went wrong. Dropping to a shell."
-    exec sh
-}
-
-# Mount the root filesystem.
-mount -o ro /dev/sda /mnt/root  || rescue_shell
-
-# Clean up.
-umount /proc
-umount /sys
-
-# Boot the real thing.
-exec switch_root /mnt/root /sbin/init
-
-EOF
-
-cat /tmp/initramfs/init
-
-chmod +x /tmp/initramfs/init
-
-verify the kernel; it is default.
-
-General setup  --->
-    [*] Initial RAM filesystem and RAM disk (initramfs/initrd) support
-
-
-cd /tmp/initramfs
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-minimalistic-20170131-initramfs.cpio.gz
-
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > /boot/custom-minimalistic-20170202-initramfs.cpio.gz
-
-
-*** adjust grub
-
-/etc/grub.d/40_custom 
-
-initrd /fs4/boot/custom-minimalistic-20170131-initramfs.cpio.gz
-
-initrd /fs4/boot/custom-minimalistic-20170202-initramfs.cpio.gz
-
-
-grub-mkconfig -o /boot/grub/grub.cfg
-
-
 
