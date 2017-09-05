@@ -882,7 +882,10 @@ kill the qemu
 
 
 
-*** 46 a usb
+
+*** TODO 46 a usb
+
+**** init
 
 #
 d="/tmp/initramfs"
@@ -946,7 +949,7 @@ i="/tmp/initramfs-hellonly.cpio.gz"
 find . -print0 | cpio --null -ov --format=newc | xz --check=crc32 > $i
 
 
-
+**** qemu
 
 # working direcxtory
 w="/tmp/gentoo"
