@@ -244,7 +244,23 @@ File Systems --->
 |                                  |   |
 |                                  |   |
 
-**** init
+**** init 1/3, src block
+
+#+HEADER:  
+#+BEGIN_SRC sh
+
+d="/tmp/initramfs"
+rm -rf $d
+mkdir $d
+mkdir -p $d/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
+cp -a /dev/{null,console,tty,sda} $d/dev/
+cp -a /bin/busybox $d/bin/busybox
+
+#+END_SRC
+
+#+RESULTS:
+
+**** init 1/3, cat
 
 #
 d="/tmp/initramfs"
@@ -254,6 +270,63 @@ mkdir -p $d/{bin,dev,etc,lib,lib64,mnt/root,proc,root,sbin,sys}
 cp -a /dev/{null,console,tty,sda} $d/dev/
 cp -a /bin/busybox $d/bin/busybox
 
+
+**** init file 2/3, tangle
+
+#+HEADER:  :shebang "#!/bin/busybox sh"
+#+HEADER:  :tangle /tmp/initramfs/init
+#+BEGIN_SRC sh
+mount -t proc none /proc 
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+mkdir /tmp
+mount -o rw,nosuid,noatime,nodev,size=90%,mode=1777 -t tmpfs tmpfs /tmp
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+
+u4="e88b98da-5b71-4475-a283-a926b7e5e5f7"
+mkdir /tmp/sqfsdevice
+
+while [ ! -e $(findfs UUID=$u4) ]; do
+	sleep 1
+done
+
+mount -o ro $(findfs UUID=$u4) /tmp/sqfsdevice  || rescue_shell
+
+
+mkdir /tmp/root-ro
+f=/tmp/sqfsdevice/sqfs
+mount -o loop $f /tmp/root-ro  || rescue_shell
+
+mkdir /tmp/upper /tmp/work /tmp/root-rw
+
+mount -t overlay overlay -olowerdir=/tmp/root-ro,upperdir=/tmp/upper,workdir=/tmp/work /tmp/root-rw  || rescue_shell
+
+mkdir -p /tmp/root-rw/mnt/upper /tmp/root-rw/mnt/work /tmp/root-rw/mnt/root-rw
+
+mount --bind /tmp/upper   /tmp/root-rw/mnt/upper
+mount --bind /tmp/work    /tmp/root-rw/mnt/work
+mount --bind /tmp/root-rw /tmp/root-rw/mnt/root-rw
+
+# cat /tmp/root-rw/tmp/root-rw/etc/fstab
+# sed -i 's/tmpfs \/tmp /# tmpfs \/tmp /' /tmp/root-rw/tmp/root-rw/etc/fstab
+
+mount --move /sys  /tmp/root-rw/sys
+mount --move /proc /tmp/root-rw/proc
+mount --move /dev  /tmp/root-rw/dev
+
+# Boot the real thing.
+exec switch_root /tmp/root-rw /sbin/init  || rescue_shell
+#+END_SRC
+
+http://orgmode.org/manual/shebang.html
+
+
+**** init file 2/3, cat
 
 cat <<EOF >> $d/init
 #!/bin/busybox sh
@@ -305,9 +378,16 @@ mount --move /dev  /tmp/root-rw/dev
 exec switch_root /tmp/root-rw /sbin/init  || rescue_shell
 EOF
 
+
+**** init cpio 3/3, cat
+
 # cat $d/init
 chmod +x $d/init
 ls -lha $d/init
+
+cat $d/init
+
+
 
 cd $d
 i="/tmp/initramfs-hellonly.cpio.gz" 
@@ -346,6 +426,79 @@ mkdir /tmp/root-ro
 
 mount -o loop /$sf /tmp/root-ro  # for 
 
+
+
+
+**** init cpio 3/3, src block
+
+
+#+HEADER:  
+#+BEGIN_SRC sh
+
+cd /tmp/initramfs
+i="/tmp/initramfs-hellonly.cpio.gz" 
+find . -print0 | cpio --null -ov --format=newc | xz --check=crc32 > $i
+cd ..
+
+#+END_SRC
+
+#+RESULTS:
+
+#  ############ spare
+
+
+while [ ! -e /dev/sda5 ]; do
+	sleep 1
+done
+
+
+
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
+rescue_shell
+
+
+# mount --move /sys /newroot/sys
+# mount --move /proc /newroot/proc
+# mount --move /dev /newroot/dev
+
+mount --move /sys /mnt/root/sys
+mount --move /proc /mnt/root/proc
+mount --move /dev /mnt/root/dev
+
+https://landley.net/writing/rootfs-programming.html
+
+
+mkdir /tmp/root-ro
+
+mount -o loop /$sf /tmp/root-ro  # for 
+
+
+
+**** mount usb
+
+
+# working direcxtory
+w="/tmp/gentoo"
+
+mkdir $w
+
+
+# sde
+mount /dev/sde5 $w
+
+#  mkdir $w/boot
+
+mount /dev/sde2 $w/boot
+
+
+
+umount $w/boot
+umount $w
+lsblk
 
 
 **** qemu
