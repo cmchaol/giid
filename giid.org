@@ -1,5 +1,5 @@
 * branches
-
+  
 ** plan
 
 | branches         | tag | packages                                  | kernel    |
@@ -264,6 +264,11 @@ mount -t devtmpfs none /dev
 mkdir /tmp
 mount -o rw,nosuid,noatime,nodev,size=90%,mode=1777 -t tmpfs tmpfs /tmp
 
+rescue_shell() {
+    echo "Dropping to a shell."
+    exec sh
+}
+
 
 u4="e88b98da-5b71-4475-a283-a926b7e5e5f7"
 mkdir /tmp/sqfsdevice
@@ -272,16 +277,16 @@ while [ ! -e \$(findfs UUID=\$u4) ]; do
 	sleep 1
 done
 
-mount -o ro \$(findfs UUID=\$u4) /tmp/sqfsdevice
+mount -o ro \$(findfs UUID=\$u4) /tmp/sqfsdevice  || rescue_shell
 
 
 mkdir /tmp/root-ro
 f=/tmp/sqfsdevice/sqfs
-mount -o loop \$f /tmp/root-ro
+mount -o loop \$f /tmp/root-ro  || rescue_shell
 
 mkdir /tmp/upper /tmp/work /tmp/root-rw
 
-mount -t overlay overlay -olowerdir=/tmp/root-ro,upperdir=/tmp/upper,workdir=/tmp/work /tmp/root-rw
+mount -t overlay overlay -olowerdir=/tmp/root-ro,upperdir=/tmp/upper,workdir=/tmp/work /tmp/root-rw  || rescue_shell
 
 mkdir -p /tmp/root-rw/mnt/upper /tmp/root-rw/mnt/work /tmp/root-rw/mnt/root-rw
 
@@ -297,7 +302,7 @@ mount --move /proc /tmp/root-rw/proc
 mount --move /dev  /tmp/root-rw/dev
 
 # Boot the real thing.
-exec switch_root /tmp/root-rw /sbin/init
+exec switch_root /tmp/root-rw /sbin/init  || rescue_shell
 EOF
 
 # cat $d/init
