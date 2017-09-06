@@ -255,22 +255,23 @@ cp -a /dev/{null,console,tty,sda} $d/dev/
 cp -a /bin/busybox $d/bin/busybox
 
 
-
 cat <<EOF >> $d/init
 #!/bin/busybox sh
 
-mount -t proc none /proc
+mount -t proc none /proc 
 mount -t sysfs none /sys
 mount -t devtmpfs none /dev
 mkdir /tmp
-mount -o size=90%,noatime,nodiratime,mode=1777 -t tmpfs tmpfs /tmp
+mount -o rw,nosuid,noatime,nodev,size=90%,mode=1777 -t tmpfs tmpfs /tmp
 
-while [ ! -e /dev/sda4 ]; do
-	sleep 1
-done
 
 u4="e88b98da-5b71-4475-a283-a926b7e5e5f7"
 mkdir /tmp/sqfsdevice
+
+while [ ! -e \$(findfs UUID=\$u4) ]; do
+	sleep 1
+done
+
 mount -o ro \$(findfs UUID=\$u4) /tmp/sqfsdevice
 
 
@@ -282,14 +283,14 @@ mkdir /tmp/upper /tmp/work /tmp/root-rw
 
 mount -t overlay overlay -olowerdir=/tmp/root-ro,upperdir=/tmp/upper,workdir=/tmp/work /tmp/root-rw
 
-mkdir -p /tmp/root-rw/tmp/upper /tmp/root-rw/tmp/work /tmp/root-rw/tmp/root-rw
+mkdir -p /tmp/root-rw/mnt/upper /tmp/root-rw/mnt/work /tmp/root-rw/mnt/root-rw
 
-mount --bind /tmp/upper /tmp/root-rw/tmp/upper
-mount --bind /tmp/work /tmp/root-rw/tmp/work
-mount --bind /tmp/root-rw /tmp/root-rw/tmp/root-rw
+mount --bind /tmp/upper   /tmp/root-rw/mnt/upper
+mount --bind /tmp/work    /tmp/root-rw/mnt/work
+mount --bind /tmp/root-rw /tmp/root-rw/mnt/root-rw
 
 # cat /tmp/root-rw/tmp/root-rw/etc/fstab
-sed -i 's/tmpfs \/tmp /# tmpfs \/tmp /' /tmp/root-rw/tmp/root-rw/etc/fstab
+# sed -i 's/tmpfs \/tmp /# tmpfs \/tmp /' /tmp/root-rw/tmp/root-rw/etc/fstab
 
 mount --move /sys  /tmp/root-rw/sys
 mount --move /proc /tmp/root-rw/proc
@@ -431,6 +432,20 @@ mount -o loop /$sf /tmp/root-ro  # for
 umount /tmp/root-ro  
 
 
+
+
+
+**** tmpfs
+
+https://wiki.gentoo.org/wiki/Tmpfs
+
+# /etc/fstabtmpfs fstab example
+
+tmpfs /tmp tmpfs rw,nosuid,noatime,nodev,size=4G,mode=1777 0 0
+
+# mount -o size=90%,noatime,nodiratime,mode=1777 -t tmpfs tmpfs /tmp
+
+mount -o rw,nosuid,noatime,nodev,size=90%,mode=1777 -t tmpfs tmpfs /tmp
 
 
 
