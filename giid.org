@@ -1,5 +1,5 @@
 * branches
-  
+ 
 ** plan
 
 | branches  |               |
@@ -122,6 +122,1266 @@ File Systems --->
     [*] Network File Systems --->
         [*] CIFS support (advanced network filesystem, SMBFS successor)--->
             [*] SMB2 and SMB3 network file system support
+
+
+** xorg
+
+emerge sys-devel/llvm
+
+*** summary
+
+|     | FROM | aims                         | results            |
+|-----+------+------------------------------+--------------------|
+| v51 | v34  | llvm                         | time up            |
+| v52 |      | prepare for llvm             | missing \          |
+| v53 |      |                              | done, almost 100 m |
+| v54 | v53  | llvm                         | time up, 1188/1416 |
+| v55 |      | llvm + gobject-introspection | done in dply       |
+| v56 | v55  | xorg-driver                  | succeed            |
+| v57 | v56  | xorg-server,                 | succeed            |
+|     |      |                              |                    |
+| x11 |      |                              |                    |
+
+*** x11
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:b31
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :shebang "#!/bin/bash"
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp /usr/portage
+
+time \
+emerge-webrsync
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+time \
+emerge \
+       dev-util/re2c \
+       dev-util/ninja \
+       app-arch/libarchive \
+       dev-libs/libuv \
+       dev-util/cmake 
+
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+
+rm -rf /dev/tmp /usr/portage
+
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+# ls -lha build.sh
+
+# chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:b31
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  5b3b3c182bf7             c5766/giid:v94
+
+
+docker login
+
+
+docker push c5766/giid:v94
+
+
+
+**** errors
+
+Emerging (12 of 14) dev-go/go-md2man-1.0.3::gentoo
+
+Install go-md2man-1.0.3 into /var/tmp/portage/dev-go/go-md2man-1.0.3/image/ category dev-go
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x000000000000000
+0, 0x0000000000000000): Operation not permitted
+
+
+
+
+
+Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
+
+
+##### Building Go bootstrap tool.
+cmd/dist
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
+
+
+
+[ebuild  N     ] sys-devel/autoconf-archive-2016.03.20-r1::gentoo  600 KiB
+[ebuild  N     ] dev-libs/libaio-0.3.110::gentoo  USE="-static-libs {-test}" ABI_X86="(64) -32 (-x32)" 42 KiB
+[ebuild  N     ] dev-util/boost-build-1.62.0-r1::gentoo  USE="-examples -python {-test}" PYTHON_TARGETS="python2_7" 82533 KiB
+[ebuild  N     ] app-emulation/docker-runc-1.0.0_rc2_p20170308::gentoo  USE="hardened seccomp (-apparmor)" 549 KiB
+[ebuild  N     ] app-emulation/docker-proxy-0.8.0_p20161111::gentoo  2101 KiB
+[ebuild  N     ] sys-process/tini-0.13.2::gentoo  USE="args static" 28 KiB
+[ebuild  N     ] dev-go/sanitized-anchor-name-0_pre20151027::gentoo  2 KiB
+[ebuild  N     ] dev-libs/boost-1.62.0-r1:0/1.62.0::gentoo  USE="nls threads -context -debug -doc -icu -mpi -python -static-libs -tools" ABI_X86="(64) -32 (-x32)" PYTHON_TARGETS="python2_7 python3_4 (-python3_5)" 0 KiB
+[ebuild  N     ] app-emulation/containerd-0.2.5_p20170308::gentoo  USE="hardened seccomp" 998 KiB
+[ebuild  N     ] dev-go/blackfriday-1.2_p20150720::gentoo  67 KiB
+[ebuild  N     ] sys-block/thin-provisioning-tools-0.4.1::gentoo  USE="{-test}" 183 KiB
+[ebuild  N     ] sys-fs/lvm2-2.02.145-r2::gentoo  USE="readline thin udev (-clvm) (-cman) -corosync -device-mapper-only -lvm1 -lvm2create_initrd -openais (-selinux) -static -static-libs -systemd" 1940 KiB
+[ebuild  N     ] dev-go/go-md2man-1.0.3::gentoo  4 KiB
+[ebuild  N     ] app-emulation/docker-17.03.1::gentoo  USE="container-init device-mapper hardened seccomp (-apparmor) -aufs -btrfs -overlay -pkcs11" 7592 KiB
+
+Total: 14 packages (14 new), Size of downloads: 96631 KiB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**** results
+
+emerge-webrsync 
+
+@ docker hub
+
+real	4m45.296s
+user	1m13.504s
+sys	1m22.948s
+
+@ dply
+
+real    3m49.081s
+user    1m4.056s
+sys     1m50.052s
+
+
+
+time \
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs
+
+
+real	61m4.288s
+user	43m13.104s
+sys	11m6.260s
+
+
+ emerge -pv sys-devel/llvm
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
+[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
+[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
+[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
+[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
+[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
+
+Total: 6 packages (6 new), Size of downloads: 37067 KiB
+
+ * IMPORTANT: 10 news items need reading for repository 'gentoo'.
+ * Use eselect news read to view new items.
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
+
+
+
+
+*** v57
+
+**** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v56
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+emerge \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm 
+
+#+END_SRC
+
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+    
+**** docker path
+
+**** errors
+
+
+
+
+
+*** v56
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v55
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
+
+cat <<EOF >> /etc/portage/make.conf
+
+INPUT_DEVICES="libinput"
+
+VIDEO_CARDS="nouveau intel i915"
+
+PAX_MARKINGS="XT" 
+
+EOF
+
+
+emerge --changed-use --deep @world 
+
+
+emerge \
+       x11-base/xorg-drivers 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+ 
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v55
+
+
+
+# mkdir -p /etc/portage/package.mask/
+
+# echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
+
+# udev, video cards, X, 
+
+cat /etc/portage/make.conf
+
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+
+sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
+
+cat <<EOF >> /etc/portage/make.conf
+
+INPUT_DEVICES="libinput"
+
+VIDEO_CARDS="nouveau intel i915"
+
+PAX_MARKINGS="XT" 
+
+EOF
+
+
+emerge --changed-use --deep @world 
+
+# rc-update add udev sysinit  # rc-update: udev already installed in runlevel `sysinit'; skipping
+
+
+emerge \
+       x11-base/xorg-drivers -pv
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit 9c789f7b1b5e  c5766/giid:v55
+
+
+docker login
+
+docker push c5766/giid:v55
+
+
+
+**** errors
+
+
+
+*** v55
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v53
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge \
+       sys-devel/llvm
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 110 Aug 24 11:56 build.sh
+-rwxr-xr-x 1 c5766 c5766 110 Aug 24 11:56 build.sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+ 
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v53
+
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf 
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+emerge \
+       sys-devel/llvm \
+       dev-libs/gobject-introspection
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit 9c789f7b1b5e  c5766/giid:v55
+
+
+docker login
+
+docker push c5766/giid:v55
+
+
+
+**** errors
+
+
+*** v54
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v53
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge \
+       sys-devel/llvm
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 110 Aug 24 11:56 build.sh
+-rwxr-xr-x 1 c5766 c5766 110 Aug 24 11:56 build.sh
+
+mkdir /dev/tmp
+
+# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge \
+       sys-devel/llvm
+
+    
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v28
+
+docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
+
+
+
+cat <<EOF >  /tmp/stage4.excl
+.bash_history
+/mnt/*
+/tmp/*
+/proc/*
+/sys/*
+/dev/*
+EOF
+
+cat /tmp/stage4.excl
+
+
+f="stage4_20170821.tar.xz"
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
+
+  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
+
+real    38m54.779s
+user    37m0.468s
+sys     1m9.960s
+
+
+curl --upload-file  /tmp/$f https://transfer.sh/$f
+
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
+
+  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
+
+
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
+
+# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
+
+
+
+xz: (stdin): Cannot allocate memory
+
+
+f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
+
+# print on screen
+# wget -O - -o /dev/null $f
+
+# save as 
+# wget -O /tmp/.config $f
+
+wget -O /usr/src/linux/.config $f
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+
+time nice -10 \
+make && make modules_install
+
+# time nice -10 \
+# make -j 6 && make modules_install
+
+KERNELVER=4.7.10-hardened
+EXTENSION=20170818
+
+cp .config /boot/config-${KERNELVER}-${EXTENSION}
+cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
+cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
+cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
+
+
+
+/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
+
+qemu-system-x86_64 -m 1G -drive file=/dev/sdd
+
+
+real    18m21.849s
+user    15m53.864s
+sys     1m41.244s
+
+DEPMOD  4.7.10-hardened
+
+
+**** errors
+time up
+
+v54
+
+[1188/1416] /usr/bin/x86_64-pc-linux-gnu-g++ 
+
+
+v51
+
+Emerging (7 of 7) sys-devel/llvm-3.9.1-r1::gentoo
+
+
+[1019/1416] /usr/bin/x86_64-pc-linux-gnu-g++  -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -Ilib/CodeGen/SelectionDAG -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/SelectionDAG -Iinclude -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/include  -DNDEBUG -O2 -pipe -fPIC -fvisibility-inlines-hidden -Wall -W -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-maybe-uninitialized -Wdelete-non-virtual-dtor -Wno-comment -Werror=date-time -std=c++11 -ffunction-sections -fdata-sections -fPIC -MD -MT lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o -MF lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o.d -o lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o -c /dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/SelectionDAG/InstrEmitter.cpp
+
+Build canceled.
+
+
+
+
+
+
+
+
+
+
+
+
+
+*** v53
+
+**** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v34
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       sys-boot/grub \
+       app-misc/mc \
+       dev-vcs/git \
+       dev-util/re2c \
+       dev-util/ninja \
+       app-arch/libarchive \
+       net-misc/curl \
+       dev-libs/libuv \
+       dev-util/cmake 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+    
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v28
+
+docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
+
+
+
+cat <<EOF >  /tmp/stage4.excl
+.bash_history
+/mnt/*
+/tmp/*
+/proc/*
+/sys/*
+/dev/*
+EOF
+
+cat /tmp/stage4.excl
+
+
+f="stage4_20170821.tar.xz"
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
+
+  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
+
+real    38m54.779s
+user    37m0.468s
+sys     1m9.960s
+
+
+curl --upload-file  /tmp/$f https://transfer.sh/$f
+
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
+
+  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
+
+
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
+
+# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
+
+
+
+xz: (stdin): Cannot allocate memory
+
+
+f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
+
+# print on screen
+# wget -O - -o /dev/null $f
+
+# save as 
+# wget -O /tmp/.config $f
+
+wget -O /usr/src/linux/.config $f
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+
+time nice -10 \
+make && make modules_install
+
+# time nice -10 \
+# make -j 6 && make modules_install
+
+KERNELVER=4.7.10-hardened
+EXTENSION=20170818
+
+cp .config /boot/config-${KERNELVER}-${EXTENSION}
+cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
+cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
+cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
+
+
+
+/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
+
+qemu-system-x86_64 -m 1G -drive file=/dev/sdd
+
+
+real    18m21.849s
+user    15m53.864s
+sys     1m41.244s
+
+DEPMOD  4.7.10-hardened
+
+
+**** errors
+
+missing \
+
+
+
+*** v52
+
+**** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v34
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       sys-boot/grub \
+       app-misc/mc \
+       dev-vcs/git 
+       dev-util/re2c \
+       dev-util/ninja \
+       app-arch/libarchive \
+       net-misc/curl \
+       dev-libs/libuv \
+       dev-util/cmake 
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+    
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v28
+
+docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
+
+
+
+cat <<EOF >  /tmp/stage4.excl
+.bash_history
+/mnt/*
+/tmp/*
+/proc/*
+/sys/*
+/dev/*
+EOF
+
+cat /tmp/stage4.excl
+
+
+f="stage4_20170821.tar.xz"
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
+
+  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
+
+real    38m54.779s
+user    37m0.468s
+sys     1m9.960s
+
+
+curl --upload-file  /tmp/$f https://transfer.sh/$f
+
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
+
+  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
+
+
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
+
+# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
+
+
+
+xz: (stdin): Cannot allocate memory
+
+
+f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
+
+# print on screen
+# wget -O - -o /dev/null $f
+
+# save as 
+# wget -O /tmp/.config $f
+
+wget -O /usr/src/linux/.config $f
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+
+time nice -10 \
+make && make modules_install
+
+# time nice -10 \
+# make -j 6 && make modules_install
+
+KERNELVER=4.7.10-hardened
+EXTENSION=20170818
+
+cp .config /boot/config-${KERNELVER}-${EXTENSION}
+cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
+cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
+cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
+
+
+
+/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
+
+qemu-system-x86_64 -m 1G -drive file=/dev/sdd
+
+
+real    18m21.849s
+user    15m53.864s
+sys     1m41.244s
+
+DEPMOD  4.7.10-hardened
+
+
+**** errors
+
+
+
+*** v51
+
+**** Dockerfile
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:v34
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge \
+       sys-devel/llvm
+
+#+END_SRC
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+
+#+RESULTS:
+-rw-r--r-- 1 c5766 c5766 108 Aug 23 18:11 build.sh
+-rwxr-xr-x 1 c5766 c5766 108 Aug 23 18:11 build.sh
+
+mkdir /dev/tmp
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+emerge \
+       sys-devel/llvm
+
+    
+**** docker 
+
+
+# docker run -it c5766/giid:v26
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+# docker create -v /usr/portage --name myportage gentoo/portage
+
+
+# docker run --volumes-from myportage \
+# -v $dt:/tmp \
+# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
+
+docker run -v $d:/tmp -it  c5766/giid:v28
+
+docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
+
+
+
+cat <<EOF >  /tmp/stage4.excl
+.bash_history
+/mnt/*
+/tmp/*
+/proc/*
+/sys/*
+/dev/*
+EOF
+
+cat /tmp/stage4.excl
+
+
+f="stage4_20170821.tar.xz"
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
+
+  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
+
+real    38m54.779s
+user    37m0.468s
+sys     1m9.960s
+
+
+curl --upload-file  /tmp/$f https://transfer.sh/$f
+
+
+
+time nice -10 \
+tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
+
+  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
+
+
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
+
+curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
+
+# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
+
+
+
+xz: (stdin): Cannot allocate memory
+
+
+f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
+
+# print on screen
+# wget -O - -o /dev/null $f
+
+# save as 
+# wget -O /tmp/.config $f
+
+wget -O /usr/src/linux/.config $f
+
+
+cd /usr/src/linux
+
+make menuconfig
+
+
+time nice -10 \
+make && make modules_install
+
+# time nice -10 \
+# make -j 6 && make modules_install
+
+KERNELVER=4.7.10-hardened
+EXTENSION=20170818
+
+cp .config /boot/config-${KERNELVER}-${EXTENSION}
+cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
+cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
+cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
+
+
+
+/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
+
+qemu-system-x86_64 -m 1G -drive file=/dev/sdd
+
+
+real    18m21.849s
+user    15m53.864s
+sys     1m41.244s
+
+DEPMOD  4.7.10-hardened
+
+
+**** errors
+
+Emerging (7 of 7) sys-devel/llvm-3.9.1-r1::gentoo
+
+
+[1019/1416] /usr/bin/x86_64-pc-linux-gnu-g++  -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -Ilib/CodeGen/SelectionDAG -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/SelectionDAG -Iinclude -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/include  -DNDEBUG -O2 -pipe -fPIC -fvisibility-inlines-hidden -Wall -W -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-maybe-uninitialized -Wdelete-non-virtual-dtor -Wno-comment -Werror=date-time -std=c++11 -ffunction-sections -fdata-sections -fPIC -MD -MT lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o -MF lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o.d -o lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o -c /dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/SelectionDAG/InstrEmitter.cpp
+
+Build canceled.
 
 
 
@@ -8813,1274 +10073,6 @@ docker push c5766/giid:v55
 
 
 **** errors
-
-
-
-
-
-** xorg
-
-emerge sys-devel/llvm
-
-*** summary
-
-|     | FROM | aims                         | results            |
-|-----+------+------------------------------+--------------------|
-| v51 | v34  | llvm                         | time up            |
-| v52 |      | prepare for llvm             | missing \          |
-| v53 |      |                              | done, almost 100 m |
-| v54 | v53  | llvm                         | time up, 1188/1416 |
-| v55 |      | llvm + gobject-introspection | done in dply       |
-| v56 | v55  | xorg-driver                  | succeed            |
-| v57 | v56  | xorg-server,                 | succeed            |
-|     |      |                              |                    |
-| x11 |      |                              |                    |
-
-*** x11
-
-
-**** Dockerfile
-
-#+HEADER:  :tangle Dockerfile
-#+BEGIN_SRC sh
-
-# FROM c5766/giid:v102
-FROM gentoo/stage3-amd64-hardened
-
-ADD build.sh /
-
-RUN /build.sh 
-
-#+END_SRC
-
-
-**** build.sh
-
-#+HEADER:  :shebang "#!/bin/bash"
-#+HEADER:  :tangle build.sh
-#+BEGIN_SRC sh
-
-mkdir /dev/tmp /usr/portage
-
-time \
-emerge-webrsync
-
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-time \
-emerge \
-       sys-boot/grub \
-       net-misc/proxychains \
-       net-misc/dhcpcd \
-       net-misc/autossh \
-       net-misc/keychain \
-       app-misc/mc \
-       dev-vcs/git \
-       sys-fs/squashfs-tools \
-       net-fs/curlftpfs
-
-
-
-sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
-
-rm -rf /dev/tmp /usr/portage
-
-
-#+END_SRC
-
-#+RESULTS:
-
-#+HEADERS: :results raw
-#+BEGIN_SRC sh
-# ls -lha build.sh
-
-# chmod +x build.sh
-
-ls -lha build.sh
-
-cat build.sh
-#+END_SRC
-     
- 
-**** docker 
-
-
-d="/tmp/dockertest"
-
-mkdir $d
-
-
-docker run -v $d:/tmp -it  c5766/giid:b31
-
-
-cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
-
-sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
-
-sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
-
-cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
-
-
-
-emerge dev-lang/go -pv
-
-
-emerge dev-lang/go
-
-emerge \
-       app-emulation/docker \
-       -pv
-
-
-emerge dev-go/go-md2man -pv
-
-
-emerge dev-go/go-md2man 
-
-
-
-
-
-exit
-
-docker ps -a
-
-
-
-docker commit  5b3b3c182bf7             c5766/giid:v94
-
-
-docker login
-
-
-docker push c5766/giid:v94
-
-
-
-**** errors
-
-Emerging (12 of 14) dev-go/go-md2man-1.0.3::gentoo
-
-Install go-md2man-1.0.3 into /var/tmp/portage/dev-go/go-md2man-1.0.3/image/ category dev-go
-
- * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
- * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x000000000000000
-0, 0x0000000000000000): Operation not permitted
-
-
-
-
-
-Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
-
-
-##### Building Go bootstrap tool.
-cmd/dist
-
- * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
- * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
-
-
-
-[ebuild  N     ] sys-devel/autoconf-archive-2016.03.20-r1::gentoo  600 KiB
-[ebuild  N     ] dev-libs/libaio-0.3.110::gentoo  USE="-static-libs {-test}" ABI_X86="(64) -32 (-x32)" 42 KiB
-[ebuild  N     ] dev-util/boost-build-1.62.0-r1::gentoo  USE="-examples -python {-test}" PYTHON_TARGETS="python2_7" 82533 KiB
-[ebuild  N     ] app-emulation/docker-runc-1.0.0_rc2_p20170308::gentoo  USE="hardened seccomp (-apparmor)" 549 KiB
-[ebuild  N     ] app-emulation/docker-proxy-0.8.0_p20161111::gentoo  2101 KiB
-[ebuild  N     ] sys-process/tini-0.13.2::gentoo  USE="args static" 28 KiB
-[ebuild  N     ] dev-go/sanitized-anchor-name-0_pre20151027::gentoo  2 KiB
-[ebuild  N     ] dev-libs/boost-1.62.0-r1:0/1.62.0::gentoo  USE="nls threads -context -debug -doc -icu -mpi -python -static-libs -tools" ABI_X86="(64) -32 (-x32)" PYTHON_TARGETS="python2_7 python3_4 (-python3_5)" 0 KiB
-[ebuild  N     ] app-emulation/containerd-0.2.5_p20170308::gentoo  USE="hardened seccomp" 998 KiB
-[ebuild  N     ] dev-go/blackfriday-1.2_p20150720::gentoo  67 KiB
-[ebuild  N     ] sys-block/thin-provisioning-tools-0.4.1::gentoo  USE="{-test}" 183 KiB
-[ebuild  N     ] sys-fs/lvm2-2.02.145-r2::gentoo  USE="readline thin udev (-clvm) (-cman) -corosync -device-mapper-only -lvm1 -lvm2create_initrd -openais (-selinux) -static -static-libs -systemd" 1940 KiB
-[ebuild  N     ] dev-go/go-md2man-1.0.3::gentoo  4 KiB
-[ebuild  N     ] app-emulation/docker-17.03.1::gentoo  USE="container-init device-mapper hardened seccomp (-apparmor) -aufs -btrfs -overlay -pkcs11" 7592 KiB
-
-Total: 14 packages (14 new), Size of downloads: 96631 KiB
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-**** results
-
-emerge-webrsync 
-
-@ docker hub
-
-real	4m45.296s
-user	1m13.504s
-sys	1m22.948s
-
-@ dply
-
-real    3m49.081s
-user    1m4.056s
-sys     1m50.052s
-
-
-
-time \
-emerge \
-       sys-boot/grub \
-       net-misc/proxychains \
-       net-misc/dhcpcd \
-       net-misc/autossh \
-       net-misc/keychain \
-       app-misc/mc \
-       dev-vcs/git \
-       sys-fs/squashfs-tools \
-       net-fs/curlftpfs
-
-
-real	61m4.288s
-user	43m13.104s
-sys	11m6.260s
-
-
- emerge -pv sys-devel/llvm
-
-These are the packages that would be merged, in order:
-
-Calculating dependencies... done!
-[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
-[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
-[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
-[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
-[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
-[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
-
-Total: 6 packages (6 new), Size of downloads: 37067 KiB
-
- * IMPORTANT: 10 news items need reading for repository 'gentoo'.
- * Use eselect news read to view new items.
-
-
-
-**** git
-
-magit branch and checkout
-
-
-
-
-
-
-
-
-
-
-
-*** v57
-
-**** Dockerfile
-#+HEADER:  :tangle Dockerfile
-#+BEGIN_SRC sh
-
-FROM c5766/giid:v56
-# FROM gentoo/stage3-amd64-hardened
-
-ADD build.sh /
-
-RUN /build.sh 
-
-#+END_SRC
-
-**** build.sh
-#+HEADER:  :tangle build.sh
-#+BEGIN_SRC sh
-
-mkdir /dev/tmp
-
-emerge \
-       x11-base/xorg-server \
-       x11-apps/xrandr \
-       x11-terms/xterm \
-       x11-wm/spectrwm 
-
-#+END_SRC
-
-
-#+HEADERS: :results raw
-#+BEGIN_SRC sh
-ls -lha build.sh
-
-chmod +x build.sh
-
-ls -lha build.sh
-
-cat build.sh
-#+END_SRC
-
-    
-**** docker path
-
-**** errors
-
-
-
-
-
-*** v56
-
-**** Dockerfile
-
-#+HEADER:  :tangle Dockerfile
-#+BEGIN_SRC sh
-
-FROM c5766/giid:v55
-# FROM gentoo/stage3-amd64-hardened
-
-ADD build.sh /
-
-RUN /build.sh 
-
-#+END_SRC
-
-
-**** build.sh
-#+HEADER:  :tangle build.sh
-#+BEGIN_SRC sh
-
-mkdir /dev/tmp
-
-sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
-
-sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
-
-cat <<EOF >> /etc/portage/make.conf
-
-INPUT_DEVICES="libinput"
-
-VIDEO_CARDS="nouveau intel i915"
-
-PAX_MARKINGS="XT" 
-
-EOF
-
-
-emerge --changed-use --deep @world 
-
-
-emerge \
-       x11-base/xorg-drivers 
-
-#+END_SRC
-
-#+HEADERS: :results raw
-#+BEGIN_SRC sh
-ls -lha build.sh
-
-chmod +x build.sh
-
-ls -lha build.sh
-
-cat build.sh
-#+END_SRC
-
- 
-**** docker 
-
-
-# docker run -it c5766/giid:v26
-
-d="/tmp/dockertest"
-
-mkdir $d
-
-# docker create -v /usr/portage --name myportage gentoo/portage
-
-
-# docker run --volumes-from myportage \
-# -v $dt:/tmp \
-# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
-
-docker run -v $d:/tmp -it  c5766/giid:v55
-
-
-
-# mkdir -p /etc/portage/package.mask/
-
-# echo ">=sys-kernel/hardened-sources-4.8.17-r2:4.8.17-r2" > /etc/portage/package.mask/hardened-sources
-
-# udev, video cards, X, 
-
-cat /etc/portage/make.conf
-
-
-sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf 
-
-
-sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
-
-cat <<EOF >> /etc/portage/make.conf
-
-INPUT_DEVICES="libinput"
-
-VIDEO_CARDS="nouveau intel i915"
-
-PAX_MARKINGS="XT" 
-
-EOF
-
-
-emerge --changed-use --deep @world 
-
-# rc-update add udev sysinit  # rc-update: udev already installed in runlevel `sysinit'; skipping
-
-
-emerge \
-       x11-base/xorg-drivers -pv
-
-
-
-
-
-exit
-
-docker ps -a
-
-
-
-docker commit 9c789f7b1b5e  c5766/giid:v55
-
-
-docker login
-
-docker push c5766/giid:v55
-
-
-
-**** errors
-
-
-
-*** v55
-
-**** Dockerfile
-
-#+HEADER:  :tangle Dockerfile
-#+BEGIN_SRC sh
-
-FROM c5766/giid:v53
-# FROM gentoo/stage3-amd64-hardened
-
-ADD build.sh /
-
-RUN /build.sh 
-
-#+END_SRC
-
-
-**** build.sh
-#+HEADER:  :tangle build.sh
-#+BEGIN_SRC sh
-
-mkdir /dev/tmp
-
-# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-emerge \
-       sys-devel/llvm
-
-#+END_SRC
-
-#+HEADERS: :results raw
-#+BEGIN_SRC sh
-ls -lha build.sh
-
-chmod +x build.sh
-
-ls -lha build.sh
-
-cat build.sh
-#+END_SRC
-
-#+RESULTS:
--rw-r--r-- 1 c5766 c5766 110 Aug 24 11:56 build.sh
--rwxr-xr-x 1 c5766 c5766 110 Aug 24 11:56 build.sh
-
-mkdir /dev/tmp
-
-# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
- 
-**** docker 
-
-
-# docker run -it c5766/giid:v26
-
-d="/tmp/dockertest"
-
-mkdir $d
-
-# docker create -v /usr/portage --name myportage gentoo/portage
-
-
-# docker run --volumes-from myportage \
-# -v $dt:/tmp \
-# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
-
-docker run -v $d:/tmp -it  c5766/giid:v53
-
-
-# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-# sed -i 's/USE="/USE="udev /g' /etc/portage/make.conf 
-
-cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
-
-sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf 
-
-cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
-
-
-emerge \
-       sys-devel/llvm \
-       dev-libs/gobject-introspection
-
-
-
-exit
-
-docker ps -a
-
-
-
-docker commit 9c789f7b1b5e  c5766/giid:v55
-
-
-docker login
-
-docker push c5766/giid:v55
-
-
-
-**** errors
-
-
-*** v54
-
-**** Dockerfile
-
-#+HEADER:  :tangle Dockerfile
-#+BEGIN_SRC sh
-
-FROM c5766/giid:v53
-# FROM gentoo/stage3-amd64-hardened
-
-ADD build.sh /
-
-RUN /build.sh 
-
-#+END_SRC
-
-
-**** build.sh
-#+HEADER:  :tangle build.sh
-#+BEGIN_SRC sh
-
-mkdir /dev/tmp
-
-# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-emerge \
-       sys-devel/llvm
-
-#+END_SRC
-
-#+HEADERS: :results raw
-#+BEGIN_SRC sh
-ls -lha build.sh
-
-chmod +x build.sh
-
-ls -lha build.sh
-
-cat build.sh
-#+END_SRC
-
-#+RESULTS:
--rw-r--r-- 1 c5766 c5766 110 Aug 24 11:56 build.sh
--rwxr-xr-x 1 c5766 c5766 110 Aug 24 11:56 build.sh
-
-mkdir /dev/tmp
-
-# echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-emerge \
-       sys-devel/llvm
-
-    
-**** docker 
-
-
-# docker run -it c5766/giid:v26
-
-d="/tmp/dockertest"
-
-mkdir $d
-
-# docker create -v /usr/portage --name myportage gentoo/portage
-
-
-# docker run --volumes-from myportage \
-# -v $dt:/tmp \
-# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
-
-docker run -v $d:/tmp -it  c5766/giid:v28
-
-docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
-
-
-
-cat <<EOF >  /tmp/stage4.excl
-.bash_history
-/mnt/*
-/tmp/*
-/proc/*
-/sys/*
-/dev/*
-EOF
-
-cat /tmp/stage4.excl
-
-
-f="stage4_20170821.tar.xz"
-
-
-time nice -10 \
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
-
-  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
-
-real    38m54.779s
-user    37m0.468s
-sys     1m9.960s
-
-
-curl --upload-file  /tmp/$f https://transfer.sh/$f
-
-
-
-time nice -10 \
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
-
-  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
-
-
-
-curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
-
-curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
-
-# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
-
-
-
-xz: (stdin): Cannot allocate memory
-
-
-f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
-
-# print on screen
-# wget -O - -o /dev/null $f
-
-# save as 
-# wget -O /tmp/.config $f
-
-wget -O /usr/src/linux/.config $f
-
-
-cd /usr/src/linux
-
-make menuconfig
-
-
-time nice -10 \
-make && make modules_install
-
-# time nice -10 \
-# make -j 6 && make modules_install
-
-KERNELVER=4.7.10-hardened
-EXTENSION=20170818
-
-cp .config /boot/config-${KERNELVER}-${EXTENSION}
-cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
-cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
-cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
-
-
-
-/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
-
-qemu-system-x86_64 -m 1G -drive file=/dev/sdd
-
-
-real    18m21.849s
-user    15m53.864s
-sys     1m41.244s
-
-DEPMOD  4.7.10-hardened
-
-
-**** errors
-time up
-
-v54
-
-[1188/1416] /usr/bin/x86_64-pc-linux-gnu-g++ 
-
-
-v51
-
-Emerging (7 of 7) sys-devel/llvm-3.9.1-r1::gentoo
-
-
-[1019/1416] /usr/bin/x86_64-pc-linux-gnu-g++  -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -Ilib/CodeGen/SelectionDAG -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/SelectionDAG -Iinclude -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/include  -DNDEBUG -O2 -pipe -fPIC -fvisibility-inlines-hidden -Wall -W -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-maybe-uninitialized -Wdelete-non-virtual-dtor -Wno-comment -Werror=date-time -std=c++11 -ffunction-sections -fdata-sections -fPIC -MD -MT lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o -MF lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o.d -o lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o -c /dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/SelectionDAG/InstrEmitter.cpp
-
-Build canceled.
-
-
-
-
-
-
-
-
-
-
-
-
-
-*** v53
-
-**** Dockerfile
-#+HEADER:  :tangle Dockerfile
-#+BEGIN_SRC sh
-
-FROM c5766/giid:v34
-# FROM gentoo/stage3-amd64-hardened
-
-ADD build.sh /
-
-RUN /build.sh 
-
-#+END_SRC
-
-
-**** build.sh
-#+HEADER:  :tangle build.sh
-#+BEGIN_SRC sh
-
-mkdir /dev/tmp
-
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-emerge \
-       net-misc/proxychains \
-       net-misc/dhcpcd \
-       net-misc/autossh \
-       net-misc/keychain \
-       sys-boot/grub \
-       app-misc/mc \
-       dev-vcs/git \
-       dev-util/re2c \
-       dev-util/ninja \
-       app-arch/libarchive \
-       net-misc/curl \
-       dev-libs/libuv \
-       dev-util/cmake 
-
-#+END_SRC
-
-#+HEADERS: :results raw
-#+BEGIN_SRC sh
-ls -lha build.sh
-
-chmod +x build.sh
-
-ls -lha build.sh
-
-cat build.sh
-#+END_SRC
-
-    
-**** docker 
-
-
-# docker run -it c5766/giid:v26
-
-d="/tmp/dockertest"
-
-mkdir $d
-
-# docker create -v /usr/portage --name myportage gentoo/portage
-
-
-# docker run --volumes-from myportage \
-# -v $dt:/tmp \
-# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
-
-docker run -v $d:/tmp -it  c5766/giid:v28
-
-docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
-
-
-
-cat <<EOF >  /tmp/stage4.excl
-.bash_history
-/mnt/*
-/tmp/*
-/proc/*
-/sys/*
-/dev/*
-EOF
-
-cat /tmp/stage4.excl
-
-
-f="stage4_20170821.tar.xz"
-
-
-time nice -10 \
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
-
-  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
-
-real    38m54.779s
-user    37m0.468s
-sys     1m9.960s
-
-
-curl --upload-file  /tmp/$f https://transfer.sh/$f
-
-
-
-time nice -10 \
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
-
-  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
-
-
-
-curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
-
-curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
-
-# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
-
-
-
-xz: (stdin): Cannot allocate memory
-
-
-f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
-
-# print on screen
-# wget -O - -o /dev/null $f
-
-# save as 
-# wget -O /tmp/.config $f
-
-wget -O /usr/src/linux/.config $f
-
-
-cd /usr/src/linux
-
-make menuconfig
-
-
-time nice -10 \
-make && make modules_install
-
-# time nice -10 \
-# make -j 6 && make modules_install
-
-KERNELVER=4.7.10-hardened
-EXTENSION=20170818
-
-cp .config /boot/config-${KERNELVER}-${EXTENSION}
-cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
-cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
-cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
-
-
-
-/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
-
-qemu-system-x86_64 -m 1G -drive file=/dev/sdd
-
-
-real    18m21.849s
-user    15m53.864s
-sys     1m41.244s
-
-DEPMOD  4.7.10-hardened
-
-
-**** errors
-
-missing \
-
-
-
-*** v52
-
-**** Dockerfile
-#+HEADER:  :tangle Dockerfile
-#+BEGIN_SRC sh
-
-FROM c5766/giid:v34
-# FROM gentoo/stage3-amd64-hardened
-
-ADD build.sh /
-
-RUN /build.sh 
-
-#+END_SRC
-
-
-**** build.sh
-#+HEADER:  :tangle build.sh
-#+BEGIN_SRC sh
-
-mkdir /dev/tmp
-
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-emerge \
-       net-misc/proxychains \
-       net-misc/dhcpcd \
-       net-misc/autossh \
-       net-misc/keychain \
-       sys-boot/grub \
-       app-misc/mc \
-       dev-vcs/git 
-       dev-util/re2c \
-       dev-util/ninja \
-       app-arch/libarchive \
-       net-misc/curl \
-       dev-libs/libuv \
-       dev-util/cmake 
-
-#+END_SRC
-
-#+HEADERS: :results raw
-#+BEGIN_SRC sh
-ls -lha build.sh
-
-chmod +x build.sh
-
-ls -lha build.sh
-
-cat build.sh
-#+END_SRC
-
-    
-**** docker 
-
-
-# docker run -it c5766/giid:v26
-
-d="/tmp/dockertest"
-
-mkdir $d
-
-# docker create -v /usr/portage --name myportage gentoo/portage
-
-
-# docker run --volumes-from myportage \
-# -v $dt:/tmp \
-# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
-
-docker run -v $d:/tmp -it  c5766/giid:v28
-
-docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
-
-
-
-cat <<EOF >  /tmp/stage4.excl
-.bash_history
-/mnt/*
-/tmp/*
-/proc/*
-/sys/*
-/dev/*
-EOF
-
-cat /tmp/stage4.excl
-
-
-f="stage4_20170821.tar.xz"
-
-
-time nice -10 \
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
-
-  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
-
-real    38m54.779s
-user    37m0.468s
-sys     1m9.960s
-
-
-curl --upload-file  /tmp/$f https://transfer.sh/$f
-
-
-
-time nice -10 \
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
-
-  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
-
-
-
-curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
-
-curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
-
-# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
-
-
-
-xz: (stdin): Cannot allocate memory
-
-
-f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
-
-# print on screen
-# wget -O - -o /dev/null $f
-
-# save as 
-# wget -O /tmp/.config $f
-
-wget -O /usr/src/linux/.config $f
-
-
-cd /usr/src/linux
-
-make menuconfig
-
-
-time nice -10 \
-make && make modules_install
-
-# time nice -10 \
-# make -j 6 && make modules_install
-
-KERNELVER=4.7.10-hardened
-EXTENSION=20170818
-
-cp .config /boot/config-${KERNELVER}-${EXTENSION}
-cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
-cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
-cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
-
-
-
-/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
-
-qemu-system-x86_64 -m 1G -drive file=/dev/sdd
-
-
-real    18m21.849s
-user    15m53.864s
-sys     1m41.244s
-
-DEPMOD  4.7.10-hardened
-
-
-**** errors
-
-
-
-*** v51
-
-**** Dockerfile
-#+HEADER:  :tangle Dockerfile
-#+BEGIN_SRC sh
-
-FROM c5766/giid:v34
-# FROM gentoo/stage3-amd64-hardened
-
-ADD build.sh /
-
-RUN /build.sh 
-
-#+END_SRC
-
-
-**** build.sh
-#+HEADER:  :tangle build.sh
-#+BEGIN_SRC sh
-
-mkdir /dev/tmp
-
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-emerge \
-       sys-devel/llvm
-
-#+END_SRC
-
-#+HEADERS: :results raw
-#+BEGIN_SRC sh
-ls -lha build.sh
-
-chmod +x build.sh
-
-ls -lha build.sh
-
-cat build.sh
-#+END_SRC
-
-#+RESULTS:
--rw-r--r-- 1 c5766 c5766 108 Aug 23 18:11 build.sh
--rwxr-xr-x 1 c5766 c5766 108 Aug 23 18:11 build.sh
-
-mkdir /dev/tmp
-
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-
-emerge \
-       sys-devel/llvm
-
-    
-**** docker 
-
-
-# docker run -it c5766/giid:v26
-
-d="/tmp/dockertest"
-
-mkdir $d
-
-# docker create -v /usr/portage --name myportage gentoo/portage
-
-
-# docker run --volumes-from myportage \
-# -v $dt:/tmp \
-# --name gentoo -it gentoo/stage3-amd64-hardened /bin/bash
-
-docker run -v $d:/tmp -it  c5766/giid:v28
-
-docker run -v $d:/tmp -it  gentoo/stage3-amd64-hardened
-
-
-
-cat <<EOF >  /tmp/stage4.excl
-.bash_history
-/mnt/*
-/tmp/*
-/proc/*
-/sys/*
-/dev/*
-EOF
-
-cat /tmp/stage4.excl
-
-
-f="stage4_20170821.tar.xz"
-
-
-time nice -10 \
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/$f
-
-  100 %      593.0 MiB / 2548.2 MiB = 0.233   1.1 MiB/s      38:54             
-
-real    38m54.779s
-user    37m0.468s
-sys     1m9.960s
-
-
-curl --upload-file  /tmp/$f https://transfer.sh/$f
-
-
-
-time nice -10 \
-tar -X /tmp/stage4.excl -c / | xz -7vT0  > /tmp/stage4_20170821.tar.xz
-
-  100 %      529.7 MiB / 2401.9 MiB = 0.221   1.3 MiB/s      30:11             
-
-
-
-curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz 
-
-curl --upload-file  /tmp/stage4_20170818.tar.xz  https://transfer.sh/stage4_20170818.tar.xz --progress-bar
-
-# curl --upload-file ./hello.txt https://transfer.sh/hello.txt 
-
-
-
-xz: (stdin): Cannot allocate memory
-
-
-f="https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170727-1425"; \
-
-# print on screen
-# wget -O - -o /dev/null $f
-
-# save as 
-# wget -O /tmp/.config $f
-
-wget -O /usr/src/linux/.config $f
-
-
-cd /usr/src/linux
-
-make menuconfig
-
-
-time nice -10 \
-make && make modules_install
-
-# time nice -10 \
-# make -j 6 && make modules_install
-
-KERNELVER=4.7.10-hardened
-EXTENSION=20170818
-
-cp .config /boot/config-${KERNELVER}-${EXTENSION}
-cp System.map /boot/System.map-${KERNELVER}-${EXTENSION}
-cp arch/x86_64/boot/bzImage /boot/kernel-${KERNELVER}-${EXTENSION}
-cp -a .config ../${KERNELVER}-${EXTENSION}.config.bk
-
-
-
-/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg    # failed in tmpfs, must repeat after transplantation
-
-qemu-system-x86_64 -m 1G -drive file=/dev/sdd
-
-
-real    18m21.849s
-user    15m53.864s
-sys     1m41.244s
-
-DEPMOD  4.7.10-hardened
-
-
-**** errors
-
-Emerging (7 of 7) sys-devel/llvm-3.9.1-r1::gentoo
-
-
-[1019/1416] /usr/bin/x86_64-pc-linux-gnu-g++  -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -Ilib/CodeGen/SelectionDAG -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/SelectionDAG -Iinclude -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/include  -DNDEBUG -O2 -pipe -fPIC -fvisibility-inlines-hidden -Wall -W -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-maybe-uninitialized -Wdelete-non-virtual-dtor -Wno-comment -Werror=date-time -std=c++11 -ffunction-sections -fdata-sections -fPIC -MD -MT lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o -MF lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o.d -o lib/CodeGen/SelectionDAG/CMakeFiles/LLVMSelectionDAG.dir/InstrEmitter.cpp.o -c /dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/SelectionDAG/InstrEmitter.cpp
-
-Build canceled.
 
 
 
