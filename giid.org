@@ -149,6 +149,7 @@ emerge sys-devel/llvm
 | x14.1 |      | add time                     |                                |
 | x15   | x14  | x11-base/xorg-server         | script error                   |
 | x15.1 |      |                              |                                |
+|       |      |                              | kernel before xorg             |
 |       |      |                              |                                |
 
 
@@ -291,53 +292,42 @@ emerge-webrsync
 
 @ docker hub
 
+real	2m55.754s
+user	1m7.108s
+sys	1m16.468s
+
 real	4m45.296s
 user	1m13.504s
 sys	1m22.948s
 
-@ dply
-
-real    3m49.081s
-user    1m4.056s
-sys     1m50.052s
+Installing (33 of 33) x11-wm/spectrwm-2.7.2-r1::gentoo
 
 
+>>> Recording x11-wm/spectrwm in "world" favorites file...
 
-time \
-emerge \
-       sys-boot/grub \
-       net-misc/proxychains \
-       net-misc/dhcpcd \
-       net-misc/autossh \
-       net-misc/keychain \
-       app-misc/mc \
-       dev-vcs/git \
-       sys-fs/squashfs-tools \
-       net-fs/curlftpfs
+ * Messages for package media-fonts/liberation-fonts-2.00.1-r1:
+ * The following fontconfig configuration files have been installed:
+ * 
+ *   60-liberation.conf
+ * 
+ * Use `eselect fontconfig` to enable/disable them.
+ * Messages for package media-libs/fontconfig-2.12.4:
+ * Please make fontconfig configuration changes using `eselect
+ * fontconfig`. Any changes made to /etc/fonts/fonts.conf will be
+ * overwritten. If you need to reset your configuration to upstream
+ * defaults, delete the directory /etc/fonts/conf.d/ and re-emerge
+ * fontconfig.
+ * 
+ * (Note: Above message is only printed the first time package is
+ * installed. Please look at /usr/share/doc/fontconfig-2.12.4/README.gentoo*
+ * for future reference)
+ * Messages for package x11-wm/spectrwm-2.7.2-r1:
+ * Example keyboard config and helpful scripts can be found
+ * in /usr/share/doc/spectrwm-2.7.2-r1
 
-
-real	61m4.288s
-user	43m13.104s
-sys	11m6.260s
-
-
- emerge -pv sys-devel/llvm
-
-These are the packages that would be merged, in order:
-
-Calculating dependencies... done!
-[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
-[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
-[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
-[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
-[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
-[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
-
-Total: 6 packages (6 new), Size of downloads: 37067 KiB
-
- * IMPORTANT: 10 news items need reading for repository 'gentoo'.
- * Use eselect news read to view new items.
-
+real	28m46.634s
+user	19m51.712s
+sys	5m25.624s
 
 
 **** git
@@ -607,7 +597,7 @@ PAX_MARKINGS="XT"
 EOF
 
 time \
-emerge --changed-use --deep @world 
+emerge --changed-use --deep @world  
 
 time \
 emerge \
@@ -758,54 +748,55 @@ emerge-webrsync
 
 @ docker hub
 
+real	2m44.831s
+user	1m8.224s
+sys	1m13.060s
+
 real	4m45.296s
 user	1m13.504s
 sys	1m22.948s
 
-@ dply
-
-real    3m49.081s
-user    1m4.056s
-sys     1m50.052s
-
-
-
 time \
-emerge \
-       sys-boot/grub \
-       net-misc/proxychains \
-       net-misc/dhcpcd \
-       net-misc/autossh \
-       net-misc/keychain \
-       app-misc/mc \
-       dev-vcs/git \
-       sys-fs/squashfs-tools \
-       net-fs/curlftpfs
+emerge --changed-use --deep @world  
+
+real	5m28.707s
+user	3m45.696s
+sys	0m59.384s
 
 
-real	61m4.288s
-user	43m13.104s
-sys	11m6.260s
+Installing (72 of 72) x11-drivers/xf86-input-libinput-0.25.1::gentoo
 
+ * Messages for package x11-drivers/xf86-input-libinput-0.25.1:
+ * Unable to find kernel sources at /usr/src/linux
+ * Unable to calculate Linux Kernel version for build, attempting to use running version
+ * Unable to check for the following kernel config options due
+ * to absence of any configured kernel sources or compiled
+ * config:
+ *  - TIMERFD
+ * You're on your own to make sure they are set if needed.
+ * Messages for package media-libs/mesa-17.0.6:
+ * Note that in order to have full S3TC support, it is necessary to install
+ * media-libs/libtxc_dxtn as well. This may be necessary to get nice
+ * textures in some apps, and some others even require this to run.
+ * Messages for package x11-apps/xinit-1.3.4-r1:
+ * If you use startx to start X instead of a login manager like gdm/kdm,
+ * you can set the XSESSION variable to anything in /etc/X11/Sessions/ or
+ * any executable. When you run startx, it will run this as the login session.
+ * You can set this in a file in /etc/env.d/ for the entire system,
+ * or set it per-user in ~/.bash_profile (or similar for other shells).
+ * Here's an example of setting it for the whole system:
+ *     echo XSESSION="Gnome" > /etc/env.d/90xsession
+ *     env-update && source /etc/profile
+ * Messages for package x11-drivers/xf86-video-intel-2.99.917_p20170313:
+ * Unable to find kernel sources at /usr/src/linux
+ * Unable to calculate Linux Kernel version for build, attempting to use running version
+ * Messages for package x11-drivers/xf86-input-libinput-0.25.1:
+ * Unable to find kernel sources at /usr/src/linux
+ * Unable to calculate Linux Kernel version for build, attempting to use running version
 
- emerge -pv sys-devel/llvm
-
-These are the packages that would be merged, in order:
-
-Calculating dependencies... done!
-[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
-[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
-[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
-[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
-[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
-[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
-
-Total: 6 packages (6 new), Size of downloads: 37067 KiB
-
- * IMPORTANT: 10 news items need reading for repository 'gentoo'.
- * Use eselect news read to view new items.
-
-
+real	95m15.175s
+user	63m58.672s
+sys	17m37.792s
 
 **** git
 
@@ -957,58 +948,11 @@ docker push c5766/giid:x13
 
 **** errors
 
-Emerging (12 of 14) dev-go/go-md2man-1.0.3::gentoo
-
-Install go-md2man-1.0.3 into /var/tmp/portage/dev-go/go-md2man-1.0.3/image/ category dev-go
-
- * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
- * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x000000000000000
-0, 0x0000000000000000): Operation not permitted
-
-
-
-
-
-Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
-
-
-##### Building Go bootstrap tool.
-cmd/dist
-
- * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
- * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
-
-
-
-[ebuild  N     ] sys-devel/autoconf-archive-2016.03.20-r1::gentoo  600 KiB
-[ebuild  N     ] dev-libs/libaio-0.3.110::gentoo  USE="-static-libs {-test}" ABI_X86="(64) -32 (-x32)" 42 KiB
-[ebuild  N     ] dev-util/boost-build-1.62.0-r1::gentoo  USE="-examples -python {-test}" PYTHON_TARGETS="python2_7" 82533 KiB
-[ebuild  N     ] app-emulation/docker-runc-1.0.0_rc2_p20170308::gentoo  USE="hardened seccomp (-apparmor)" 549 KiB
-[ebuild  N     ] app-emulation/docker-proxy-0.8.0_p20161111::gentoo  2101 KiB
-[ebuild  N     ] sys-process/tini-0.13.2::gentoo  USE="args static" 28 KiB
-[ebuild  N     ] dev-go/sanitized-anchor-name-0_pre20151027::gentoo  2 KiB
-[ebuild  N     ] dev-libs/boost-1.62.0-r1:0/1.62.0::gentoo  USE="nls threads -context -debug -doc -icu -mpi -python -static-libs -tools" ABI_X86="(64) -32 (-x32)" PYTHON_TARGETS="python2_7 python3_4 (-python3_5)" 0 KiB
-[ebuild  N     ] app-emulation/containerd-0.2.5_p20170308::gentoo  USE="hardened seccomp" 998 KiB
-[ebuild  N     ] dev-go/blackfriday-1.2_p20150720::gentoo  67 KiB
-[ebuild  N     ] sys-block/thin-provisioning-tools-0.4.1::gentoo  USE="{-test}" 183 KiB
-[ebuild  N     ] sys-fs/lvm2-2.02.145-r2::gentoo  USE="readline thin udev (-clvm) (-cman) -corosync -device-mapper-only -lvm1 -lvm2create_initrd -openais (-selinux) -static -static-libs -systemd" 1940 KiB
-[ebuild  N     ] dev-go/go-md2man-1.0.3::gentoo  4 KiB
-[ebuild  N     ] app-emulation/docker-17.03.1::gentoo  USE="container-init device-mapper hardened seccomp (-apparmor) -aufs -btrfs -overlay -pkcs11" 7592 KiB
-
-Total: 14 packages (14 new), Size of downloads: 96631 KiB
-
-
-
-
-
-
-
-
-
-
-
-
-
+ * Unable to find kernel sources at /usr/src/linux
+ * Unable to calculate Linux Kernel version for build, attempting to use running version
+ * Messages for package x11-drivers/xf86-video-intel-2.99.917_p20170313:
+ * Unable to find kernel sources at /usr/src/linux
+ * Unable to calculate Linux Kernel version for build, attempting to use running version
 
 
 **** results
@@ -4900,6 +4844,8 @@ grub-mkconfig -o /boot/grub/grub.cfg
 | b32 |         |                       | minor script improvement     |
 |     |         |                       | not tagged                   |
 |     |         |                       |                              |
+| b33 | gentoo  | b31 + kernel + build  |                              |
+|     |         |                       |                              |
 
 
 
@@ -4907,6 +4853,269 @@ grub-mkconfig -o /boot/grub/grub.cfg
 |          |
 | plan     |
 |          |
+
+
+*** b33
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+# FROM c5766/giid:v102
+FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :shebang "#!/bin/bash"
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp /usr/portage
+
+emerge-webrsync
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+time \
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs
+
+
+echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-sources
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 \
+       --autounmask-write 
+
+yes | etc-update --automode -3  
+
+emerge \
+       =sys-kernel/hardened-sources-4.4.8-r1 
+
+f1=https://raw.githubusercontent.com/cmchaol/gimw/master/my-kernel-defconfig/ker448-20170904.defconfig
+
+cd /usr/src/linux
+wget -O /tmp/defconfig $f1
+make KCONFIG_ALLCONFIG=/tmp/defconfig alldefconfig
+
+time \
+make  && make modules_install
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+
+rm -rf /dev/tmp /usr/portage
+
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+# ls -lha build.sh
+
+# chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:b31
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  5b3b3c182bf7             c5766/giid:v94
+
+
+docker login
+
+
+docker push c5766/giid:v94
+
+
+
+**** errors
+
+Emerging (12 of 14) dev-go/go-md2man-1.0.3::gentoo
+
+Install go-md2man-1.0.3 into /var/tmp/portage/dev-go/go-md2man-1.0.3/image/ category dev-go
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x000000000000000
+0, 0x0000000000000000): Operation not permitted
+
+
+
+
+
+Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
+
+
+##### Building Go bootstrap tool.
+cmd/dist
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
+
+
+
+[ebuild  N     ] sys-devel/autoconf-archive-2016.03.20-r1::gentoo  600 KiB
+[ebuild  N     ] dev-libs/libaio-0.3.110::gentoo  USE="-static-libs {-test}" ABI_X86="(64) -32 (-x32)" 42 KiB
+[ebuild  N     ] dev-util/boost-build-1.62.0-r1::gentoo  USE="-examples -python {-test}" PYTHON_TARGETS="python2_7" 82533 KiB
+[ebuild  N     ] app-emulation/docker-runc-1.0.0_rc2_p20170308::gentoo  USE="hardened seccomp (-apparmor)" 549 KiB
+[ebuild  N     ] app-emulation/docker-proxy-0.8.0_p20161111::gentoo  2101 KiB
+[ebuild  N     ] sys-process/tini-0.13.2::gentoo  USE="args static" 28 KiB
+[ebuild  N     ] dev-go/sanitized-anchor-name-0_pre20151027::gentoo  2 KiB
+[ebuild  N     ] dev-libs/boost-1.62.0-r1:0/1.62.0::gentoo  USE="nls threads -context -debug -doc -icu -mpi -python -static-libs -tools" ABI_X86="(64) -32 (-x32)" PYTHON_TARGETS="python2_7 python3_4 (-python3_5)" 0 KiB
+[ebuild  N     ] app-emulation/containerd-0.2.5_p20170308::gentoo  USE="hardened seccomp" 998 KiB
+[ebuild  N     ] dev-go/blackfriday-1.2_p20150720::gentoo  67 KiB
+[ebuild  N     ] sys-block/thin-provisioning-tools-0.4.1::gentoo  USE="{-test}" 183 KiB
+[ebuild  N     ] sys-fs/lvm2-2.02.145-r2::gentoo  USE="readline thin udev (-clvm) (-cman) -corosync -device-mapper-only -lvm1 -lvm2create_initrd -openais (-selinux) -static -static-libs -systemd" 1940 KiB
+[ebuild  N     ] dev-go/go-md2man-1.0.3::gentoo  4 KiB
+[ebuild  N     ] app-emulation/docker-17.03.1::gentoo  USE="container-init device-mapper hardened seccomp (-apparmor) -aufs -btrfs -overlay -pkcs11" 7592 KiB
+
+Total: 14 packages (14 new), Size of downloads: 96631 KiB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**** results
+
+emerge-webrsync 
+
+@ docker hub
+
+real	4m45.296s
+user	1m13.504s
+sys	1m22.948s
+
+@ dply
+
+real    3m49.081s
+user    1m4.056s
+sys     1m50.052s
+
+
+
+time \
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs
+
+
+real	61m4.288s
+user	43m13.104s
+sys	11m6.260s
+
+
+ emerge -pv sys-devel/llvm
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
+[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
+[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
+[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
+[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
+[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
+
+Total: 6 packages (6 new), Size of downloads: 37067 KiB
+
+ * IMPORTANT: 10 news items need reading for repository 'gentoo'.
+ * Use eselect news read to view new items.
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
 
 
 *** b32
