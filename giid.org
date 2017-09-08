@@ -130,20 +130,277 @@ emerge sys-devel/llvm
 
 *** summary
 
-|     | FROM | aims                         | results            |
-|-----+------+------------------------------+--------------------|
-| v51 | v34  | llvm                         | time up            |
-| v52 |      | prepare for llvm             | missing \          |
-| v53 |      |                              | done, almost 100 m |
-| v54 | v53  | llvm                         | time up, 1188/1416 |
-| v55 |      | llvm + gobject-introspection | done in dply       |
-| v56 | v55  | xorg-driver                  | succeed            |
-| v57 | v56  | xorg-server,                 | succeed            |
-|     |      |                              |                    |
-|-----+------+------------------------------+--------------------|
-| x11 | b31  | prepare for llvm             |                    |
-| x12 | x11  | llvm test @ docker hub       |                    |
-| x13 |      | llvm @ dply                  |                    |
+|       | FROM | aims                         | results            |
+|-------+------+------------------------------+--------------------|
+| v51   | v34  | llvm                         | time up            |
+| v52   |      | prepare for llvm             | missing \          |
+| v53   |      |                              | done, almost 100 m |
+| v54   | v53  | llvm                         | time up, 1188/1416 |
+| v55   |      | llvm + gobject-introspection | done in dply       |
+| v56   | v55  | xorg-driver                  | succeed            |
+| v57   | v56  | xorg-server,                 | succeed            |
+|       |      |                              |                    |
+|-------+------+------------------------------+--------------------|
+| x11   | b31  | prepare for llvm             | succeeds, 31 min   |
+| x12   | b31  | llvm test @ docker hub       | time up [955/1416] |
+| x12.1 | x11  | llvm test @ docker hub       | might fail,        |
+| x13   |      | llvm @ dply                  | succeeds, 110 min  |
+| x14   | x13  | x11-base/xorg-drivers        |                    |
+| x15   | x14  | x11-base/xorg-server         |                    |
+|       |      |                              |                    |
+
+
+*** x15
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:x14
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :shebang "#!/bin/bash"
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp /usr/portage
+
+time \
+emerge-webrsync
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+
+
+time\
+emerge \
+       x11-base/xorg-server \
+       x11-apps/xrandr \
+       x11-terms/xterm \
+       x11-wm/spectrwm 
+
+
+
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+
+rm -rf /dev/tmp /usr/portage
+
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+# ls -lha build.sh
+
+# chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:x11
+
+mkdir /var/tmp/portage
+
+mount -t tmpfs -o size=1G,uid=portage,gid=portage,mode=775,noatime /var/tmp/portage
+
+# cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+emerge-webrsync
+
+mount -t tmpfs -o size=1G,uid=portage,gid=portage,mode=775,noatime /var/tmp/portage
+
+emerge sys-devel/llvm 
+
+-pv
+
+rm -rf /usr/portage /var/tmp/portage
+
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  7e7e89b1e61c            c5766/giid:x13
+
+
+docker login
+
+
+docker push c5766/giid:x13
+
+
+
+
+**** errors
+
+Emerging (12 of 14) dev-go/go-md2man-1.0.3::gentoo
+
+Install go-md2man-1.0.3 into /var/tmp/portage/dev-go/go-md2man-1.0.3/image/ category dev-go
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x000000000000000
+0, 0x0000000000000000): Operation not permitted
+
+
+
+
+
+Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
+
+
+##### Building Go bootstrap tool.
+cmd/dist
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
+
+
+
+[ebuild  N     ] sys-devel/autoconf-archive-2016.03.20-r1::gentoo  600 KiB
+[ebuild  N     ] dev-libs/libaio-0.3.110::gentoo  USE="-static-libs {-test}" ABI_X86="(64) -32 (-x32)" 42 KiB
+[ebuild  N     ] dev-util/boost-build-1.62.0-r1::gentoo  USE="-examples -python {-test}" PYTHON_TARGETS="python2_7" 82533 KiB
+[ebuild  N     ] app-emulation/docker-runc-1.0.0_rc2_p20170308::gentoo  USE="hardened seccomp (-apparmor)" 549 KiB
+[ebuild  N     ] app-emulation/docker-proxy-0.8.0_p20161111::gentoo  2101 KiB
+[ebuild  N     ] sys-process/tini-0.13.2::gentoo  USE="args static" 28 KiB
+[ebuild  N     ] dev-go/sanitized-anchor-name-0_pre20151027::gentoo  2 KiB
+[ebuild  N     ] dev-libs/boost-1.62.0-r1:0/1.62.0::gentoo  USE="nls threads -context -debug -doc -icu -mpi -python -static-libs -tools" ABI_X86="(64) -32 (-x32)" PYTHON_TARGETS="python2_7 python3_4 (-python3_5)" 0 KiB
+[ebuild  N     ] app-emulation/containerd-0.2.5_p20170308::gentoo  USE="hardened seccomp" 998 KiB
+[ebuild  N     ] dev-go/blackfriday-1.2_p20150720::gentoo  67 KiB
+[ebuild  N     ] sys-block/thin-provisioning-tools-0.4.1::gentoo  USE="{-test}" 183 KiB
+[ebuild  N     ] sys-fs/lvm2-2.02.145-r2::gentoo  USE="readline thin udev (-clvm) (-cman) -corosync -device-mapper-only -lvm1 -lvm2create_initrd -openais (-selinux) -static -static-libs -systemd" 1940 KiB
+[ebuild  N     ] dev-go/go-md2man-1.0.3::gentoo  4 KiB
+[ebuild  N     ] app-emulation/docker-17.03.1::gentoo  USE="container-init device-mapper hardened seccomp (-apparmor) -aufs -btrfs -overlay -pkcs11" 7592 KiB
+
+Total: 14 packages (14 new), Size of downloads: 96631 KiB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**** results
+
+emerge-webrsync 
+
+@ docker hub
+
+real	4m45.296s
+user	1m13.504s
+sys	1m22.948s
+
+@ dply
+
+real    3m49.081s
+user    1m4.056s
+sys     1m50.052s
+
+
+
+time \
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs
+
+
+real	61m4.288s
+user	43m13.104s
+sys	11m6.260s
+
+
+ emerge -pv sys-devel/llvm
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
+[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
+[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
+[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
+[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
+[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
+
+Total: 6 packages (6 new), Size of downloads: 37067 KiB
+
+ * IMPORTANT: 10 news items need reading for repository 'gentoo'.
+ * Use eselect news read to view new items.
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 *** x14
@@ -404,6 +661,264 @@ magit branch and checkout
 
 
 
+*** x12.1
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:b31
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :shebang "#!/bin/bash"
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp /usr/portage
+
+time \
+emerge-webrsync
+
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+
+time \
+emerge \ 
+       emerge sys-devel/llvm 
+
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+
+rm -rf /dev/tmp /usr/portage
+
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+# ls -lha build.sh
+
+# chmod +x build.sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+     
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:x11
+
+mkdir /var/tmp/portage
+
+mount -t tmpfs -o size=1G,uid=portage,gid=portage,mode=775,noatime /var/tmp/portage
+
+# cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+emerge-webrsync
+
+mount -t tmpfs -o size=1G,uid=portage,gid=portage,mode=775,noatime /var/tmp/portage
+
+emerge sys-devel/llvm 
+
+-pv
+
+rm -rf /usr/portage /var/tmp/portage
+
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  7e7e89b1e61c            c5766/giid:x13
+
+
+docker login
+
+
+docker push c5766/giid:x13
+
+
+
+
+**** errors
+
+
+
+Emerging (6 of 6) sys-devel/llvm-3.9.1-r1::gentoo
+
+[955/1416] /usr/bin/x86_64-pc-linux-gnu-g++  -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -Ilib/CodeGen -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen -Iinclude -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/include  -DNDEBUG -O2 -pipe -fPIC -fvisibility-inlines-hidden -Wall -W -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-maybe-uninitialized -Wdelete-non-virtual-dtor -Wno-comment -Werror=date-time -std=c++11 -ffunction-sections -fdata-sections -fPIC -MD -MT lib/CodeGen/CMakeFiles/LLVMCodeGen.dir/MachineVerifier.cpp.o -MF lib/CodeGen/CMakeFiles/LLVMCodeGen.dir/MachineVerifier.cpp.o.d -o lib/CodeGen/CMakeFiles/LLVMCodeGen.dir/MachineVerifier.cpp.o -c /dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/MachineVerifier.cpp
+
+Build canceled.
+
+
+
+[955/1416] 
+
+
+
+Emerging (12 of 14) dev-go/go-md2man-1.0.3::gentoo
+
+Install go-md2man-1.0.3 into /var/tmp/portage/dev-go/go-md2man-1.0.3/image/ category dev-go
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x000000000000000
+0, 0x0000000000000000): Operation not permitted
+
+
+
+
+
+Emerging (1 of 15) dev-lang/go-1.8.3::gentoo
+
+
+##### Building Go bootstrap tool.
+cmd/dist
+
+ * /var/tmp/portage/sys-apps/sandbox-2.10-r3/work/sandbox-2.10/libsandbox/trace.c:_do_ptrace():74: failure (Operation not permitted):
+ * ISE:_do_ptrace: ptrace(PTRACE_TRACEME, ..., 0x0000000000000000, 0x0000000000000000): Operation not permitted
+
+
+
+[ebuild  N     ] sys-devel/autoconf-archive-2016.03.20-r1::gentoo  600 KiB
+[ebuild  N     ] dev-libs/libaio-0.3.110::gentoo  USE="-static-libs {-test}" ABI_X86="(64) -32 (-x32)" 42 KiB
+[ebuild  N     ] dev-util/boost-build-1.62.0-r1::gentoo  USE="-examples -python {-test}" PYTHON_TARGETS="python2_7" 82533 KiB
+[ebuild  N     ] app-emulation/docker-runc-1.0.0_rc2_p20170308::gentoo  USE="hardened seccomp (-apparmor)" 549 KiB
+[ebuild  N     ] app-emulation/docker-proxy-0.8.0_p20161111::gentoo  2101 KiB
+[ebuild  N     ] sys-process/tini-0.13.2::gentoo  USE="args static" 28 KiB
+[ebuild  N     ] dev-go/sanitized-anchor-name-0_pre20151027::gentoo  2 KiB
+[ebuild  N     ] dev-libs/boost-1.62.0-r1:0/1.62.0::gentoo  USE="nls threads -context -debug -doc -icu -mpi -python -static-libs -tools" ABI_X86="(64) -32 (-x32)" PYTHON_TARGETS="python2_7 python3_4 (-python3_5)" 0 KiB
+[ebuild  N     ] app-emulation/containerd-0.2.5_p20170308::gentoo  USE="hardened seccomp" 998 KiB
+[ebuild  N     ] dev-go/blackfriday-1.2_p20150720::gentoo  67 KiB
+[ebuild  N     ] sys-block/thin-provisioning-tools-0.4.1::gentoo  USE="{-test}" 183 KiB
+[ebuild  N     ] sys-fs/lvm2-2.02.145-r2::gentoo  USE="readline thin udev (-clvm) (-cman) -corosync -device-mapper-only -lvm1 -lvm2create_initrd -openais (-selinux) -static -static-libs -systemd" 1940 KiB
+[ebuild  N     ] dev-go/go-md2man-1.0.3::gentoo  4 KiB
+[ebuild  N     ] app-emulation/docker-17.03.1::gentoo  USE="container-init device-mapper hardened seccomp (-apparmor) -aufs -btrfs -overlay -pkcs11" 7592 KiB
+
+Total: 14 packages (14 new), Size of downloads: 96631 KiB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**** results
+
+emerge-webrsync 
+
+@ docker hub
+
+real	4m45.296s
+user	1m13.504s
+sys	1m22.948s
+
+@ dply
+
+real    3m49.081s
+user    1m4.056s
+sys     1m50.052s
+
+
+
+time \
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs
+
+
+real	61m4.288s
+user	43m13.104s
+sys	11m6.260s
+
+
+ emerge -pv sys-devel/llvm
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
+[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
+[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
+[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
+[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
+[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
+
+Total: 6 packages (6 new), Size of downloads: 37067 KiB
+
+ * IMPORTANT: 10 news items need reading for repository 'gentoo'.
+ * Use eselect news read to view new items.
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
+
+
+
+
+
+
 *** x12
 
 
@@ -522,6 +1037,20 @@ docker push c5766/giid:x13
 
 
 **** errors
+
+
+
+Emerging (6 of 6) sys-devel/llvm-3.9.1-r1::gentoo
+
+[955/1416] /usr/bin/x86_64-pc-linux-gnu-g++  -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -Ilib/CodeGen -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen -Iinclude -I/dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/include  -DNDEBUG -O2 -pipe -fPIC -fvisibility-inlines-hidden -Wall -W -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-maybe-uninitialized -Wdelete-non-virtual-dtor -Wno-comment -Werror=date-time -std=c++11 -ffunction-sections -fdata-sections -fPIC -MD -MT lib/CodeGen/CMakeFiles/LLVMCodeGen.dir/MachineVerifier.cpp.o -MF lib/CodeGen/CMakeFiles/LLVMCodeGen.dir/MachineVerifier.cpp.o.d -o lib/CodeGen/CMakeFiles/LLVMCodeGen.dir/MachineVerifier.cpp.o -c /dev/tmp/portage/sys-devel/llvm-3.9.1-r1/work/llvm-3.9.1.src/lib/CodeGen/MachineVerifier.cpp
+
+Build canceled.
+
+
+
+[955/1416] 
+
+
 
 Emerging (12 of 14) dev-go/go-md2man-1.0.3::gentoo
 
@@ -822,9 +1351,15 @@ Total: 14 packages (14 new), Size of downloads: 96631 KiB
 
 **** results
 
+
+
 emerge-webrsync 
 
 @ docker hub
+
+real	3m3.129s
+user	1m9.940s
+sys	1m17.700s
 
 real	4m45.296s
 user	1m13.504s
@@ -835,6 +1370,20 @@ sys	1m22.948s
 real    3m49.081s
 user    1m4.056s
 sys     1m50.052s
+
+
+time \
+emerge \
+       dev-util/re2c \
+       dev-util/ninja \
+       app-arch/libarchive \
+       dev-libs/libuv \
+       dev-util/cmake 
+
+real	31m11.561s
+user	27m33.760s
+sys	2m45.400s
+
 
 
 
@@ -3925,7 +4474,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 |     |         | app-misc/mc           |                              |
 |     |         | dev-vcs/git           |                              |
 |     |         | sys-fs/squashfs-tools |                              |
-|     |         | net-fs/curlftpfs      | succeeds                     |
+|     |         | net-fs/curlftpfs      | succeeds, 61 minutes         |
 |     |         |                       |                              |
 | b32 |         |                       | minor script improvement     |
 |     |         |                       | not tagged                   |
