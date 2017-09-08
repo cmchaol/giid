@@ -7,9 +7,23 @@ emerge-webrsync
 
 echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 
-time \
-emerge \ 
-       emerge sys-devel/llvm 
+sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
+
+cat <<EOF >> /etc/portage/make.conf
+
+INPUT_DEVICES="libinput"
+
+VIDEO_CARDS="nouveau intel i915"
+
+PAX_MARKINGS="XT" 
+
+EOF
+
+emerge --changed-use --deep @world 
+
+emerge \
+       x11-base/xorg-drivers 
+
 
 sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
 
