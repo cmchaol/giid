@@ -1,9 +1,11 @@
 #!/bin/bash
 
 mkdir /dev/tmp /usr/portage
-emerge-webrsync
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+echo FEATURES="buildpkg" >> /etc/portage/make.conf
+
+emerge-webrsync
 
 time \
 emerge --changed-use --deep @world  
@@ -42,6 +44,6 @@ emerge \
        net-fs/curlftpfs
 
 
+sed -i '/USE=/d' /etc/portage/make.conf 
 sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
-
-rm -rf /dev/tmp /usr/portage
+sed -i '/FEATURES/d' /etc/portage/make.conf
