@@ -1,23 +1,12 @@
 #!/bin/bash
 
 mkdir /dev/tmp /usr/portage
-
 emerge-webrsync
-
 echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+sed -i 's/USE="/USE="udev xattr /' /etc/portage/make.conf 
 
 time \
-emerge \
-       sys-boot/grub \
-       net-misc/proxychains \
-       net-misc/dhcpcd \
-       net-misc/autossh \
-       net-misc/keychain \
-       app-misc/mc \
-       dev-vcs/git \
-       sys-fs/squashfs-tools \
-       net-fs/curlftpfs
-
+emerge --changed-use --deep @world  
 
 echo "sys-kernel/hardened-sources symlink" >> /etc/portage/package.use/hardened-sources
 
@@ -38,6 +27,20 @@ make KCONFIG_ALLCONFIG=/tmp/defconfig alldefconfig
 
 time \
 make  && make modules_install
+
+
+time \
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs
+
 
 sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
 
