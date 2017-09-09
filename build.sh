@@ -6,15 +6,19 @@ echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 echo FEATURES="buildpkg" >> /etc/portage/make.conf
 
 
+
+cat <<EOF >> /etc/portage/make.conf
+
+INPUT_DEVICES="libinput"
+
+VIDEO_CARDS="nouveau intel i915"
+
+PAX_MARKINGS="XT" 
+EOF
+
 time \
 emerge \
-       sys-fs/squashfs-tools \
-       net-fs/curlftpfs \
-       dev-util/re2c \
-       dev-util/ninja \
-       dev-libs/libuv \
-       app-arch/libarchive \
-       dev-util/cmake 
+       x11-base/xorg-drivers 
 
 
 # sed -i '/USE=/d' /etc/portage/make.conf 
