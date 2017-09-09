@@ -151,7 +151,7 @@ File Systems --->
 |       |      |                              | kernel before xorg             |
 |-------+------+------------------------------+--------------------------------|
 | x16   | b35  | prepare for llvm             | script error                   |
-| x17   |      |                              |                                |
+| x17   | b36  | prepare for llvm             |                                |
 |       |      |                              |                                |
 
 *** x17
@@ -162,7 +162,7 @@ File Systems --->
 #+HEADER:  :tangle Dockerfile
 #+BEGIN_SRC sh
 
-FROM c5766/giid:b35
+FROM c5766/giid:b36
 # FROM gentoo/stage3-amd64-hardened
 
 ADD build.sh /
@@ -179,7 +179,7 @@ RUN /build.sh
 #+BEGIN_SRC sh
 
 mkdir /dev/tmp 
-sed -i 's/USE="/USE="udev xattr mmx sse sse2/' /etc/portage/make.conf 
+# sed -i 's/USE="/USE="udev xattr mmx sse sse2/' /etc/portage/make.conf 
 echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 echo FEATURES="buildpkg" >> /etc/portage/make.conf
 
@@ -193,7 +193,7 @@ emerge \
        dev-util/cmake 
 
 
-sed -i '/USE=/d' /etc/portage/make.conf 
+# sed -i '/USE=/d' /etc/portage/make.conf 
 sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
 sed -i '/FEATURES/d' /etc/portage/make.conf 
 
