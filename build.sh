@@ -1,19 +1,18 @@
 #!/bin/bash
 
-mkdir /dev/tmp 
-# sed -i 's/USE="/USE="udev xattr mmx sse sse2/' /etc/portage/make.conf 
-echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
-echo FEATURES="buildpkg" >> /etc/portage/make.conf
+mkdir /dev/tmp
 
-echo "app-emulation/qemu sdl" > /etc/portage/package.use/qemu
-echo "media-libs/libsdl X" > /etc/portage/package.use/libsdl
+cat <<EOF >  /dev/tmp/stage4.excl
+.bash_history
+/mnt/*
+/tmp/*
+/proc/*
+/sys/*
+/dev/*
+EOF
 
-qemu
+f="q12_20170912.tar.xz"
 
-time \
-emerge \
-       app-emulation/qemu
+tar -X /dev/tmp/stage4.excl -c / | xz -2vT0  > /dev/tmp/$f
 
-# sed -i '/USE=/d' /etc/portage/make.conf 
-sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
-sed -i '/FEATURES/d' /etc/portage/make.conf
+wget --method PUT --body-file=/dev/tmp/$f https://transfer.sh/$f -O - -nv

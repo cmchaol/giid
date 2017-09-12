@@ -1,5 +1,5 @@
 
-FROM c5766/giid:d11
+FROM c5766/giid:q12
 # FROM gentoo/stage3-amd64-hardened
 
 ADD build.sh /
