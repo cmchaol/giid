@@ -14266,9 +14266,211 @@ magit branch and checkout
 
 *** summary
 
-| tag | parent | results |   |
-|-----+--------+---------+---|
-| q11 | d11    |         |   |
+| tag | parent | results | errors                    |
+|-----+--------+---------+---------------------------|
+| q11 | d11    |         | USE changes are necessary |
+| q2  |        |         |                           |
+
+
+*** q12
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:d11
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :shebang "#!/bin/bash"
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp 
+# sed -i 's/USE="/USE="udev xattr mmx sse sse2/' /etc/portage/make.conf 
+echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
+echo FEATURES="buildpkg" >> /etc/portage/make.conf
+
+echo "app-emulation/qemu sdl" > /etc/portage/package.use/qemu
+echo "media-libs/libsdl X" > /etc/portage/package.use/libsdl
+
+qemu
+
+time \
+emerge \
+       app-emulation/qemu
+
+# sed -i '/USE=/d' /etc/portage/make.conf 
+sed -i '/PORTAGE_TMPDIR/d' /etc/portage/make.conf 
+sed -i '/FEATURES/d' /etc/portage/make.conf 
+
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:g11
+
+echo FEATURES="buildpkg" >> /etc/portage/make.conf
+
+emerge \
+       app-emulation/docker -pv
+
+
+time \
+emerge \
+       app-emulation/docker
+
+
+
+sed -i '/FEATURES/d' /etc/portage/make.conf 
+
+
+exit
+
+docker ps -a
+
+docker commit 2e4b4dcc2bd4        c5766/giid:d11
+
+
+docker login
+
+
+docker push c5766/giid:d11
+
+
+
+
+**** errors
+
+The following USE changes are necessary to proceed:
+ (see "package.use" in the portage(5) man page for more details)
+# required by app-emulation/qemu-2.9.0-r56::gentoo[-static,sdl,-sdl2]
+# required by app-emulation/qemu (argument)
+>=media-libs/libsdl-1.2.15-r9 X
+
+Use --autounmask-write to write changes to config files (honoring
+CONFIG_PROTECT). Carefully examine the list of proposed changes,
+paying special attention to mask or keyword changes that may expose
+experimental or unstable packages.
+
+
+
+
+
+**** results
+
+
+
+emerge-webrsync 
+
+@ docker hub
+
+real	3m3.129s
+user	1m9.940s
+sys	1m17.700s
+
+real	4m45.296s
+user	1m13.504s
+sys	1m22.948s
+
+@ dply
+
+real    3m49.081s
+user    1m4.056s
+sys     1m50.052s
+
+
+time \
+emerge \
+       dev-util/re2c \
+       dev-util/ninja \
+       app-arch/libarchive \
+       dev-libs/libuv \
+       dev-util/cmake 
+
+real	31m11.561s
+user	27m33.760s
+sys	2m45.400s
+
+
+
+
+time \
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs
+
+
+real	61m4.288s
+user	43m13.104s
+sys	11m6.260s
+
+
+ emerge -pv sys-devel/llvm
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+[ebuild  N     ] dev-util/re2c-0.16::gentoo  4778 KiB
+[ebuild  N     ] dev-util/ninja-1.7.2::gentoo  USE="-doc -emacs {-test} -vim-syntax -zsh-completion" 177 KiB
+[ebuild  N     ] app-arch/libarchive-3.3.1:0/13::gentoo  USE="acl bzip2 e2fsprogs iconv lzma threads xattr zlib -expat (-libressl) -lz4 -lzo -nettle -static-libs" ABI_X86="(64) -32 (-x32)" 6075 KiB
+[ebuild  N     ] dev-libs/libuv-1.10.2:0/1::gentoo  USE="-static-libs" ABI_X86="(64) -32 (-x32)" 1050 KiB
+[ebuild  N     ] dev-util/cmake-3.7.2::gentoo  USE="ncurses -doc -emacs -qt5 -system-jsoncpp {-test}" 7190 KiB
+[ebuild  N     ] sys-devel/llvm-3.9.1-r1:0/3.9.1::gentoo  USE="libffi ncurses sanitize static-analyzer -clang -debug -default-compiler-rt -default-libcxx -doc -gold -libedit (-lldb) -multitarget -ocaml -python {-test} -xml" ABI_X86="(64) -32 (-x32)" LLVM_TARGETS="AMDGPU BPF NVPTX (X86) -AArch64 -ARM -Hexagon -MSP430 -Mips -PowerPC -Sparc -SystemZ -XCore" PYTHON_TARGETS="python2_7" 17800 KiB
+
+Total: 6 packages (6 new), Size of downloads: 37067 KiB
+
+ * IMPORTANT: 10 news items need reading for repository 'gentoo'.
+ * Use eselect news read to view new items.
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
+
+
+
 
 
 *** q11
@@ -14364,52 +14566,17 @@ docker push c5766/giid:d11
 
 **** errors
 
+The following USE changes are necessary to proceed:
+ (see "package.use" in the portage(5) man page for more details)
+# required by app-emulation/qemu-2.9.0-r56::gentoo[-static,sdl,-sdl2]
+# required by app-emulation/qemu (argument)
+>=media-libs/libsdl-1.2.15-r9 X
 
-Installing (15 of 15) app-emulation/docker-17.03.1::gentoo
- * 
- * To use Docker, the Docker daemon must be running as root. To automatically
- * start the Docker daemon at boot, add Docker to the default runlevel:
- *   rc-update add docker default
- * Similarly for systemd:
- *   systemctl enable docker.service
- * 
- * To use Docker as a non-root user, add yourself to the 'docker' group:
- *   usermod -aG docker youruser
- * 
+Use --autounmask-write to write changes to config files (honoring
+CONFIG_PROTECT). Carefully examine the list of proposed changes,
+paying special attention to mask or keyword changes that may expose
+experimental or unstable packages.
 
->>> Recording app-emulation/docker in "world" favorites file...
-
- * Messages for package sys-fs/lvm2-2.02.145-r2:
-
- * Notice that "use_lvmetad" setting is enabled with USE="udev" in
- * /etc/lvm/lvm.conf, which will require restart of udev, lvm, and lvmetad
- * if it was previously disabled.
- * Make sure the "lvm" init script is in the runlevels:
- * # rc-update add lvm boot
-
- * 
- * Make sure to enable lvmetad in /etc/lvm/lvm.conf if you want
- * to enable lvm autoactivation and metadata caching.
-
- * Messages for package app-emulation/docker-17.03.1:
-
- *   CONFIG_CFQ_GROUP_IOSCHED:   is not set when it should be.
- *   CONFIG_XFRM_ALGO: is optional for secure networks
- *   CONFIG_XFRM_USER: is optional for secure networks
- *   CONFIG_MACVLAN:     is not set when it should be.
- *   CONFIG_MEMCG_KMEM: is optional
- *   CONFIG_EXT4_FS_POSIX_ACL:   is not set when it should be.
- * Please check to make sure these options are set correctly.
- * Failure to do so may cause unexpected problems.
- * 
- * To use Docker, the Docker daemon must be running as root. To automatically
- * start the Docker daemon at boot, add Docker to the default runlevel:
- *   rc-update add docker default
- * Similarly for systemd:
- *   systemctl enable docker.service
- * 
- * To use Docker as a non-root user, add yourself to the 'docker' group:
- *   usermod -aG docker youruser
 
 
 

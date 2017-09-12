@@ -6,6 +6,9 @@ echo PORTAGE_TMPDIR=\"/dev/tmp\" >> /etc/portage/make.conf
 echo FEATURES="buildpkg" >> /etc/portage/make.conf
 
 echo "app-emulation/qemu sdl" > /etc/portage/package.use/qemu
+echo "media-libs/libsdl X" > /etc/portage/package.use/libsdl
+
+qemu
 
 time \
 emerge \
