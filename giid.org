@@ -1657,6 +1657,206 @@ docker push c5766/giid:v55
 
 ** transfer.sh
 
+*** summary
+
+| tag | parent | results   |
+|-----+--------+-----------|
+| t12 | g12    | disk full |
+| t13 |        |           |
+
+*** t13
+
+
+**** Dockerfile
+
+#+HEADER:  :tangle Dockerfile
+#+BEGIN_SRC sh
+
+FROM c5766/giid:q12
+# FROM gentoo/stage3-amd64-hardened
+
+ADD build.sh /
+
+RUN /build.sh 
+
+#+END_SRC
+
+
+**** build.sh
+
+#+HEADER:  :shebang "#!/bin/bash"
+#+HEADER:  :tangle build.sh
+#+BEGIN_SRC sh
+
+mkdir /dev/tmp
+
+cat <<EOF >  /dev/tmp/stage4.excl
+.bash_history
+/mnt/*
+/tmp/*
+/proc/*
+/sys/*
+/dev/*
+/usr/portage/*
+/usr/src/*
+EOF
+
+f="q12_20170913.tar.xz"
+
+tar -X /dev/tmp/stage4.excl -c / | xz -2vT0  > /dev/tmp/$f
+
+wget --method PUT --body-file=/dev/tmp/$f https://transfer.sh/$f -O - -nv
+
+#+END_SRC
+
+#+RESULTS:
+
+#+HEADERS: :results raw
+#+BEGIN_SRC sh
+
+ls -lha build.sh
+
+cat build.sh
+#+END_SRC
+ 
+**** docker 
+
+
+d="/tmp/dockertest"
+
+mkdir $d
+
+
+docker run -v $d:/tmp -it  c5766/giid:v97
+
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+sed -i 's/^PORTAGE_TMPDIR/# PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+sed -i 's/# PORTAGE_TMPDIR/PORTAGE_TMPDIR/g' /etc/portage/make.conf # for dply
+
+cat /etc/portage/make.conf | grep PORTAGE_TMPDIR
+
+
+
+emerge dev-lang/go -pv
+
+
+emerge dev-lang/go
+
+emerge \
+       app-emulation/docker \
+       -pv
+
+
+emerge dev-go/go-md2man -pv
+
+
+emerge dev-go/go-md2man 
+
+
+
+
+
+exit
+
+docker ps -a
+
+
+
+docker commit  5b3b3c182bf7             c5766/giid:v94
+
+
+docker login
+
+
+docker push c5766/giid:v94
+
+https://transfer.sh/jFpCz/q12_20170912.tar.xz
+
+
+
+**** errors
+
+The following mask changes are necessary to proceed:
+ (see "package.unmask" in the portage(5) man page for more details)
+# required by =sys-kernel/hardened-sources-4.4.8-r1 (argument)
+# /usr/portage/profiles/package.mask:
+# Anthony G. Basile <blueness@gentoo.org> (27 Aug 2017)
+# Upstream is no longer providing public patches
+=sys-kernel/hardened-sources-4.4.8-r1
+
+NOTE: The --autounmask-keep-masks option will prevent emerge
+      from creating package.unmask or ** keyword changes.
+
+Use --autounmask-write to write changes to config files (honoring
+CONFIG_PROTECT). Carefully examine the list of proposed changes,
+paying special attention to mask or keyword changes that may expose
+experimental or unstable packages.
+
+
+
+
+
+yes | etc-update --automode -3  # fails, not effective
+
+
+
+
+emerge \
+       sys-boot/grub \
+       net-misc/proxychains \
+       net-misc/dhcpcd \
+       net-misc/autossh \
+       net-misc/keychain \
+       app-misc/mc \
+       dev-vcs/git \
+       sys-fs/squashfs-tools \
+       sys-fs/squashfs-tools \
+       net-fs/curlftpfs -pv
+
+
+emerge \
+       net-fs/cifs-utils -pv
+
+
+emerge \
+       net-fs/cifs-utils \
+       --autounmask-write 
+
+yes | etc-update --automode -3  # fails, not effective
+
+emerge \
+       net-fs/cifs-utils \
+       --autounmask-write 
+
+
+
+
+
+
+**** results
+
+1881.2 MiB / 4338.5 MiB = 0.434, 3.0 MiB/s, 24:00
+
+xz: (stdout): Write error: No space left on device
+
+
+
+
+**** git
+
+magit branch and checkout
+
+
+
+
+
+
+
+
+
 
 
 *** t12
@@ -1831,33 +2031,9 @@ emerge \
 
 **** results
 
-https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
+1881.2 MiB / 4338.5 MiB = 0.434, 3.0 MiB/s, 24:00
 
-
-real	36m0.032s
-user	32m32.900s
-sys	2m40.408s
-
-1434.5 MiB / 4109.5 MiB = 0.349, 3.2 MiB/s, 21:25
-
-
-# dply
-
-
-cd /tmp
-
-f=https://transfer.sh/3Oob8/stage4_v103_20170829.tar.xz
-
-wget $f
-
- 1.40G  6.83MB/s   in 2m 40s 2017-08-29 09:26:45 (8.95 MB/s)
-
-# local
-
-cd /tmp
-
-
-
+xz: (stdout): Write error: No space left on device
 
 
 
