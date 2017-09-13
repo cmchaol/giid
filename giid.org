@@ -1665,6 +1665,27 @@ docker push c5766/giid:v55
 | t13 |        | 0.5G, excludce src, portage |
 | t14 |        |                             |
 
+
+
+f=https://transfer.sh/94cHF/q12_20170913-2.tar.xz
+
+cd /tmp
+
+wget $f
+
+
+
+lftp --parallel=10 $f  # fails
+
+lftp -P 10 $f  # fails
+
+
+
+lftp -c "set https:ssl-allow no; pget -n 10 $f"
+
+lftp -c "set ssl:verify-certificate no; pget -n 10 $f"
+
+
 *** t14
 
 
@@ -28104,4 +28125,47 @@ http://mjbright.blogspot.tw/2012/09/using-rsync-over-multi-hop-ssh.html#last_par
 https://www.digitalocean.com/community/tutorials/how-to-use-rsync-to-sync-local-and-remote-directories-on-a-vps#useful-options-for-rsync
 
 rsync -rnve "ssh -A -t user@home ssh -A -t user@target" :/tmp/stage4* /tmp
+
+
+
+** lftp
+
+
+f=https://transfer.sh/94cHF/q12_20170913-2.tar.xz
+
+cd /tmp
+
+wget $f
+
+
+
+lftp -c "set ssl:verify-certificate no; pget -n 10 $f"
+
+
+http://www.commandlinefu.com/commands/using/lftp
+
+lftp -u user,pwd \
+-e "set sftp:connect-program 'ssh -a -x -T -c arcfour -o Compression=no'; mirror -v -c --loop --use-pget-n=3 -P 2 /remote/dir/ /local/dir/; quit" \
+sftp://remotehost:22
+
+
+lftp \
+-e "set sftp:connect-program 'ssh -a -x -T -c arcfour -o Compression=no'; mirror -v -c --loop --use-pget-n=3 -P 2 /remote/dir/ /local/dir/; quit" \
+sftp://remotehost:22
+
+s=" ssh -J ndmc@$h1:443 root@$h2 -p 443 "
+
+echo $s
+
+
+
+lftp -c $s
+
+lftp \
+-e "set sftp:connect-program 'ssh -a -x -T -J ndmc@$h1:443'" \
+sftp://root:DUMMY@$h2:443
+
+
+
+pget -n 10 /tmp/q12_20170913-2.tar.xz
 
