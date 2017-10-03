@@ -7726,6 +7726,20 @@ cmd/dist
 
 ** google-chrome
 
+*** GLib-GIO-ERROR**: No GSettings schemas are installed on the system
+
+
+https://stackoverflow.com/questions/28953925/glib-gio-error-no-gsettings-schemas-are-installed-on-the-system
+
+
+#
+
+glib-compile-schemas /usr/share/glib-2.0/schemas/
+
+
+# fix it without closing the program.
+
+
 *** v81
 
 **** Dockerfile
